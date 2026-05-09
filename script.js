@@ -1,3 +1,22 @@
+// Define all quick chore templates
+const QUICK_CHORES = {
+    'リビング：掃除機がけ': 'btn-living-vacuum',
+    'リビング：クイックルワイパー': 'btn-living-quickle',
+    'リビング：カーペットころころ': 'btn-living-roller',
+    '寝室：掃除機がけ': 'btn-bedroom-vacuum',
+    '寝室：クイックルワイパー': 'btn-bedroom-quickle',
+    '自由な部屋：掃除機がけ': 'btn-any-vacuum',
+    '自由な部屋：クイックルワイパー': 'btn-any-quickle',
+    'キッチン：シンクの掃除': 'btn-kitchen-sink',
+    'キッチン：コンロの掃除': 'btn-kitchen-stove',
+    'キッチン：タオル交換': 'btn-kitchen-towel',
+    'お風呂：浴槽・浴室の掃除': 'btn-bath-clean',
+    'お風呂：タオル交換': 'btn-bath-towel',
+    '洗面所：洗面台の掃除': 'btn-washroom-clean',
+    '洗面所：タオル交換': 'btn-washroom-towel',
+    'トイレ：トイレ掃除': 'btn-toilet-clean',
+};
+
 // State
 let nameA = '自分';
 let nameB = '家族';
@@ -10,6 +29,7 @@ let requestedChores = new Set();
 document.addEventListener('DOMContentLoaded', function () {
     loadFromLocalStorage();
     renderAll();
+    updateQuickButtonStates();
 });
 
 // LocalStorage Functions
@@ -98,6 +118,7 @@ function markDoneA(id) {
         requestedChores.delete(id);
         saveToLocalStorage();
         renderAll();
+        updateQuickButtonStates();
     }
 }
 
@@ -109,6 +130,7 @@ function markDoneB(id) {
         requestedChores.delete(id);
         saveToLocalStorage();
         renderAll();
+        updateQuickButtonStates();
     }
 }
 
@@ -131,6 +153,7 @@ function undoDoneA(id) {
         pendingChores.push(chore);
         saveToLocalStorage();
         renderAll();
+        updateQuickButtonStates();
     }
 }
 
@@ -141,6 +164,7 @@ function undoDoneB(id) {
         pendingChores.push(chore);
         saveToLocalStorage();
         renderAll();
+        updateQuickButtonStates();
     }
 }
 
@@ -150,6 +174,7 @@ function deleteChore(id) {
     requestedChores.delete(id);
     saveToLocalStorage();
     renderAll();
+    updateQuickButtonStates();
 }
 
 // Reset Day
@@ -161,7 +186,51 @@ function resetDay() {
         requestedChores.clear();
         saveToLocalStorage();
         renderAll();
+        updateQuickButtonStates();
     }
+}
+
+// Quick Add Chore
+function addQuickChore(choreName, buttonElement) {
+    if (pendingChores.some(c => c.name === choreName)) {
+        return;
+    }
+    const id = Date.now();
+    pendingChores.push({ id, name: choreName });
+    saveToLocalStorage();
+    renderAll();
+    updateQuickButtonStates();
+}
+
+// Free Supply Add
+function addFreeSupply() {
+    const input = document.getElementById('freeSupplyInput');
+    const text = input.value.trim();
+    if (text) {
+        const choreName = `[物品補充] ${text}`;
+        const id = Date.now();
+        pendingChores.push({ id, name: choreName });
+        input.value = '';
+        saveToLocalStorage();
+        renderAll();
+        updateQuickButtonStates();
+    }
+}
+
+// Update Quick Button States
+function updateQuickButtonStates() {
+    Object.entries(QUICK_CHORES).forEach(([choreeName, buttonId]) => {
+        const btn = document.getElementById(buttonId);
+        if (btn) {
+            if (pendingChores.some(c => c.name === choreeName)) {
+                btn.classList.add('disabled');
+                btn.disabled = true;
+            } else {
+                btn.classList.remove('disabled');
+                btn.disabled = false;
+            }
+        }
+    });
 }
 
 // Render Functions
@@ -173,10 +242,14 @@ function renderPendingChores() {
     }
     container.innerHTML = pendingChores.map(chore => {
         const isRequested = requestedChores.has(chore.id);
+        const isSupply = chore.name.startsWith('[物品補充]');
+
         return `
       <div class="chore-item-pending ${isRequested ? 'requested' : ''}">
         <div class="chore-item-pending-header">
-          <span class="chore-item-pending-name">${chore.name}</span>
+          <span class="chore-item-pending-name">
+            ${isSupply ? '<span class="chore-item-pending-tag">補充</span>' : ''}${chore.name}
+          </span>
           <button class="btn-delete" onclick="deleteChore(${chore.id})">🗑️</button>
         </div>
         <div class="chore-buttons">
@@ -197,12 +270,17 @@ function renderCompletedA() {
         container.innerHTML = '<div class="empty">まだありません</div>';
         return;
     }
-    container.innerHTML = completedA.map(chore => `
-    <div class="chore-item-completed chore-item-completed-a">
-      <span class="chore-item-completed-name">${chore.name}</span>
-      <button class="btn-undo" onclick="undoDoneA(${chore.id})">やっぱりやってない</button>
-    </div>
-  `).join('');
+    container.innerHTML = completedA.map(chore => {
+        const isSupply = chore.name.startsWith('[物品補充]');
+        return `
+      <div class="chore-item-completed chore-item-completed-a">
+        <span class="chore-item-completed-name">
+          ${isSupply ? '<span class="chore-item-completed-tag">補充</span>' : ''}${chore.name}
+        </span>
+        <button class="btn-undo" onclick="undoDoneA(${chore.id})">やっぱりやってない</button>
+      </div>
+    `;
+    }).join('');
 }
 
 function renderCompletedB() {
@@ -211,12 +289,17 @@ function renderCompletedB() {
         container.innerHTML = '<div class="empty">まだありません</div>';
         return;
     }
-    container.innerHTML = completedB.map(chore => `
-    <div class="chore-item-completed chore-item-completed-b">
-      <span class="chore-item-completed-name">${chore.name}</span>
-      <button class="btn-undo" onclick="undoDoneB(${chore.id})">やっぱりやってない</button>
-    </div>
-  `).join('');
+    container.innerHTML = completedB.map(chore => {
+        const isSupply = chore.name.startsWith('[物品補充]');
+        return `
+      <div class="chore-item-completed chore-item-completed-b">
+        <span class="chore-item-completed-name">
+          ${isSupply ? '<span class="chore-item-completed-tag">補充</span>' : ''}${chore.name}
+        </span>
+        <button class="btn-undo" onclick="undoDoneB(${chore.id})">やっぱりやってない</button>
+      </div>
+    `;
+    }).join('');
 }
 
 function renderAll() {

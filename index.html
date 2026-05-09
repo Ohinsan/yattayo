@@ -42,6 +42,103 @@
                 </div>
             </div>
 
+            <!-- Chore Addition Area -->
+            <div class="chore-addition-card">
+                <!-- Quick Add Buttons -->
+                <div class="quick-add-section">
+                    <h3 class="section-title">📌 定番家事をワンタップで追加</h3>
+
+                    <!-- Living Room -->
+                    <div class="quick-add-group">
+                        <div class="group-label">リビング</div>
+                        <div class="quick-add-buttons">
+                            <button class="quick-add-btn" id="btn-living-vacuum"
+                                onclick="addQuickChore('リビング：掃除機がけ', this)">掃除機がけ</button>
+                            <button class="quick-add-btn" id="btn-living-quickle"
+                                onclick="addQuickChore('リビング：クイックルワイパー', this)">クイックルワイパー</button>
+                            <button class="quick-add-btn" id="btn-living-roller"
+                                onclick="addQuickChore('リビング：カーペットころころ', this)">カーペットころころ</button>
+                        </div>
+                    </div>
+
+                    <!-- Bedroom -->
+                    <div class="quick-add-group">
+                        <div class="group-label">寝室</div>
+                        <div class="quick-add-buttons">
+                            <button class="quick-add-btn" id="btn-bedroom-vacuum"
+                                onclick="addQuickChore('寝室：掃除機がけ', this)">掃除機がけ</button>
+                            <button class="quick-add-btn" id="btn-bedroom-quickle"
+                                onclick="addQuickChore('寝室：クイックルワイパー', this)">クイックルワイパー</button>
+                        </div>
+                    </div>
+
+                    <!-- Any Room -->
+                    <div class="quick-add-group">
+                        <div class="group-label">自由な部屋</div>
+                        <div class="quick-add-buttons">
+                            <button class="quick-add-btn" id="btn-any-vacuum"
+                                onclick="addQuickChore('自由な部屋：掃除機がけ', this)">掃除機がけ</button>
+                            <button class="quick-add-btn" id="btn-any-quickle"
+                                onclick="addQuickChore('自由な部屋：クイックルワイパー', this)">クイックルワイパー</button>
+                        </div>
+                    </div>
+
+                    <!-- Kitchen -->
+                    <div class="quick-add-group">
+                        <div class="group-label">キッチン</div>
+                        <div class="quick-add-buttons">
+                            <button class="quick-add-btn" id="btn-kitchen-sink"
+                                onclick="addQuickChore('キッチン：シンクの掃除', this)">シンクの掃除</button>
+                            <button class="quick-add-btn" id="btn-kitchen-stove"
+                                onclick="addQuickChore('キッチン：コンロの掃除', this)">コンロの掃除</button>
+                            <button class="quick-add-btn" id="btn-kitchen-towel"
+                                onclick="addQuickChore('キッチン：タオル交換', this)">タオル交換</button>
+                        </div>
+                    </div>
+
+                    <!-- Bathroom -->
+                    <div class="quick-add-group">
+                        <div class="group-label">お風呂</div>
+                        <div class="quick-add-buttons">
+                            <button class="quick-add-btn" id="btn-bath-clean"
+                                onclick="addQuickChore('お風呂：浴槽・浴室の掃除', this)">浴槽・浴室の掃除</button>
+                            <button class="quick-add-btn" id="btn-bath-towel"
+                                onclick="addQuickChore('お風呂：タオル交換', this)">タオル交換</button>
+                        </div>
+                    </div>
+
+                    <!-- Washroom -->
+                    <div class="quick-add-group">
+                        <div class="group-label">洗面所</div>
+                        <div class="quick-add-buttons">
+                            <button class="quick-add-btn" id="btn-washroom-clean"
+                                onclick="addQuickChore('洗面所：洗面台の掃除', this)">洗面台の掃除</button>
+                            <button class="quick-add-btn" id="btn-washroom-towel"
+                                onclick="addQuickChore('洗面所：タオル交換', this)">タオル交換</button>
+                        </div>
+                    </div>
+
+                    <!-- Toilet -->
+                    <div class="quick-add-group">
+                        <div class="group-label">トイレ</div>
+                        <div class="quick-add-buttons">
+                            <button class="quick-add-btn" id="btn-toilet-clean"
+                                onclick="addQuickChore('トイレ：トイレ掃除', this)">トイレ掃除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Free Input Section -->
+                <div class="free-input-section">
+                    <h3 class="section-title">✏️ 物品補充（自由記述）</h3>
+                    <div class="free-input-group">
+                        <input type="text" id="freeSupplyInput" placeholder="例）トイレットペーパー、ティッシュペーパー..."
+                            onkeypress="if(event.key==='Enter') addFreeSupply()">
+                        <button class="btn btn-add-supply" onclick="addFreeSupply()">➕ 追加</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Pending Chores -->
             <div class="card pending-card">
                 <h2 class="card-title">📋 未完了の家事</h2>
