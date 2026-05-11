@@ -39,102 +39,6 @@ body {
     font-size: 14px;
 }
 
-/* Name Settings Card */
-.name-settings-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    border-left: 4px solid #fbbf24;
-}
-
-.name-display {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.name-badges {
-    display: flex;
-    gap: 1rem;
-}
-
-.badge {
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    color: #374151;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.badge-a {
-    background: #dbeafe;
-}
-
-.badge-b {
-    background: #fbcfe8;
-}
-
-.btn-edit-name {
-    padding: 0.5rem 1rem;
-    background: #d1d5db;
-    color: #374151;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    transition: background 0.2s;
-}
-
-.btn-edit-name:hover {
-    background: #b4b8c1;
-}
-
-.name-edit {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.name-edit.hidden {
-    display: none;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.25rem;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: border-color 0.2s;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: #3b82f6;
-}
-
-.button-group {
-    display: flex;
-    gap: 0.75rem;
-}
-
 /* Cards */
 .card {
     background: white;
@@ -144,16 +48,8 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.pending-card {
-    border-top: 4px solid #fb923c;
-}
-
-.completed-card-a {
-    border-top: 4px solid #3b82f6;
-}
-
-.completed-card-b {
-    border-top: 4px solid #ec4899;
+.completed-card {
+    border-top: 4px solid #10b981;
 }
 
 .card-title {
@@ -171,7 +67,7 @@ body {
     min-height: 50px;
 }
 
-.chores-list.empty {
+.chores-list .empty {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -181,77 +77,6 @@ body {
     text-align: center;
 }
 
-/* Pending Chore Item */
-.chore-item-pending {
-    padding: 1rem;
-    border-radius: 8px;
-    background: #f3f4f6;
-    border: 2px solid transparent;
-    transition: all 0.2s;
-}
-
-.chore-item-pending.requested {
-    background: #fef08a;
-    border: 2px solid #fcd34d;
-}
-
-.chore-item-pending-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-}
-
-.chore-item-pending-name {
-    font-weight: 600;
-    color: #374151;
-    flex: 1;
-    font-size: 15px;
-}
-
-.btn-delete {
-    padding: 0.5rem;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: #ef4444;
-    font-size: 16px;
-    transition: opacity 0.2s;
-}
-
-.btn-delete:hover {
-    opacity: 0.7;
-}
-
-.chore-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.btn-request {
-    width: 100%;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 13px;
-    transition: background 0.2s;
-}
-
-.btn-request.inactive {
-    background: #9ca3af;
-    color: white;
-}
-
-.btn-request.active {
-    background: #fbbf24;
-    color: #374151;
-}
-
 /* Completed Chore Item */
 .chore-item-completed {
     padding: 1rem;
@@ -259,22 +84,25 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-left: 4px solid;
+    border-left: 4px solid #10b981;
+    background: #ecfdf5;
 }
 
-.chore-item-completed-a {
-    background: #eff6ff;
-    border-left-color: #3b82f6;
-}
-
-.chore-item-completed-b {
-    background: #fdf2f8;
-    border-left-color: #ec4899;
+.chore-item-completed-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
 }
 
 .chore-item-completed-name {
     font-weight: 500;
     color: #374151;
+}
+
+.chore-item-completed-time {
+    font-size: 12px;
+    color: #6b7280;
 }
 
 .btn-undo {
@@ -293,40 +121,6 @@ body {
     background: #b4b8c1;
 }
 
-/* Add Chore Section */
-.add-chore-section {
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
-    border-top: 2px solid #e5e7eb;
-}
-
-.add-chore-section label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.5rem;
-}
-
-.add-chore-input-group {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.add-chore-input-group input {
-    flex: 1;
-    padding: 0.75rem;
-    border: 2px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: border-color 0.2s;
-}
-
-.add-chore-input-group input:focus {
-    outline: none;
-    border-color: #f97316;
-}
-
 /* Buttons */
 .btn {
     border: none;
@@ -335,67 +129,6 @@ body {
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s;
-}
-
-.btn-save {
-    flex: 1;
-    padding: 0.5rem 1rem;
-    background: #10b981;
-    color: white;
-}
-
-.btn-save:hover {
-    background: #059669;
-}
-
-.btn-cancel {
-    flex: 1;
-    padding: 0.5rem 1rem;
-    background: #d1d5db;
-    color: #374151;
-}
-
-.btn-cancel:hover {
-    background: #b4b8c1;
-}
-
-.btn-add {
-    padding: 0.75rem 1rem;
-    background: #f97316;
-    color: white;
-    white-space: nowrap;
-}
-
-.btn-add:hover {
-    background: #ea580c;
-}
-
-.btn-done {
-    padding: 0.75rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 13px;
-    color: white;
-    transition: all 0.2s;
-    flex: 1;
-}
-
-.btn-done-a {
-    background: #3b82f6;
-}
-
-.btn-done-a:hover {
-    background: #2563eb;
-}
-
-.btn-done-b {
-    background: #ec4899;
-}
-
-.btn-done-b:hover {
-    background: #db2777;
 }
 
 .btn-reset {
@@ -426,51 +159,6 @@ body {
 
 .footer p {
     margin: 0;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-    .name-display {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .name-badges {
-        flex-direction: column;
-    }
-
-    .btn-edit-name {
-        width: 100%;
-    }
-
-    .chore-buttons {
-        grid-template-columns: 1fr;
-    }
-
-    .btn-request {
-        width: 100%;
-    }
-
-    .add-chore-input-group {
-        flex-direction: column;
-    }
-
-    .add-chore-input-group input {
-        width: 100%;
-    }
-
-    .btn-add {
-        width: 100%;
-    }
-
-    .button-group {
-        flex-direction: column;
-    }
-
-    .btn-save,
-    .btn-cancel {
-        width: 100%;
-    }
 }
 
 /* Chore Addition Card */
@@ -513,42 +201,50 @@ body {
     padding-left: 0.25rem;
 }
 
+/* スマホで横幅いっぱいに2つずつ並ぶサイズ感 */
 .quick-add-buttons {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
 }
 
 .quick-add-btn {
-    padding: 0.5rem 0.75rem;
+    padding: 0.85rem 0.75rem;
     background: #f0f4f8;
     color: #374151;
     border: 1.5px solid #cbd5e1;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
     transition: all 0.2s;
-    white-space: nowrap;
+    width: 100%;
+    text-align: center;
 }
 
-.quick-add-btn:hover:not(.disabled) {
+.quick-add-btn:hover:not(.done) {
     background: #8b5cf6;
     color: white;
     border-color: #8b5cf6;
     transform: translateY(-2px);
 }
 
-.quick-add-btn.disabled {
+/* 完了状態（つぶした見た目） */
+.quick-add-btn.done {
     background: #e5e7eb;
     color: #9ca3af;
     border-color: #d1d5db;
-    cursor: not-allowed;
-    opacity: 0.6;
+    text-decoration: line-through;
+    cursor: pointer;
+    opacity: 0.7;
+    transform: none;
 }
 
-.quick-add-btn.disabled::after {
-    content: ' ✓';
+.quick-add-btn.done:hover {
+    background: #e5e7eb;
+    color: #9ca3af;
+    border-color: #d1d5db;
+    transform: none;
 }
 
 .free-input-section {
@@ -592,7 +288,7 @@ body {
     background: #7c3aed;
 }
 
-.chore-item-pending-tag {
+.chore-item-completed-tag {
     display: inline-block;
     padding: 0.25rem 0.5rem;
     background: #e9d5ff;
@@ -603,26 +299,8 @@ body {
     margin-right: 0.5rem;
 }
 
-.chore-item-completed-tag {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    background: #e9d5ff;
-    color: #7c3aed;
-    font-size: 11px;
-    font-weight: 600;
-    border-radius: 4px;
-    margin-left: 0.5rem;
-}
-
+/* Responsive */
 @media (max-width: 600px) {
-    .quick-add-buttons {
-        flex-direction: column;
-    }
-
-    .quick-add-btn {
-        width: 100%;
-    }
-
     .free-input-group {
         flex-direction: column;
     }
@@ -634,4 +312,4 @@ body {
     .btn-add-supply {
         width: 100%;
     }
-}
+}
