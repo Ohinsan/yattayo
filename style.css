@@ -299,6 +299,28 @@ body {
     margin-right: 0.5rem;
 }
 
+.tag-other {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.btn-add-other {
+    padding: 0.75rem 1rem;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-add-other:hover {
+    background: #059669;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .free-input-group {

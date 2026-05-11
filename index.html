@@ -101,6 +101,15 @@
                                 onclick="addQuickChore('トイレ：トイレ掃除', this)">トイレ掃除</button>
                         </div>
                     </div>
+
+                    <!-- Garbage -->
+                    <div class="quick-add-group">
+                        <div class="group-label">ごみ捨て</div>
+                        <div class="quick-add-buttons">
+                            <button class="quick-add-btn" id="btn-garbage"
+                                onclick="addQuickChore('ごみ捨て', this)">ごみ捨て</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Free Input Section -->
@@ -110,6 +119,16 @@
                         <input type="text" id="freeSupplyInput" placeholder="例）トイレットペーパー、ティッシュペーパー..."
                             onkeypress="if(event.key==='Enter') addFreeSupply()">
                         <button class="btn btn-add-supply" onclick="addFreeSupply()">➕ 追加</button>
+                    </div>
+                </div>
+
+                <!-- Other Free Input Section -->
+                <div class="free-input-section">
+                    <h3 class="section-title">📝 その他（自由記述）</h3>
+                    <div class="free-input-group">
+                        <input type="text" id="otherChoreInput" placeholder="例）布団干し、窓拭き、アイロンがけ..."
+                            onkeypress="if(event.key==='Enter') addOtherChore()">
+                        <button class="btn btn-add-other" onclick="addOtherChore()">➕ 追加</button>
                     </div>
                 </div>
             </div>
