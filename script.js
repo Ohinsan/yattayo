@@ -1,21 +1,38 @@
-// Define all quick chore templates
-const QUICK_CHORES = {
-    'リビング：掃除機がけ': 'btn-living-vacuum',
-    'リビング：クイックルワイパー': 'btn-living-quickle',
-    'リビング：カーペットころころ': 'btn-living-roller',
-    '寝室：掃除機がけ': 'btn-bedroom-vacuum',
-    '寝室：クイックルワイパー': 'btn-bedroom-quickle',
-    '自由な部屋：掃除機がけ': 'btn-any-vacuum',
-    '自由な部屋：クイックルワイパー': 'btn-any-quickle',
-    'キッチン：シンクの掃除': 'btn-kitchen-sink',
-    'キッチン：コンロの掃除': 'btn-kitchen-stove',
-    'キッチン：タオル交換': 'btn-kitchen-towel',
-    'お風呂：浴槽・浴室の掃除': 'btn-bath-clean',
-    'お風呂:タオル交換': 'btn-bath-towel',
-    '洗面所：洗面台の掃除': 'btn-washroom-clean',
-    '洗面所：タオル交換': 'btn-washroom-towel',
-    'トイレ：トイレ掃除': 'btn-toilet-clean',
-    'ごみ捨て': 'btn-garbage',
+/**
+ * Household Chores App V2 - Script
+ */
+
+// 1. Template Definitions
+const LAYOUT_TEMPLATES = {
+    '1LDK': [
+        { group: 'リビング', chores: ['掃除機がけ', '拭き掃除', 'カーペットころころ'] },
+        { group: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', 'タオル交換'] },
+        { group: 'お風呂', chores: ['浴槽・浴室の掃除', 'タオル交換'] },
+        { group: 'トイレ', chores: ['トイレ掃除'] },
+        { group: 'ごみ捨て', chores: ['ごみ捨て'] }
+    ],
+    '2LDK': [
+        { group: 'リビング', chores: ['掃除機がけ', '拭き掃除', 'カーペットころころ'] },
+        { group: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', 'タオル交換'] },
+        { group: 'お風呂', chores: ['浴槽・浴室の掃除', 'タオル交換'] },
+        { group: 'トイレ', chores: ['トイレ掃除'] },
+        { group: '寝室', chores: ['掃除機がけ', '拭き掃除'] },
+        { group: '自由な部屋', chores: ['掃除機がけ', '拭き掃除'] },
+        { group: '洗面所', chores: ['洗面台の掃除', 'タオル交換'] },
+        { group: 'ごみ捨て', chores: ['ごみ捨て'] }
+    ],
+    '3LDK+': [
+        { group: 'リビング', chores: ['掃除機がけ', '拭き掃除', 'カーペットころころ'] },
+        { group: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', 'タオル交換'] },
+        { group: 'お風呂', chores: ['浴槽・浴室の掃除', 'タオル交換'] },
+        { group: 'トイレ', chores: ['トイレ掃除'] },
+        { group: '寝室', chores: ['掃除機がけ', '拭き掃除'] },
+        { group: '自由な部屋', chores: ['掃除機がけ', '拭き掃除'] },
+        { group: '洗面所', chores: ['洗面台の掃除', 'タオル交換'] },
+        { group: '追加の部屋1', chores: ['掃除機がけ', '拭き掃除'] },
+        { group: '追加の部屋2', chores: ['掃除機がけ', '拭き掃除'] },
+        { group: 'ごみ捨て', chores: ['ごみ捨て'] }
+    ]
 };
 
 // 完了ボタンの一時的な「つぶし」状態を解除するまでの時間（ミリ秒）
@@ -23,58 +40,89 @@ const BUTTON_RESET_MS = 4000;
 
 // State
 let completedList = [];
+let currentLayout = null;
 
-// Initialize
+// --- Initialize ---
 document.addEventListener('DOMContentLoaded', function () {
     loadFromLocalStorage();
-    renderCompleted();
+    initApp();
 });
 
-// LocalStorage Functions
+function initApp() {
+    const setupScreen = document.getElementById('setup-screen');
+    const mainScreen = document.getElementById('main-screen');
+
+    if (!currentLayout) {
+        setupScreen.classList.remove('hidden');
+        mainScreen.classList.add('hidden');
+    } else {
+        setupScreen.classList.add('hidden');
+        mainScreen.classList.remove('hidden');
+        renderQuickAddButtons();
+        renderCompleted();
+        document.getElementById('current-layout-display').textContent = `現在の間取り: ${currentLayout}`;
+    }
+}
+
+// --- Layout Selection ---
+function selectTemplate(layout) {
+    currentLayout = layout;
+    saveToLocalStorage();
+    initApp();
+}
+
+function changeLayoutSettings() {
+    if (window.confirm('部屋の設定を変更しますか？\n今日の「やったことリスト」はすべてリセットされます。')) {
+        completedList = [];
+        currentLayout = null;
+        saveToLocalStorage();
+        initApp();
+    }
+}
+
+// --- Dynamic Rendering ---
+function renderQuickAddButtons() {
+    const container = document.getElementById('quick-add-container');
+    const template = LAYOUT_TEMPLATES[currentLayout];
+    
+    if (!template) return;
+
+    container.innerHTML = template.map(section => `
+        <div class="quick-add-section">
+            <span class="group-label">${section.group}</span>
+            <div class="quick-add-buttons">
+                ${section.chores.map(chore => {
+                    const fullName = section.group === 'ごみ捨て' ? chore : `${section.group}：${chore}`;
+                    return `<button class="quick-add-btn" onclick="addQuickChore('${fullName}', this)">${chore}</button>`;
+                }).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+// --- LocalStorage Functions ---
 function saveToLocalStorage() {
-    const data = { completedList };
-    localStorage.setItem('yattayoState', JSON.stringify(data));
+    const data = { completedList, currentLayout };
+    localStorage.setItem('yattayoStateV2', JSON.stringify(data));
 }
 
 function loadFromLocalStorage() {
-    const saved = localStorage.getItem('yattayoState');
+    // Migration from V1 if exists
+    const oldSaved = localStorage.getItem('yattayoState');
+    const saved = localStorage.getItem('yattayoStateV2');
+    
     if (saved) {
         const data = JSON.parse(saved);
+        completedList = data.completedList || [];
+        currentLayout = data.currentLayout || null;
+    } else if (oldSaved) {
+        // Simple migration of completed list from V1
+        const data = JSON.parse(oldSaved);
         completedList = data.completedList || [];
     }
 }
 
-// 時刻フォーマット
-function formatTime(timestamp) {
-    const d = new Date(timestamp);
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    return `${m}/${day} ${hh}:${mm}`;
-}
-
-// 日付キー（グルーピング用）
-function getDateKey(timestamp) {
-    const d = new Date(timestamp);
-    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-}
-
-// グループキーを取得
-// 「空間：動作」形式のものは同日同空間でまとめる
-// それ以外（ごみ捨て・物品補充・その他）はID単位で独立
-function getGroupKey(chore) {
-    const dateKey = getDateKey(chore.time);
-    const colonIdx = chore.name.indexOf('：');
-    if (colonIdx > -1) {
-        const space = chore.name.substring(0, colonIdx);
-        return `${dateKey}|${space}`;
-    }
-    // スタンドアロン（空間なし）は個別行
-    return `${dateKey}|${chore.id}`;
-}
-
-// Quick Add Chore（やった記録 + ボタンをつぶし状態に）
+// --- Chore Logic ---
 function addQuickChore(choreName, buttonElement) {
     const id = Date.now();
     completedList.unshift({ id, name: choreName, time: id });
@@ -89,7 +137,6 @@ function addQuickChore(choreName, buttonElement) {
     }
 }
 
-// 物品補充 Free Supply Add
 function addFreeSupply() {
     const input = document.getElementById('freeSupplyInput');
     const text = input.value.trim();
@@ -103,7 +150,6 @@ function addFreeSupply() {
     }
 }
 
-// その他 Free Add
 function addOtherChore() {
     const input = document.getElementById('otherChoreInput');
     const text = input.value.trim();
@@ -117,14 +163,12 @@ function addOtherChore() {
     }
 }
 
-// Undo（単体）
 function undoDone(id) {
     completedList = completedList.filter(c => c.id !== id);
     saveToLocalStorage();
     renderCompleted();
 }
 
-// Undo（グループ：同日同空間の複数まとめて取り消し）
 function undoGroup(idsStr) {
     const ids = idsStr.split(',').map(Number);
     completedList = completedList.filter(c => !ids.includes(c.id));
@@ -132,21 +176,15 @@ function undoGroup(idsStr) {
     renderCompleted();
 }
 
-// Reset Day
 function resetDay() {
-    if (window.confirm('本当に1日をリセットしますか？「最近やったこと」がすべて消えます。')) {
+    if (window.confirm('本当に1日をリセットしますか？\n「最近やったこと」がすべて消えます。')) {
         completedList = [];
         saveToLocalStorage();
         renderCompleted();
-        // ボタンのつぶし状態も全解除
-        Object.values(QUICK_CHORES).forEach(buttonId => {
-            const btn = document.getElementById(buttonId);
-            if (btn) btn.classList.remove('done');
-        });
     }
 }
 
-// Render：同日同空間は1行にまとめて表示
+// --- Render Completed List ---
 function renderCompleted() {
     const container = document.getElementById('completedList');
     if (completedList.length === 0) {
@@ -154,7 +192,6 @@ function renderCompleted() {
         return;
     }
 
-    // グループを順序付きで構築（completedList は新しい順）
     const groupOrder = [];
     const groupMap = {};
 
@@ -169,9 +206,8 @@ function renderCompleted() {
 
     container.innerHTML = groupOrder.map(key => {
         const group = groupMap[key];
-        // グループ内は古い順に並べる（追加された順に表示）
         const items = [...group.items].reverse();
-        const latestTime = group.items[0].time; // 最新時刻（リストの先頭）
+        const latestTime = group.items[0].time;
 
         if (items.length === 1) {
             const chore = items[0];
@@ -182,32 +218,120 @@ function renderCompleted() {
                 .replace(/^\[その他\]\s*/, '');
 
             return `
-      <div class="chore-item-completed">
-        <div class="chore-item-completed-info">
-          <span class="chore-item-completed-name">
-            ${isSupply ? '<span class="chore-item-completed-tag">補充</span>' : ''}
-            ${isOther ? '<span class="chore-item-completed-tag tag-other">その他</span>' : ''}
-            ${displayName}
-          </span>
-          <span class="chore-item-completed-time">${formatTime(chore.time)}</span>
-        </div>
-        <button class="btn-undo" onclick="undoDone(${chore.id})">取り消し</button>
-      </div>`;
+                <div class="chore-item-completed">
+                    <div class="chore-item-completed-info">
+                        <span class="chore-item-completed-name">
+                            ${isSupply ? '<span class="chore-item-completed-tag">補充</span>' : ''}
+                            ${isOther ? '<span class="chore-item-completed-tag tag-other">その他</span>' : ''}
+                            ${displayName}
+                        </span>
+                        <span class="chore-item-completed-time">${formatTime(chore.time)}</span>
+                    </div>
+                    <button class="btn-undo" onclick="undoDone(${chore.id})">取消</button>
+                </div>`;
         } else {
-            // 同日同空間：「空間：動作1、動作2、...」を1行で表示
             const colonIdx = items[0].name.indexOf('：');
             const space = items[0].name.substring(0, colonIdx);
             const actions = items.map(item => item.name.substring(item.name.indexOf('：') + 1)).join('、');
             const allIds = group.items.map(item => item.id).join(',');
 
             return `
-      <div class="chore-item-completed">
-        <div class="chore-item-completed-info">
-          <span class="chore-item-completed-name">${space}：${actions}</span>
-          <span class="chore-item-completed-time">${formatTime(latestTime)}</span>
-        </div>
-        <button class="btn-undo" onclick="undoGroup('${allIds}')">取り消し</button>
-      </div>`;
+                <div class="chore-item-completed">
+                    <div class="chore-item-completed-info">
+                        <span class="chore-item-completed-name">${space}：${actions}</span>
+                        <span class="chore-item-completed-time">${formatTime(latestTime)}</span>
+                    </div>
+                    <button class="btn-undo" onclick="undoGroup('${allIds}')">取消</button>
+                </div>`;
         }
     }).join('');
+}
+
+// --- Utils ---
+function formatTime(timestamp) {
+    const d = new Date(timestamp);
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${m}/${day} ${hh}:${mm}`;
+}
+
+function getDateKey(timestamp) {
+    const d = new Date(timestamp);
+    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function getGroupKey(chore) {
+    const dateKey = getDateKey(chore.time);
+    const colonIdx = chore.name.indexOf('：');
+    if (colonIdx > -1) {
+        const space = chore.name.substring(0, colonIdx);
+        return `${dateKey}|${space}`;
+    }
+    return `${dateKey}|${chore.id}`;
+}
+
+// --- Share Feature ---
+async function shareReport() {
+    const shareText = generateShareText();
+    
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: '今日の家事レポート',
+                text: shareText
+            });
+        } catch (err) {
+            console.error('Share failed:', err);
+            copyToClipboard(shareText);
+        }
+    } else {
+        copyToClipboard(shareText);
+    }
+}
+
+function generateShareText() {
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+    
+    // 今日のやった家事（一意な名前で抽出）
+    const doneNames = new Set(
+        completedList
+            .filter(c => getDateKey(c.time) === todayStr)
+            .map(c => c.name)
+    );
+
+    // テンプレートにある全家事
+    const template = LAYOUT_TEMPLATES[currentLayout];
+    const allTemplateChores = [];
+    template.forEach(section => {
+        section.chores.forEach(chore => {
+            const fullName = section.group === 'ごみ捨て' ? chore : `${section.group}：${chore}`;
+            allTemplateChores.push(fullName);
+        });
+    });
+
+    // 1. やったこと
+    let doneText = Array.from(doneNames).map(name => `・${name}`).join('\n');
+    if (!doneText) doneText = '（まだありません）';
+
+    // 2. まだやってないこと (テンプレートにあるが doneNames にないもの)
+    const todoChores = allTemplateChores.filter(name => !doneNames.has(name));
+    let todoText = todoChores.map(name => `・${name}`).join('\n');
+    if (!todoText) todoText = '（すべて完了！）';
+
+    // 3. 伝言
+    const message = document.getElementById('shareMessage').value.trim();
+    const messageText = message ? `\n🙏 伝言・お願い\n${message}` : '';
+
+    return `🏠 今日の家事レポート\n\n✅ やったこと\n${doneText}\n\n⬜️ まだやってないこと\n${todoText}${messageText}`;
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert('レポートをクリップボードにコピーしました！LINE等に貼り付けて送信してください。');
+    }).catch(err => {
+        alert('コピーに失敗しました。お手数ですが手動でコピーしてください。');
+    });
 }
