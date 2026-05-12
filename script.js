@@ -107,7 +107,6 @@ function saveToLocalStorage() {
 }
 
 function loadFromLocalStorage() {
-    // Migration from V1 if exists
     const oldSaved = localStorage.getItem('yattayoState');
     const saved = localStorage.getItem('yattayoStateV2');
     
@@ -116,7 +115,6 @@ function loadFromLocalStorage() {
         completedList = data.completedList || [];
         currentLayout = data.currentLayout || null;
     } else if (oldSaved) {
-        // Simple migration of completed list from V1
         const data = JSON.parse(oldSaved);
         completedList = data.completedList || [];
     }
@@ -275,18 +273,35 @@ function getGroupKey(chore) {
 // --- Share Feature ---
 async function shareReport() {
     const shareText = generateShareText();
+    const appWrapper = document.querySelector('.app-wrapper');
     
-    if (navigator.share) {
-        try {
-            await navigator.share({
-                title: '今日の家事レポート',
-                text: shareText
-            });
-        } catch (err) {
-            console.error('Share failed:', err);
-            copyToClipboard(shareText);
-        }
-    } else {
+    // 画像化（魔法のカメラ機能）
+    try {
+        const canvas = await html2canvas(appWrapper, { 
+            scale: 2, 
+            backgroundColor: '#fef3c7' 
+        });
+        
+        canvas.toBlob(async blob => {
+            const file = new File([blob], 'today_task.png', { type: 'image/png' });
+            if(navigator.share) {
+                try {
+                    await navigator.share({ 
+                        title: '今日の家事レポート',
+                        text: shareText, // テキストと画像をセット
+                        files: [file] 
+                    });
+                } catch (e) {
+                    console.log("シェアがキャンセルされました");
+                }
+            } else {
+                alert('ブラウザが画像シェアに対応していません。テキストをコピーしました！');
+                copyToClipboard(shareText);
+            }
+        });
+    } catch (error) {
+        console.error("画像化エラー", error);
+        alert("画像の生成に失敗しました。テキストのみコピーします。");
         copyToClipboard(shareText);
     }
 }
@@ -295,14 +310,12 @@ function generateShareText() {
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
     
-    // 今日のやった家事（一意な名前で抽出）
     const doneNames = new Set(
         completedList
             .filter(c => getDateKey(c.time) === todayStr)
             .map(c => c.name)
     );
 
-    // テンプレートにある全家事
     const template = LAYOUT_TEMPLATES[currentLayout];
     const allTemplateChores = [];
     template.forEach(section => {
@@ -312,16 +325,13 @@ function generateShareText() {
         });
     });
 
-    // 1. やったこと
     let doneText = Array.from(doneNames).map(name => `・${name}`).join('\n');
     if (!doneText) doneText = '（まだありません）';
 
-    // 2. まだやってないこと (テンプレートにあるが doneNames にないもの)
     const todoChores = allTemplateChores.filter(name => !doneNames.has(name));
     let todoText = todoChores.map(name => `・${name}`).join('\n');
     if (!todoText) todoText = '（すべて完了！）';
 
-    // 3. 伝言
     const message = document.getElementById('shareMessage').value.trim();
     const messageText = message ? `\n🙏 伝言・お願い\n${message}` : '';
 
@@ -332,6 +342,6 @@ function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
         alert('レポートをクリップボードにコピーしました！LINE等に貼り付けて送信してください。');
     }).catch(err => {
-        alert('コピーに失敗しました。お手数ですが手動でコピーしてください。');
+        alert('コピーに失敗しました。');
     });
 }
