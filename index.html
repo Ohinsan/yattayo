@@ -116,6 +116,18 @@
         </div>
     </div>
 
+    <!-- Image Preview Modal -->
+    <div id="image-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="modal-title">📸 画像が生成されました！</h3>
+            <p class="modal-desc">上記の画像を長押しして保存・コピーしてLINEに貼ってね！</p>
+            <div class="modal-image-container">
+                <img id="modal-image" src="" alt="家事レポート">
+            </div>
+            <button class="btn btn-close-modal" onclick="closeModal()">閉じる</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 

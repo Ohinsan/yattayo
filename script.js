@@ -5,14 +5,14 @@
 // 1. Template Definitions
 const LAYOUT_TEMPLATES = {
     '1LDK': [
-        { group: 'リビング', chores: ['掃除機がけ', '拭き掃除', 'カーペットころころ'] },
+        { group: 'リビング', chores: ['掃除機がけ', '拭き掃除'] },
         { group: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', 'タオル交換'] },
         { group: 'お風呂', chores: ['浴槽・浴室の掃除', 'タオル交換'] },
         { group: 'トイレ', chores: ['トイレ掃除'] },
         { group: 'ごみ捨て', chores: ['ごみ捨て'] }
     ],
     '2LDK': [
-        { group: 'リビング', chores: ['掃除機がけ', '拭き掃除', 'カーペットころころ'] },
+        { group: 'リビング', chores: ['掃除機がけ', '拭き掃除'] },
         { group: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', 'タオル交換'] },
         { group: 'お風呂', chores: ['浴槽・浴室の掃除', 'タオル交換'] },
         { group: 'トイレ', chores: ['トイレ掃除'] },
@@ -22,7 +22,7 @@ const LAYOUT_TEMPLATES = {
         { group: 'ごみ捨て', chores: ['ごみ捨て'] }
     ],
     '3LDK+': [
-        { group: 'リビング', chores: ['掃除機がけ', '拭き掃除', 'カーペットころころ'] },
+        { group: 'リビング', chores: ['掃除機がけ', '拭き掃除'] },
         { group: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', 'タオル交換'] },
         { group: 'お風呂', chores: ['浴槽・浴室の掃除', 'タオル交換'] },
         { group: 'トイレ', chores: ['トイレ掃除'] },
@@ -272,37 +272,64 @@ function getGroupKey(chore) {
 
 // --- Share Feature ---
 async function shareReport() {
-    const shareText = generateShareText();
-    const appWrapper = document.querySelector('.app-wrapper');
-    
-    // 画像化（魔法のカメラ機能）
+    const btnSettings = document.querySelector('.btn-settings');
+    const choreCard = document.querySelector('.chore-addition-card');
+    const shareCard = document.querySelector('.share-card');
+    const btnReset = document.querySelector('.btn-reset');
+
+    // 1. キャプチャ対象外の要素を一時的に非表示にする
+    if (btnSettings) btnSettings.style.display = 'none';
+    if (choreCard) choreCard.style.display = 'none';
+    if (shareCard) shareCard.style.display = 'none';
+    if (btnReset) btnReset.style.display = 'none';
+
     try {
+        const shareText = generateShareText();
+        const appWrapper = document.querySelector('.app-wrapper');
+        
+        // 2. html2canvasで画像を完全に生成する
         const canvas = await html2canvas(appWrapper, { 
             scale: 2, 
-            backgroundColor: '#fef3c7' 
+            backgroundColor: '#fef3c7',
+            logging: false
         });
-        
-        canvas.toBlob(async blob => {
-            const file = new File([blob], 'today_task.png', { type: 'image/png' });
-            if(navigator.share) {
-                try {
-                    await navigator.share({ 
-                        title: '今日の家事レポート',
-                        text: shareText, // テキストと画像をセット
-                        files: [file] 
-                    });
-                } catch (e) {
-                    console.log("シェアがキャンセルされました");
-                }
-            } else {
-                alert('ブラウザが画像シェアに対応していません。テキストをコピーしました！');
-                copyToClipboard(shareText);
-            }
-        });
+
+        const dataUrl = canvas.toDataURL('image/png');
+
+        // 3. テキストのコピーを非同期で実行する
+        await navigator.clipboard.writeText(shareText);
+        alert('レポートをコピーしました！');
+
+        // 4. モーダル（ポップアップ）を表示する
+        const modal = document.getElementById('image-modal');
+        const modalImg = document.getElementById('modal-image');
+        if (modal && modalImg) {
+            modalImg.src = dataUrl;
+            modal.classList.remove('hidden');
+        }
     } catch (error) {
-        console.error("画像化エラー", error);
-        alert("画像の生成に失敗しました。テキストのみコピーします。");
-        copyToClipboard(shareText);
+        console.error("画像化またはコピーエラー", error);
+        alert("画像の生成に失敗しました。テキストのみコピーを試みます。");
+        try {
+            const shareText = generateShareText();
+            await navigator.clipboard.writeText(shareText);
+            alert('レポートをクリップボードにコピーしました！');
+        } catch (clipErr) {
+            console.error("クリップボードコピー失敗", clipErr);
+        }
+    } finally {
+        // 5. 非表示にした要素を確実に元に戻す
+        if (btnSettings) btnSettings.style.display = '';
+        if (choreCard) choreCard.style.display = '';
+        if (shareCard) shareCard.style.display = '';
+        if (btnReset) btnReset.style.display = '';
+    }
+}
+
+function closeModal() {
+    const modal = document.getElementById('image-modal');
+    if (modal) {
+        modal.classList.add('hidden');
     }
 }
 
