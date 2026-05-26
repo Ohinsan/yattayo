@@ -1005,6 +1005,33 @@
             align-items: center;
             justify-content: center;
             padding: 1.5rem;
+            overflow: hidden; /* きらめきの画面外はみ出し防止 */
+        }
+
+        /* ✨ 画面レイアウトを崩さない絶対配置のきらめきパーティクル */
+        .sparkle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkleFall 4s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes sparkleFall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            85% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(105vh) rotate(360deg);
+                opacity: 0;
+            }
         }
 
         .ending-content {
@@ -1917,8 +1944,8 @@
 
         // --- Companion Core Logic (Quiet, Simple & Absolute Surprise) ---
         function getLevel() {
-            // 1.5x Speed: 1800 EXP Required for Lv.10 (200 EXP per level)
-            return Math.min(10, Math.floor(kajigonState.totalExp / 200) + 1);
+            // 2x Speed: 1350 EXP Required for Lv.10 (150 EXP per level)
+            return Math.min(10, Math.floor(kajigonState.totalExp / 150) + 1);
         }
 
         function getCompanionStage(level) {
@@ -2157,10 +2184,10 @@
             kajigonState.earthPoints = earth;
 
             if (lv >= 10) {
-                kajigonState.totalExp = 1800; // 200 * 9 = 1800
+                kajigonState.totalExp = 1350; // 150 * 9 = 1350
                 kajigonState.endingSeen = false; // Reset ending seen for synchronized Level 10
             } else {
-                kajigonState.totalExp = (lv - 1) * 200;
+                kajigonState.totalExp = (lv - 1) * 150;
                 kajigonState.endingSeen = false;
             }
 
