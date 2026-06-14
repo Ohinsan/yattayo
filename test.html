@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>やったよ V2 - 自動テストランナー</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f1f5f9;
+            padding: 2rem;
+            color: #1e293b;
+        }
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4f46e5;
+            margin-top: 0;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+        .pass {
+            color: #16a34a;
+            font-weight: bold;
+        }
+        .fail {
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .log-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            font-family: monospace;
+        }
+        .summary {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-card">
+        <h1>🔍 自動テスト検証センター</h1>
+        <div id="test-logs"></div>
+        <div id="test-summary" class="summary"></div>
+    </div>
+
+    <!-- Hidden DOM Mocks required by script.js -->
+    <div id="setup-screen" class="hidden"></div>
+    <div id="main-screen" class="hidden"></div>
+    <div id="companion-status-widget"></div>
+    <div id="lucky-chore-widget"></div>
+    <div id="quick-add-container"></div>
+    <div id="completedList"></div>
+    <p id="current-layout-display"></p>
+    <div id="settings-modal" class="hidden">
+        <select id="settings-layout-select"><option value="1LDK">1LDK</option><option value="2LDK">2LDK</option><option value="3LDK+">3LDK+</option></select>
+        <select id="settings-floor-select"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
+        <select id="settings-players-select"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
+        <div id="settings-room-names-container"></div>
+    </div>
+    <div id="spell-modal" class="hidden">
+        <input type="text" id="spellInput">
+    </div>
+    <div id="cutin-container" class="hidden">
+        <div id="cutin-box"></div>
+    </div>
+    <div id="ending-modal" class="hidden">
+        <h2 id="ending-celebration-title"></h2>
+        <div class="ending-image-container">
+            <img id="ending-dragon-image" src="">
+        </div>
+        <div id="ending-scroll-content"></div>
+    </div>
+
+    <!-- Load script.js -->
+    <script src="script.js"></script>
+
+    <!-- Test Script -->
+    <script>
+        // Override standard functions to prevent browser dialogs from blocking execution
+        window.confirm = () => true;
+        window.alert = () => {};
+
+        const logsContainer = document.getElementById('test-logs');
+        const summaryContainer = document.getElementById('test-summary');
+
+        let passes = 0;
+        let fails = 0;
+
+        function log(message, isPass = null) {
+            const div = document.createElement('div');
+            div.className = 'log-item';
+            if (isPass === true) {
+                div.innerHTML = `<span class="pass">✔ PASS</span> - ${message}`;
+                passes++;
+            } else if (isPass === false) {
+                div.innerHTML = `<span class="fail">✘ FAIL</span> - ${message}`;
+                fails++;
+            } else {
+                div.textContent = message;
+            }
+            logsContainer.appendChild(div);
+        }
+
+        try {
+            // Test 1: formatTime
+            const t1 = formatTime(new Date("2026-06-14T14:32:00").getTime());
+            log(`formatTime("14:32") matches: ${t1}`, t1 === "14:32");
+
+            const t2 = formatTime(null);
+            log(`formatTime(null) matches empty string: "${t2}"`, t2 === "");
+
+            // Test 2: BASE_TEMPLATES Optimization
+            const living1LDK = BASE_TEMPLATES['1LDK'].find(r => r.id === 'living');
+            log(`1LDK living has Bedmaking: ${living1LDK.chores.join(', ')}`, living1LDK.chores.includes('ベッドメイキング'));
+
+            const living2LDK = BASE_TEMPLATES['2LDK'].find(r => r.id === 'living');
+            log(`2LDK living does NOT have Bedmaking: ${living2LDK.chores.join(', ')}`, !living2LDK.chores.includes('ベッドメイキング'));
+
+            const bedroom2LDK = BASE_TEMPLATES['2LDK'].find(r => r.id === 'bedroom');
+            log(`2LDK bedroom has Bedmaking: ${bedroom2LDK.chores.join(', ')}`, bedroom2LDK.chores.includes('ベッドメイキング'));
+
+            const room1_2LDK = BASE_TEMPLATES['2LDK'].find(r => r.id === 'room1');
+            log(`2LDK room1 has Bedmaking: ${room1_2LDK.chores.join(', ')}`, room1_2LDK.chores.includes('ベッドメイキング'));
+
+            // Test 3: Deterministic Lucky Chore
+            const lucky1 = getLuckyChoreForDate("2026-06-14");
+            const lucky2 = getLuckyChoreForDate("2026-06-14");
+            const lucky3 = getLuckyChoreForDate("2026-06-15");
+            log(`Deterministic lucky chore for 2026-06-14: "${lucky1}"`, lucky1 === lucky2);
+            log(`Lucky chore for 2026-06-15 is: "${lucky3}"`, true);
+
+            // Test 4: EXP Scaling with Players
+            currentLayout = '1LDK';
+            currentFloors = 1;
+            
+            // 1 player (1.0x)
+            playerCount = 1;
+            kajigonState.totalExp = 0;
+            kajigonState.lastLuckyDate = "";
+            luckyChore = "🚽 non-existent lucky chore";
+            let res = addChoreExp("リビング：掃除機がけ");
+            log(`1 Player EXP: base 30 -> ${res.finalExp} (totalExp: ${kajigonState.totalExp})`, res.finalExp === 30 && kajigonState.totalExp === 30);
+
+            // 2 players (1.5x)
+            playerCount = 2;
+            kajigonState.totalExp = 0;
+            res = addChoreExp("リビング：掃除機がけ");
+            log(`2 Players EXP: base 30 * 1.5 -> ${res.finalExp} (totalExp: ${kajigonState.totalExp})`, res.finalExp === 45 && kajigonState.totalExp === 45);
+
+            // 3 players (2.0x)
+            playerCount = 3;
+            kajigonState.totalExp = 0;
+            res = addChoreExp("リビング：掃除機がけ");
+            log(`3 Players EXP: base 30 * 2.0 -> ${res.finalExp} (totalExp: ${kajigonState.totalExp})`, res.finalExp === 60 && kajigonState.totalExp === 60);
+
+            // Test 5: Lucky Chore Multiplier (1.2x) & Lock
+            playerCount = 2; // 1.5x
+            kajigonState.totalExp = 0;
+            kajigonState.lastLuckyDate = "";
+            luckyChore = "掃除機がけ"; // Match
+
+            res = addChoreExp("リビング：掃除機がけ");
+            log(`1st Completion (Lucky): base 30 * 1.5 * 1.2 -> ${res.finalExp} (isLucky: ${res.wasLucky})`, res.finalExp === 54 && res.wasLucky);
+            log(`lastLuckyDate is updated: "${kajigonState.lastLuckyDate}"`, kajigonState.lastLuckyDate === getTodayDateString());
+
+            res = addChoreExp("リビング：掃除機がけ");
+            log(`2nd Completion (Locked Lucky): base 30 * 1.5 -> ${res.finalExp} (isLucky: ${res.wasLucky})`, res.finalExp === 45 && !res.wasLucky);
+
+            // Test 6: Undo logic
+            completedList = [
+                { id: 1, name: "リビング：掃除機がけ", time: Date.now(), gainedExp: 45, isLucky: false },
+                { id: 2, name: "リビング：掃除機がけ", time: Date.now(), gainedExp: 54, isLucky: true }
+            ];
+            kajigonState.totalExp = 99;
+            kajigonState.lastLuckyDate = getTodayDateString();
+
+            undoDone(1);
+            log(`Undo non-lucky chore: totalExp -> ${kajigonState.totalExp}`, kajigonState.totalExp === 54 && kajigonState.lastLuckyDate === getTodayDateString());
+
+            undoDone(2);
+            log(`Undo lucky chore: totalExp -> ${kajigonState.totalExp}, lastLuckyDate -> "${kajigonState.lastLuckyDate}"`, kajigonState.totalExp === 0 && kajigonState.lastLuckyDate === "");
+
+            // Final Summary
+            if (fails === 0) {
+                summaryContainer.innerHTML = `<span class="pass">🎉 すべてのテストに合格しました！ (${passes}/${passes} 件)</span>`;
+            } else {
+                summaryContainer.innerHTML = `<span class="fail">❌ 一部のテストに失敗しました。 (${fails} 件の失敗)</span>`;
+            }
+
+        } catch (e) {
+            log(`実行時エラーが発生しました: ${e.message}`, false);
+            summaryContainer.innerHTML = `<span class="fail">❌ テスト実行エラー</span>`;
+        }
+    </script>
+</body>
+</html>
