@@ -4,7 +4,7 @@
 const BASE_TEMPLATES = {
     '1LDK': [
         { id: 'living', defaultName: 'リビング', chores: ['掃除機がけ', '拭き掃除', 'ベッドメイキング'] },
-        { id: 'kitchen', defaultName: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', '食器洗い', 'タオル交換'] },
+        { id: 'kitchen', defaultName: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', '料理', '食器洗い', 'タオル交換'] },
         { id: 'bath', defaultName: 'お風呂', chores: ['浴槽・浴室の掃除', '洗面台の掃除', 'タオル交換'] },
         { id: 'laundry', defaultName: '洗濯', chores: ['洗濯', '洗濯物を干す', '洗濯物を畳む'] },
         { id: 'toilet', defaultName: 'トイレ', chores: ['トイレ掃除'] },
@@ -12,7 +12,7 @@ const BASE_TEMPLATES = {
     ],
     '2LDK': [
         { id: 'living', defaultName: 'リビング', chores: ['掃除機がけ', '拭き掃除'] },
-        { id: 'kitchen', defaultName: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', '食器洗い', 'タオル交換'] },
+        { id: 'kitchen', defaultName: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', '料理', '食器洗い', 'タオル交換'] },
         { id: 'bath', defaultName: 'お風呂', chores: ['浴槽・浴室の掃除', 'タオル交換'] },
         { id: 'laundry', defaultName: '洗濯', chores: ['洗濯', '洗濯物を干す', '洗濯物を畳む'] },
         { id: 'toilet', defaultName: 'トイレ', chores: ['トイレ掃除'] },
@@ -23,7 +23,7 @@ const BASE_TEMPLATES = {
     ],
     '3LDK+': [
         { id: 'living', defaultName: 'リビング', chores: ['掃除機がけ', '拭き掃除'] },
-        { id: 'kitchen', defaultName: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', '食器洗い', 'タオル交換'] },
+        { id: 'kitchen', defaultName: 'キッチン', chores: ['シンクの掃除', 'コンロの掃除', '料理', '食器洗い', 'タオル交換'] },
         { id: 'bath', defaultName: 'お風呂', chores: ['浴槽・浴室の掃除', 'タオル交換'] },
         { id: 'laundry', defaultName: '洗濯', chores: ['洗濯', '洗濯物を干す', '洗濯物を畳む'] },
         { id: 'toilet', defaultName: 'トイレ', chores: ['トイレ掃除'] },
@@ -485,6 +485,9 @@ function getChoreStats(choreName) {
     }
     if (cleanName === 'タオル交換') {
         return { exp: 10, attr: 'wind', pt: 1, isOther: false }; 
+    }
+    if (cleanName === '料理') {
+        return { exp: 30, attr: 'fire', pt: 3, isOther: false };
     }
     if (cleanName === '洗濯物を干す') {
         return { exp: 30, attr: 'fire', pt: 3, isOther: false };
