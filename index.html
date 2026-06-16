@@ -4,7 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>やったよ V2 - Ultimate Companion</title>
+    <title>カジゴン</title>
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            var errorDiv = document.createElement('div');
+            errorDiv.style.position = 'fixed';
+            errorDiv.style.top = '0';
+            errorDiv.style.left = '0';
+            errorDiv.style.width = '100%';
+            errorDiv.style.background = 'red';
+            errorDiv.style.color = 'white';
+            errorDiv.style.padding = '10px';
+            errorDiv.style.zIndex = '99999';
+            errorDiv.style.fontFamily = 'monospace';
+            errorDiv.style.whiteSpace = 'pre-wrap';
+            errorDiv.innerText = "JS Error: " + message + "\nSource: " + source + "\nLine: " + lineno + ":" + colno + "\nStack: " + (error ? error.stack : "");
+            document.body.appendChild(errorDiv);
+            return false;
+        };
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
@@ -12,6 +30,11 @@
 </head>
 
 <body>
+    <!-- 画面端の小さなUI（⚙️×0） -->
+    <div id="artifact-indicator" class="artifact-indicator">
+        <span>⚙️×</span><span id="artifact-count-val">0</span>
+    </div>
+
     <!-- Setup Screen (3-Step UI) -->
     <div id="setup-screen" class="container hidden">
         <div class="app-wrapper" style="margin-top: 3rem;">
@@ -56,14 +79,19 @@
             <!-- Header -->
             <div class="header">
                 <div class="header-top">
-                    <h1 class="title">✅ やったよ</h1>
-                    <button class="btn-settings" onclick="openSettingsModal()" title="設定を変更">⚙️</button>
+                    <h1 class="title">✅ カジゴン</h1>
+                    <button class="btn-settings" onclick="openSettingsModal()" title="設定を変更">🔧</button>
                 </div>
                 <p class="subtitle">やった家事をワンタップで記録しよう</p>
                 
                 <!-- 👾 相棒表示（絵文字2つで属性を可視化！カプセル型の美しいバッジに絵文字だけを常時浮遊） -->
                 <div id="companion-status-widget">
                     <!-- JSで動的生成 -->
+                </div>
+
+                <!-- 💬 カジゴンのセリフ枠 -->
+                <div id="companion-speech-bubble" class="speech-bubble hidden" onclick="this.classList.add('hidden')">
+                    <p id="speech-text"></p>
                 </div>
 
                 <!-- ⭐今日のラッキー家事 -->
@@ -115,6 +143,11 @@
                     <label for="shareMessage" class="group-label">家族への伝言・お願い（任意）</label>
                     <textarea id="shareMessage" placeholder="例：お風呂掃除ありがとう！トイレットペーパー買ってきたよ。" rows="3"></textarea>
                 </div>
+                <!-- Checkbox for showing undone chores -->
+                <div class="share-checkbox-group" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; justify-content: flex-start;">
+                    <input type="checkbox" id="shareIncludeUndone" checked onclick="localStorage.setItem('kajigonUltimate_shareIncludeUndone', this.checked)" style="width: auto; height: auto; cursor: pointer; margin: 0;">
+                    <label for="shareIncludeUndone" style="font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; user-select: none; margin: 0;">まだやってない家事もリストに含める</label>
+                </div>
                 <button class="btn-share" onclick="shareReport()">
                     <span>📱 LINE等でシェアする</span>
                 </button>
@@ -129,7 +162,7 @@
             <!-- Footer -->
             <div class="footer">
                 <p id="current-layout-display"></p>
-                <p class="footer-stealth-trigger" onclick="openSpellModal()">💾 データはブラウザに自動保存されます</p>
+                <p class="footer-stealth-trigger" onclick="openSpellModal()">💾 データを復旧する</p>
             </div>
         </div>
     </div>
@@ -184,7 +217,7 @@
     <div id="spell-modal" class="spell-overlay hidden">
         <div class="spell-content">
             <h3 class="spell-title">💾 バックアップデータの復元</h3>
-            <p class="spell-desc">別の端末や過去の記録（同期用バックアップキー）を入力して同期します。</p>
+            <p class="spell-desc">別の端末や過去の記録（同期用バックアップキー）またはテスト用のコマンドを入力して同期します。</p>
             <input type="text" id="spellInput" class="spell-input" placeholder="KJ-LVx-Fxx-Wxx-Axx-Exx">
             <div class="spell-btn-group">
                 <button class="btn-spell-action btn-spell-cancel" onclick="closeSpellModal()">キャンセル</button>

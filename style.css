@@ -8,20 +8,31 @@
 }
 
 :root {
-    --primary: #8b5cf6;
-    --primary-hover: #7c3aed;
-    --secondary: #10b981;
-    --secondary-hover: #059669;
-    --bg-gradient: linear-gradient(135deg, #fef3c7 0%, #fef3e2 50%, #fde2e4 100%);
-    --card-bg: rgba(255, 255, 255, 0.95);
-    --text-main: #374151;
-    --text-sub: #6b7280;
-    --border: #e5e7eb;
-    --neon-gold: #f59e0b;
+    --primary: var(--accent);
+    --primary-hover: var(--accent);
+    --secondary: var(--accent);
+    --secondary-hover: var(--accent);
+    --bg-gradient: #1a1a24;
+    --card-bg: #1a1a24;
+    --text-main: #f4ede2;
+    --text-sub: #a0a0b0;
+    --border: #0d0d13;
+    --neon-gold: #ffd700;
+    
+    /* Default accent color (cream white) */
+    --accent: #f4ede2;
 }
 
+/* Dynamic theme overrides applied to body */
+body.theme-fire { --accent: #ff4b4b; }
+body.theme-water { --accent: #3b82f6; }
+body.theme-wind { --accent: #00e676; }
+body.theme-earth { --accent: #8b5a2b; }
+body.theme-light { --accent: #ffd700; }
+body.theme-dark { --accent: #9d4edd; }
+
 body {
-    font-family: 'Outfit', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'DotGothic16', 'Outfit', 'Noto Sans JP', sans-serif;
     background: var(--bg-gradient);
     min-height: 100vh;
     padding: 1rem;
@@ -1150,3 +1161,316 @@ body {
     color: #b45309;
     animation: fadeInStatus 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ==========================================================================
+   Kajigon Retro Game Styles (Step 2, 3, 4, 5)
+   ========================================================================== */
+
+/* Global Retro Reset: Straight borders, no rounded corners, retro shadows */
+button, input, select, textarea, .card, .chore-addition-card, .completed-card, .share-card, .setup-card, .spell-content, .ending-content, .companion-status-card, .quick-add-btn, .quick-add-section, .settings-scroll-area, .ending-image-container, .companion-avatar-box, .dialogue-box, .speech-bubble {
+    border-radius: 0 !important;
+    border: 4px solid #0d0d13 !important;
+    box-shadow: 4px 4px 0px #0d0d13 !important;
+    background-color: #1a1a24 !important;
+    color: #f4ede2 !important;
+}
+
+/* Specific interactive offsets */
+button:hover, .btn:hover, .quick-add-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #0d0d13 !important;
+}
+button:active, .btn:active, .quick-add-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0px 0px 0px #0d0d13 !important;
+}
+
+/* Free input & select styles */
+input, select, textarea {
+    background-color: #0d0d13 !important;
+    color: #f4ede2 !important;
+}
+input:focus, select:focus, textarea:focus {
+    border-color: var(--accent) !important;
+}
+
+/* Quick add buttons attribute-specific borders/highlights on active/hover */
+.quick-add-btn.attr-fire { border-color: #ff4b4b !important; color: #ff4b4b !important; }
+.quick-add-btn.attr-water { border-color: #3b82f6 !important; color: #3b82f6 !important; }
+.quick-add-btn.attr-wind { border-color: #00e676 !important; color: #00e676 !important; }
+.quick-add-btn.attr-earth { border-color: #8b5a2b !important; color: #8b5a2b !important; }
+
+.quick-add-btn.attr-fire:hover { background-color: rgba(255, 75, 75, 0.1) !important; }
+.quick-add-btn.attr-water:hover { background-color: rgba(59, 130, 246, 0.1) !important; }
+.quick-add-btn.attr-wind:hover { background-color: rgba(0, 230, 118, 0.1) !important; }
+.quick-add-btn.attr-earth:hover { background-color: rgba(139, 90, 43, 0.1) !important; }
+
+/* Active button state */
+.setup-btn-select.active {
+    background-color: var(--accent) !important;
+    color: #1a1a24 !important;
+}
+
+/* Highlight / title colors */
+.title, .card-title, .setup-section-title, .spell-title, .ending-title {
+    color: var(--accent) !important;
+}
+
+/* Artifact Indicator */
+.artifact-indicator {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1000;
+    padding: 0.4rem 0.8rem;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Stepped Ring flash keyframes */
+@keyframes stepped-flash {
+    0%, 100% {
+        box-shadow: 4px 4px 0px #0d0d13 !important;
+    }
+    50% {
+        box-shadow: 
+            0 0 0 4px #ffd700,
+            0 0 0 8px #d4af37,
+            0 0 0 12px #aa8c2c,
+            0 0 0 16px #806921 !important;
+    }
+}
+.flash-effect {
+    animation: stepped-flash 0.8s steps(4) 3;
+}
+
+/* Speech bubble pointer & placement */
+.speech-bubble {
+    background: #1a1a24;
+    border: 4px solid #0d0d13;
+    padding: 0.75rem 1rem;
+    margin: 0.75rem auto;
+    max-width: 320px;
+    color: #f4ede2;
+    font-size: 13px;
+    text-align: left;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 4px 4px 0px #0d0d13;
+}
+
+/* Companion widget card grid row styling */
+.companion-display-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+.companion-avatar-box {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #0d0d13 !important;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+.companion-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.companion-avatar-emoji {
+    font-size: 36px;
+    animation: floatMiniStatus 2.5s ease-in-out infinite;
+}
+.companion-info-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+.companion-level {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+/* Dark Halo effect overrides */
+body.theme-dark .ending-overlay {
+    background: radial-gradient(circle at center, #0d0d13 0%, #05050a 100%) !important;
+}
+body.theme-dark .ending-content {
+    border: 4px solid #0d0d13 !important;
+    box-shadow: 
+        0 0 0 1px #05050a,
+        0 20px 25px -5px rgba(0, 0, 0, 0.7) !important;
+}
+body.theme-dark .ending-title {
+    color: #9d4edd !important;
+}
+body.theme-dark .btn-ending-close {
+    background: linear-gradient(90deg, #5b21b6 0%, #9d4edd 50%, #5b21b6 100%) !important;
+    color: #f4ede2 !important;
+    box-shadow: 4px 4px 0px #0d0d13 !important;
+}
+
+/* Setup buttons overrides */
+.setup-btn-select {
+    border: 4px solid #0d0d13 !important;
+}
+.setup-btn-select:hover {
+    background-color: var(--accent) !important;
+    color: #0d0d13 !important;
+}
+.setup-btn-submit {
+    background: var(--accent) !important;
+    color: #0d0d13 !important;
+}
+
+/* Ending modal overrides */
+.ending-overlay {
+    background: radial-gradient(circle at center, #1a1a24 0%, #0d0d13 100%) !important;
+}
+.ending-content {
+    border: 4px solid var(--accent) !important;
+}
+.btn-ending-close {
+    background: var(--accent) !important;
+    color: #0d0d13 !important;
+}
+
+/* Completed items styles */
+.chore-item-completed {
+    border: 4px solid #0d0d13 !important;
+    border-left: 12px solid #555568 !important; /* Thick retro left border */
+    background-color: #0d0d13 !important;
+    color: #f4ede2 !important;
+    box-shadow: 4px 4px 0px #0d0d13 !important;
+}
+.chore-item-completed.attr-fire { border-left-color: #ff4b4b !important; }
+.chore-item-completed.attr-water { border-left-color: #3b82f6 !important; }
+.chore-item-completed.attr-wind { border-left-color: #00e676 !important; }
+.chore-item-completed.attr-earth { border-left-color: #8b5a2b !important; }
+
+/* Custom Retro Checkbox styling */
+.share-checkbox-group input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px !important;
+    height: 20px !important;
+    border: 2px solid #0d0d13 !important;
+    background-color: #1a1a24 !important;
+    box-shadow: 2px 2px 0px #0d0d13 !important;
+    cursor: pointer;
+    position: relative;
+    outline: none;
+    margin: 0;
+}
+.share-checkbox-group input[type="checkbox"]:checked {
+    background-color: var(--accent) !important;
+}
+.share-checkbox-group input[type="checkbox"]:checked::after {
+    content: "✔";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #0d0d13;
+    font-size: 12px;
+    font-weight: bold;
+}
+.share-checkbox-group label {
+    cursor: pointer;
+}
+
+/* completed tag overrides */
+.chore-item-completed-tag {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    background-color: #7c3aed !important;
+    color: #ffffff !important;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 0 !important;
+    border: 2px solid #0d0d13 !important;
+    margin-right: 0.5rem;
+}
+.tag-other {
+    background-color: #065f46 !important;
+}
+
+/* Scroll text area inside ending modal overrides */
+.ending-scroll-text {
+    font-size: 13.5px !important;
+    color: #f4ede2 !important; /* Cream text */
+    line-height: 1.8 !important;
+    margin-bottom: 1.5rem !important;
+    text-align: left !important;
+    background-color: #0d0d13 !important; /* Dark background */
+    border: 4px solid #0d0d13 !important; /* Solid dark border */
+    border-radius: 0 !important;
+    max-height: 160px !important;
+    overflow-y: auto !important;
+}
+
+/* Lucky Chore Badge default retro dark style */
+.lucky-chore-badge {
+    background-color: #1a1a24 !important;
+    color: var(--accent) !important;
+    border: 4px solid #0d0d13 !important;
+    box-shadow: 4px 4px 0px #0d0d13 !important;
+    border-radius: 0 !important;
+    padding: 0.4rem 1.25rem !important;
+    margin: 0.5rem auto 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    animation: fadeInStatus 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Focus state overrides to prevent white-on-white text */
+.settings-input-group input:focus, 
+.settings-input-group select:focus, 
+.spell-input:focus, 
+textarea:focus,
+input:focus,
+select:focus {
+    border-color: var(--accent) !important;
+    background-color: #0d0d13 !important;
+    color: #f4ede2 !important;
+}
+
+/* Cut-in popup box overrides */
+.cutin-box {
+    border-radius: 0 !important;
+    border: 4px solid #0d0d13 !important;
+    box-shadow: 4px 4px 0px #0d0d13 !important;
+    background-color: #1a1a24 !important;
+    color: #f4ede2 !important;
+}
+
+/* Completed/Disabled quick add buttons (1-press-per-day) */
+.quick-add-btn.done, 
+.quick-add-btn:disabled {
+    background-color: #0d0d13 !important;
+    color: #555568 !important;
+    border-color: #555568 !important;
+    text-decoration: line-through !important;
+    opacity: 0.6 !important;
+    transform: none !important;
+    box-shadow: 0px 0px 0px #0d0d13 !important;
+    cursor: not-allowed !important;
+}
+
+
+
+
+
