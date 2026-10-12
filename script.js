@@ -114,6 +114,9 @@ function initApp() {
         // 初回の相棒表示
         updateCompanionWidget();
 
+        // サウンドエンジンの初期化
+        SoundEngine.init();
+
         // 🌟 カンスト(Lv.10)に達していてまだ表彰を見ていない場合は自動で表示
         if (getLevel() >= 10 && !kajigonState.endingSeen) {
             setTimeout(() => {
@@ -565,6 +568,7 @@ function addChoreExp(choreName) {
         if (Math.random() < 0.5) {
             kajigonState.artifactCount++;
             setTimeout(() => {
+                SoundEngine.playSE('artifact');
                 showCompanionDialogue(`「総監督！部屋の隅で珍しい古代パーツ（⚙️）を拾いました！」`);
                 triggerArtifactFlash();
                 updateArtifactIndicator();
@@ -583,9 +587,16 @@ function addChoreExp(choreName) {
     if (newLevel >= 10 && previousLevel < 10) {
         kajigonState.endingSeen = false; // Reset seen so it triggers automatically
         saveToLocalStorage();
+        SoundEngine.playSE('levelup');
         triggerCutIn(getCompanionEmoji(), () => {
             openEndingModal();
         });
+    } else if (newLevel > previousLevel) {
+        SoundEngine.playSE('levelup');
+    } else if (wasLucky) {
+        SoundEngine.playSE('lucky');
+    } else {
+        SoundEngine.playSE('done');
     }
     
     return { finalExp, wasLucky };
@@ -675,6 +686,7 @@ function addOtherChore() {
 }
 
 function undoDone(id) {
+    SoundEngine.playSE('undo');
     const found = completedList.find(c => c.id === id);
     if (found) {
         undoChoreExp(found);
@@ -686,6 +698,7 @@ function undoDone(id) {
 }
 
 function undoGroup(idsStr) {
+    SoundEngine.playSE('undo');
     const ids = idsStr.split(',').map(Number);
     ids.forEach(id => {
         const found = completedList.find(c => c.id === id);
@@ -702,6 +715,7 @@ function undoGroup(idsStr) {
 // 2-Type Reset
 function resetDayOnly() {
     if (window.confirm('本日の家事の記録を整理（クリア）しますか？\n※これまでの成長データは失われません。')) {
+        SoundEngine.playSE('undo');
         completedList = [];
         saveToLocalStorage();
         renderCompleted();
@@ -1595,3 +1609,587 @@ function updateLuckyChore() {
         `;
     }
 }
+
+// ==========================================================================
+// --- 🎵 8-bit Retro Sound Engine (Web Audio API Synthesizer) ---
+// ==========================================================================
+const SoundEngine = {
+    ctx: null,
+    bgmGain: null,
+    seGain: null,
+    bgmVol: 0.3,
+    seVol: 0.7,
+    bgmPlaying: false,
+    bgmTimer: null,
+    bgmStep: 0,
+
+    init() {
+        if (this.ctx) return;
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        this.ctx = new AudioContextClass();
+
+        // BGM Gain node
+        this.bgmGain = this.ctx.createGain();
+        this.bgmGain.gain.setValueAtTime(this.bgmVol, this.ctx.currentTime);
+        this.bgmGain.connect(this.ctx.destination);
+
+        // SE Gain node
+        this.seGain = this.ctx.createGain();
+        this.seGain.gain.setValueAtTime(this.seVol, this.ctx.currentTime);
+        this.seGain.connect(this.ctx.destination);
+
+        // Load saved preferences
+        const savedBgm = localStorage.getItem('kajigon_bgm_vol');
+        const savedSe = localStorage.getItem('kajigon_se_vol');
+        if (savedBgm !== null) {
+            this.setBGMVolume(parseFloat(savedBgm));
+        }
+        if (savedSe !== null) {
+            this.setSEVolume(parseFloat(savedSe));
+        }
+    },
+
+    resume() {
+        if (!this.ctx) this.init();
+        if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    },
+
+    setBGMVolume(val) {
+        this.bgmVol = Math.max(0, Math.min(1, val));
+        if (this.bgmGain && this.ctx) {
+            this.bgmGain.gain.setValueAtTime(this.bgmVol, this.ctx.currentTime);
+        }
+        localStorage.setItem('kajigon_bgm_vol', this.bgmVol);
+        const slider = document.getElementById('bgmVolumeSlider');
+        const text = document.getElementById('bgm-vol-text');
+        if (slider) slider.value = Math.round(this.bgmVol * 100);
+        if (text) text.textContent = `${Math.round(this.bgmVol * 100)}%`;
+        const toggleBtn = document.getElementById('btn-sound-toggle');
+        if (toggleBtn) {
+            toggleBtn.textContent = (this.bgmVol === 0 && this.seVol === 0) ? '🔇' : '🔊';
+        }
+    },
+
+    setSEVolume(val) {
+        this.seVol = Math.max(0, Math.min(1, val));
+        if (this.seGain && this.ctx) {
+            this.seGain.gain.setValueAtTime(this.seVol, this.ctx.currentTime);
+        }
+        localStorage.setItem('kajigon_se_vol', this.seVol);
+        const slider = document.getElementById('seVolumeSlider');
+        const text = document.getElementById('se-vol-text');
+        if (slider) slider.value = Math.round(this.seVol * 100);
+        if (text) text.textContent = `${Math.round(this.seVol * 100)}%`;
+        const toggleBtn = document.getElementById('btn-sound-toggle');
+        if (toggleBtn) {
+            toggleBtn.textContent = (this.bgmVol === 0 && this.seVol === 0) ? '🔇' : '🔊';
+        }
+    },
+
+    playTone(freq, type, duration, startTime = 0, gainTarget = this.seGain) {
+        if (!this.ctx || !gainTarget) return;
+        const osc = this.ctx.createOscillator();
+        const noteGain = this.ctx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + startTime);
+
+        noteGain.gain.setValueAtTime(0.3, this.ctx.currentTime + startTime);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + startTime + duration);
+
+        osc.connect(noteGain);
+        noteGain.connect(gainTarget);
+
+        osc.start(this.ctx.currentTime + startTime);
+        osc.stop(this.ctx.currentTime + startTime + duration);
+    },
+
+    playSE(type) {
+        this.resume();
+        if (this.seVol <= 0 || !this.ctx) return;
+
+        if (type === 'done') {
+            // High cheerful 8-bit blip (E5 -> B5)
+            this.playTone(659.25, 'square', 0.08, 0);
+            this.playTone(987.77, 'square', 0.12, 0.06);
+        } else if (type === 'undo') {
+            // Cancel sound (G3 -> E3)
+            this.playTone(196.00, 'triangle', 0.09, 0);
+            this.playTone(164.81, 'triangle', 0.14, 0.07);
+        } else if (type === 'lucky') {
+            // Lucky chore fanfare (C5 -> E5 -> G5 -> C6)
+            this.playTone(523.25, 'square', 0.08, 0);
+            this.playTone(659.25, 'square', 0.08, 0.07);
+            this.playTone(783.99, 'square', 0.08, 0.14);
+            this.playTone(1046.50, 'square', 0.25, 0.21);
+        } else if (type === 'artifact') {
+            // Ancient relic sparkle (A5 -> D6 -> F#6 -> A6)
+            this.playTone(880.00, 'square', 0.07, 0);
+            this.playTone(1174.66, 'square', 0.07, 0.06);
+            this.playTone(1479.98, 'square', 0.07, 0.12);
+            this.playTone(1760.00, 'triangle', 0.25, 0.18);
+        } else if (type === 'levelup') {
+            // Victorious fanfare
+            const notes = [523.25, 523.25, 523.25, 659.25, 783.99, 1046.50];
+            const delays = [0, 0.1, 0.2, 0.3, 0.45, 0.6];
+            notes.forEach((n, idx) => {
+                this.playTone(n, 'square', idx === 5 ? 0.4 : 0.09, delays[idx]);
+            });
+        } else if (type === 'click') {
+            // Short retro click
+            this.playTone(800, 'square', 0.04, 0);
+        }
+    },
+
+    startBGM() {
+        this.resume();
+        if (this.bgmPlaying || !this.ctx) return;
+        this.bgmPlaying = true;
+        this.bgmStep = 0;
+        const text = document.getElementById('bgm-toggle-btn-text');
+        if (text) text.textContent = 'BGM 一時停止';
+
+        // Peaceful town / home RPG 8-bit arpeggio melody (C major / G major loop)
+        const melody = [
+            261.63, 329.63, 392.00, 523.25,  // C, E, G, C
+            293.66, 369.99, 440.00, 587.33,  // D, F#, A, D
+            246.94, 329.63, 392.00, 493.88,  // B, E, G, B
+            261.63, 392.00, 329.63, 261.63,  // C, G, E, C
+            329.63, 392.00, 523.25, 659.25,  // E, G, C, E
+            349.23, 440.00, 523.25, 698.46,  // F, A, C, F
+            392.00, 493.88, 587.33, 783.99,  // G, B, D, G
+            523.25, 392.00, 329.63, 261.63   // C, G, E, C
+        ];
+
+        const bassNotes = [
+            130.81, 130.81, 130.81, 130.81,
+            146.83, 146.83, 146.83, 146.83,
+            123.47, 123.47, 123.47, 123.47,
+            130.81, 130.81, 130.81, 130.81,
+            164.81, 164.81, 164.81, 164.81,
+            174.61, 174.61, 174.61, 174.61,
+            196.00, 196.00, 196.00, 196.00,
+            130.81, 130.81, 130.81, 130.81
+        ];
+
+        const tickTime = 220; // ms per 16th note
+
+        this.bgmTimer = setInterval(() => {
+            if (!this.bgmPlaying || this.bgmVol <= 0) return;
+            const noteIdx = this.bgmStep % melody.length;
+            const freq = melody[noteIdx];
+            const bass = bassNotes[noteIdx];
+
+            // Lead synth (soft triangle/square)
+            this.playTone(freq, 'triangle', 0.18, 0, this.bgmGain);
+
+            // Bass beat every 2 steps
+            if (this.bgmStep % 2 === 0) {
+                this.playTone(bass, 'square', 0.12, 0, this.bgmGain);
+            }
+
+            this.bgmStep++;
+        }, tickTime);
+    },
+
+    stopBGM() {
+        this.bgmPlaying = false;
+        if (this.bgmTimer) {
+            clearInterval(this.bgmTimer);
+            this.bgmTimer = null;
+        }
+        const text = document.getElementById('bgm-toggle-btn-text');
+        if (text) text.textContent = 'BGM 再生する';
+    },
+
+    toggleBGM() {
+        if (this.bgmPlaying) {
+            this.stopBGM();
+        } else {
+            this.startBGM();
+        }
+    }
+};
+
+// Open and Close Sound Modal
+function openSoundModal() {
+    SoundEngine.resume();
+    SoundEngine.playSE('click');
+    const modal = document.getElementById('sound-modal');
+    if (modal) modal.classList.remove('hidden');
+
+    // Sync sliders
+    const sliderBgm = document.getElementById('bgmVolumeSlider');
+    const sliderSe = document.getElementById('seVolumeSlider');
+    if (sliderBgm) sliderBgm.value = Math.round(SoundEngine.bgmVol * 100);
+    if (sliderSe) sliderSe.value = Math.round(SoundEngine.seVol * 100);
+}
+
+function closeSoundModal() {
+    SoundEngine.playSE('click');
+    const modal = document.getElementById('sound-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function onBgmVolumeChange(val) {
+    const num = parseInt(val, 10) / 100;
+    SoundEngine.setBGMVolume(num);
+    if (num > 0 && !SoundEngine.bgmPlaying) {
+        SoundEngine.startBGM();
+    } else if (num === 0 && SoundEngine.bgmPlaying) {
+        SoundEngine.stopBGM();
+    }
+}
+
+function onSeVolumeChange(val) {
+    const num = parseInt(val, 10) / 100;
+    SoundEngine.setSEVolume(num);
+}
+
+// User-interaction sound ignition
+window.addEventListener('click', function() {
+    SoundEngine.resume();
+}, { once: true });
+window.addEventListener('touchstart', function() {
+    SoundEngine.resume();
+}, { once: true });
+
+// ==========================================================================
+// --- 📜 Ancient Artifact Image (Canvas Generator) ---
+// ==========================================================================
+let currentAncientBlob = null;
+
+function openAncientScrollModal() {
+    SoundEngine.playSE('click');
+    const modal = document.getElementById('ancient-scroll-modal');
+    const loading = document.getElementById('ancient-loading');
+    const previewImg = document.getElementById('ancient-preview-img');
+
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    if (loading) loading.style.display = 'block';
+    if (previewImg) previewImg.style.display = 'none';
+
+    // Generate ancient canvas in background
+    setTimeout(() => {
+        generateAncientCardCanvas().then(blob => {
+            currentAncientBlob = blob;
+            const url = URL.createObjectURL(blob);
+            if (previewImg) {
+                previewImg.src = url;
+                previewImg.style.display = 'block';
+            }
+            if (loading) loading.style.display = 'none';
+        }).catch(err => {
+            console.error("Canvas generation failed:", err);
+            if (loading) loading.textContent = "石板の生成に失敗しました。";
+        });
+    }, 100);
+}
+
+function closeAncientScrollModal() {
+    SoundEngine.playSE('click');
+    const modal = document.getElementById('ancient-scroll-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function saveAncientScrollImage() {
+    SoundEngine.playSE('click');
+    if (!currentAncientBlob) return;
+    const todayStr = getTodayDateString();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(currentAncientBlob);
+    a.download = `kajigon_ancient_scroll_${todayStr}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    alert('古代の石板画像を保存しました！');
+}
+
+function shareAncientScrollImage() {
+    SoundEngine.playSE('click');
+    if (!currentAncientBlob) return;
+    const todayStr = getTodayDateString();
+    const file = new File([currentAncientBlob], `kajigon_ancient_scroll_${todayStr}.png`, { type: 'image/png' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({
+            title: '古代の家事碑文 - カジゴン',
+            text: '今日のおうちの家事記録（古代の碑文）です！',
+            files: [file]
+        }).catch(err => {
+            if (err.name !== 'AbortError') {
+                saveAncientScrollImage();
+            }
+        });
+    } else {
+        // Fallback to saving image and prompt copy text
+        saveAncientScrollImage();
+    }
+}
+
+async function generateAncientCardCanvas() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const width = 800;
+    const padding = 40;
+    
+    // Gather chores data
+    const todayStr = getTodayDateString();
+    const doneNames = Array.from(new Set(
+        completedList
+            .filter(c => getDateKey(c.time) === todayStr)
+            .map(c => c.name)
+    ));
+
+    const shareIncludeUndoneEl = document.getElementById('shareIncludeUndone');
+    const includeUndone = shareIncludeUndoneEl ? shareIncludeUndoneEl.checked : true;
+
+    const base = BASE_TEMPLATES[currentLayout] || [];
+    const allTemplateChores = [];
+    base.forEach(section => {
+        const customName = customRoomNames[section.id] || section.defaultName;
+        section.chores.forEach(chore => {
+            const fullName = section.id === 'trash' ? chore : `${customName}：${chore}`;
+            allTemplateChores.push(fullName);
+        });
+    });
+
+    const undoneNames = includeUndone ? allTemplateChores.filter(n => !doneNames.includes(n)) : [];
+    const message = document.getElementById('shareMessage') ? document.getElementById('shareMessage').value.trim() : '';
+    const spell = generateSpellText();
+    const currentLv = getLevel();
+    const evolved = getEvolvedForm();
+
+    // Calculate height dynamically
+    let calculatedHeight = 440; // Base header + companion area
+    calculatedHeight += Math.max(1, doneNames.length) * 32 + 50; // Done section
+    if (includeUndone && undoneNames.length > 0) {
+        calculatedHeight += undoneNames.length * 28 + 50; // Undone section
+    }
+    if (message) {
+        calculatedHeight += 80; // Message box
+    }
+    calculatedHeight += 120; // Spell & footer area
+    calculatedHeight = Math.max(760, calculatedHeight);
+
+    canvas.width = width;
+    canvas.height = calculatedHeight;
+
+    // 1. Draw Ancient Stone Slab Background
+    // Deep slate base
+    ctx.fillStyle = '#1c1b26';
+    ctx.fillRect(0, 0, width, calculatedHeight);
+
+    // Stone texture grain & cracks
+    ctx.fillStyle = '#232230';
+    for (let i = 0; i < 400; i++) {
+        const rx = (i * 97) % width;
+        const ry = (i * 137) % calculatedHeight;
+        const rw = (i % 5) + 2;
+        const rh = (i % 3) + 2;
+        ctx.fillRect(rx, ry, rw, rh);
+    }
+
+    // Outer ancient carved border
+    ctx.strokeStyle = '#0d0d13';
+    ctx.lineWidth = 14;
+    ctx.strokeRect(7, 7, width - 14, calculatedHeight - 14);
+
+    ctx.strokeStyle = '#8b5a2b'; // Ancient terracotta bronze trim
+    ctx.lineWidth = 4;
+    ctx.strokeRect(20, 20, width - 40, calculatedHeight - 40);
+
+    // Decorative corner notches
+    const cornerSize = 24;
+    ctx.fillStyle = '#c8924b';
+    ctx.fillRect(20, 20, cornerSize, cornerSize);
+    ctx.fillRect(width - 20 - cornerSize, 20, cornerSize, cornerSize);
+    ctx.fillRect(20, calculatedHeight - 20 - cornerSize, cornerSize, cornerSize);
+    ctx.fillRect(width - 20 - cornerSize, calculatedHeight - 20 - cornerSize, cornerSize, cornerSize);
+
+    // 2. Title & Ancient Header
+    ctx.fillStyle = '#ffd700';
+    ctx.font = 'bold 30px "DotGothic16", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('◆ 古代の家事碑文 ◆', width / 2, 65);
+
+    ctx.fillStyle = '#a0a0b0';
+    ctx.font = '16px "DotGothic16", monospace';
+    ctx.fillText(`- KAJIGON CHRONICLE -  ${todayStr}`, width / 2, 95);
+
+    // Divider line
+    ctx.strokeStyle = '#3a3a4c';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(40, 115);
+    ctx.lineTo(width - 40, 115);
+    ctx.stroke();
+
+    // 3. Companion Status Display (Left: Avatar, Right: Stats)
+    const avatarBoxX = 50;
+    const avatarBoxY = 135;
+    const avatarBoxSize = 130;
+
+    // Avatar Box
+    ctx.fillStyle = '#12121c';
+    ctx.fillRect(avatarBoxX, avatarBoxY, avatarBoxSize, avatarBoxSize);
+    ctx.strokeStyle = '#8b5a2b';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(avatarBoxX, avatarBoxY, avatarBoxSize, avatarBoxSize);
+
+    // Load and draw avatar image if available, else emoji
+    let avatarDrawn = false;
+    let avatarImgSrc = "";
+    if (currentLv <= 2) {
+        avatarImgSrc = "";
+    } else if (currentLv <= 5) {
+        avatarImgSrc = "kajigon_baby.png";
+    } else if (currentLv <= 9) {
+        avatarImgSrc = "kajigon_teen.png";
+    } else {
+        avatarImgSrc = evolved.file;
+    }
+
+    if (avatarImgSrc) {
+        try {
+            const img = new Image();
+            img.src = avatarImgSrc;
+            await new Promise((resolve) => {
+                img.onload = () => {
+                    ctx.drawImage(img, avatarBoxX + 10, avatarBoxY + 10, avatarBoxSize - 20, avatarBoxSize - 20);
+                    avatarDrawn = true;
+                    resolve();
+                };
+                img.onerror = () => resolve();
+            });
+        } catch(e) {
+            avatarDrawn = false;
+        }
+    }
+
+    if (!avatarDrawn) {
+        ctx.font = '60px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(getCompanionEmoji(), avatarBoxX + avatarBoxSize / 2, avatarBoxY + avatarBoxSize / 2 + 22);
+    }
+
+    // Companion Details (Right side)
+    const infoX = 205;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#f4ede2';
+    ctx.font = 'bold 24px "DotGothic16", sans-serif';
+    const companionName = currentLv >= 10 ? evolved.name : `カジゴン (Lv.${currentLv})`;
+    ctx.fillText(companionName, infoX, 170);
+
+    ctx.font = '17px "DotGothic16", sans-serif';
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText(`経験値: ${kajigonState.totalExp} EXP  |  古代パーツ: ⚙️×${kajigonState.artifactCount}`, infoX, 205);
+
+    // Attribute mini-gauges
+    ctx.fillStyle = '#a0a0b0';
+    ctx.font = '15px "DotGothic16", sans-serif';
+    ctx.fillText(`🔥火:${kajigonState.firePoints}  💧水:${kajigonState.waterPoints}  🍃風:${kajigonState.windPoints}  🪵土:${kajigonState.earthPoints}`, infoX, 240);
+
+    let curY = 300;
+
+    // 4. Completed Chores Section
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 20px "DotGothic16", sans-serif';
+    ctx.fillText('📜 本日の奉納（達成した家事）', 50, curY);
+    curY += 15;
+
+    ctx.strokeStyle = '#2d4a3e';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(50, curY);
+    ctx.lineTo(width - 50, curY);
+    ctx.stroke();
+    curY += 26;
+
+    if (doneNames.length === 0) {
+        ctx.fillStyle = '#a0a0b0';
+        ctx.font = '16px "DotGothic16", sans-serif';
+        ctx.fillText('・（まだ家事の記録はありません）', 60, curY);
+        curY += 30;
+    } else {
+        ctx.font = '17px "DotGothic16", sans-serif';
+        doneNames.forEach(name => {
+            ctx.fillStyle = '#34d399';
+            ctx.fillText('✔', 60, curY);
+            ctx.fillStyle = '#f4ede2';
+            ctx.fillText(name, 85, curY);
+            curY += 30;
+        });
+    }
+
+    // 5. Undone Chores Section (if included)
+    if (includeUndone && undoneNames.length > 0) {
+        curY += 15;
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = 'bold 18px "DotGothic16", sans-serif';
+        ctx.fillText('⬜ これからやること', 50, curY);
+        curY += 15;
+
+        ctx.strokeStyle = '#3a3a4c';
+        ctx.beginPath();
+        ctx.moveTo(50, curY);
+        ctx.lineTo(width - 50, curY);
+        ctx.stroke();
+        curY += 24;
+
+        ctx.font = '15px "DotGothic16", sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        undoneNames.forEach(name => {
+            ctx.fillText(`・${name}`, 65, curY);
+            curY += 26;
+        });
+    }
+
+    // 6. Message Section (if any)
+    if (message) {
+        curY += 20;
+        ctx.fillStyle = '#1a1926';
+        ctx.fillRect(50, curY, width - 100, 65);
+        ctx.strokeStyle = '#8b5a2b';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(50, curY, width - 100, 65);
+
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = 'bold 15px "DotGothic16", sans-serif';
+        ctx.fillText('💬 家族への伝言:', 65, curY + 24);
+
+        ctx.fillStyle = '#f4ede2';
+        ctx.font = '16px "DotGothic16", sans-serif';
+        ctx.fillText(message, 65, curY + 48);
+        curY += 75;
+    }
+
+    // 7. Footer & Spell Key
+    curY += 25;
+    ctx.strokeStyle = '#3a3a4c';
+    ctx.beginPath();
+    ctx.moveTo(40, curY);
+    ctx.lineTo(width - 40, curY);
+    ctx.stroke();
+    curY += 30;
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#a0a0b0';
+    ctx.font = '14px "DotGothic16", monospace';
+    ctx.fillText(`古代の封印キー [同期]: ${spell}`, width / 2, curY);
+
+    curY += 22;
+    ctx.fillStyle = '#71717a';
+    ctx.font = '12px "DotGothic16", sans-serif';
+    ctx.fillText('✨ カジゴン - RPG家事分担システム ✨', width / 2, curY);
+
+    return new Promise(resolve => {
+        canvas.toBlob(blob => resolve(blob), 'image/png');
+    });
+}
+
