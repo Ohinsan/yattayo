@@ -27,6 +27,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a24">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="dragon_all.png">
 </head>
 
 <body>
@@ -82,6 +87,7 @@
                     <h1 class="title">✅ カジゴン</h1>
                     <div class="header-actions">
                         <button class="btn-sound-toggle" id="btn-sound-toggle" onclick="openSoundModal()" title="サウンド設定">🔊</button>
+                        <button class="btn-sound-toggle" id="btn-book-toggle" onclick="openBookModal()" title="守護精霊図鑑">📖</button>
                         <button class="btn-settings" onclick="openSettingsModal()" title="設定を変更">🔧</button>
                     </div>
                 </div>
@@ -149,12 +155,22 @@
                 <h2 class="card-title">📱 家族にシェア</h2>
                 <div class="share-input-group">
                     <label for="shareMessage" class="group-label">家族への伝言・お願い（任意）</label>
-                    <textarea id="shareMessage" placeholder="例：お風呂掃除ありがとう！トイレットペーパー買ってきたよ。" rows="3"></textarea>
+                    <textarea id="shareMessage" placeholder="例：お風呂掃除ありがとう！トイレットペーパー買ってきたよ。" rows="2"></textarea>
+                </div>
+                <!-- 🍳 今日のごはんメモ（任意） -->
+                <div class="share-input-group" style="margin-top: 0.75rem;">
+                    <label for="shareDinnerMenu" class="group-label">🍳 今日・今夜のごはん（任意メモ）</label>
+                    <input type="text" id="shareDinnerMenu" placeholder="例：カレーライス、パスタ、ハンバーグなど" style="font-size: 14px; padding: 0.5rem 0.75rem;">
                 </div>
                 <!-- Checkbox for showing undone chores -->
-                <div class="share-checkbox-group" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; justify-content: flex-start;">
+                <div class="share-checkbox-group" style="margin-top: 0.75rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; justify-content: flex-start;">
                     <input type="checkbox" id="shareIncludeUndone" checked onclick="localStorage.setItem('kajigonUltimate_shareIncludeUndone', this.checked)" style="width: auto; height: auto; cursor: pointer; margin: 0;">
                     <label for="shareIncludeUndone" style="font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; user-select: none; margin: 0;">まだやってない家事もリストに含める</label>
+                </div>
+                <!-- Checkbox for thank you stamp -->
+                <div class="share-checkbox-group" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; justify-content: flex-start;">
+                    <input type="checkbox" id="shareIncludeThanks" checked style="width: auto; height: auto; cursor: pointer; margin: 0;">
+                    <label for="shareIncludeThanks" style="font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; user-select: none; margin: 0;">LINE返信用の感謝スタンプ枠をつける</label>
                 </div>
                 <div class="share-btn-group">
                     <button class="btn-share" onclick="shareReport()">
@@ -284,11 +300,19 @@
             
             <div class="sound-setting-row">
                 <div class="sound-setting-label">
-                    <span>🎵 8-bit BGM</span>
+                    <span>🎵 8-bit BGM 音量</span>
                     <span id="bgm-vol-text" class="sound-vol-val">30%</span>
                 </div>
                 <div class="sound-slider-wrapper">
                     <input type="range" id="bgmVolumeSlider" min="0" max="100" value="30" oninput="onBgmVolumeChange(this.value)">
+                </div>
+                <div style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
+                    <span style="font-weight: bold; color: var(--text-sub);">曲の選択:</span>
+                    <select id="bgmTrackSelect" onchange="SoundEngine.setBGMTrack(this.value)" style="padding: 0.25rem 0.5rem; background: #0d0d13; color: var(--accent); border: 2px solid var(--border); font-family: inherit;">
+                        <option value="village">🏡 のどかな拠点（日常）</option>
+                        <option value="ruins">🏛️ 古代の遺跡（神秘）</option>
+                        <option value="tavern">🎲 酒場とカジノ（陽気）</option>
+                    </select>
                 </div>
             </div>
 
@@ -335,6 +359,20 @@
                 <button class="btn-spell-action btn-spell-cancel" onclick="closeAncientScrollModal()">
                     とじる
                 </button>
+            </div>
+        </div>
+    <!-- 📖 守護精霊図鑑（ずかん）モーダル -->
+    <div id="book-modal" class="spell-overlay hidden">
+        <div class="spell-content" style="max-width: 540px; max-height: 85vh; overflow-y: auto;">
+            <h3 class="spell-title">📖 守護精霊図鑑</h3>
+            <p class="spell-desc">過去にLv10まで成長した歴代の守護精霊たちと、これまでに発見した精霊の記録です。</p>
+            
+            <div id="book-list-container" style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+                <!-- JSで動的生成 -->
+            </div>
+
+            <div class="spell-btn-group" style="margin-top: 1.5rem;">
+                <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeBookModal()">とじる</button>
             </div>
         </div>
     </div>

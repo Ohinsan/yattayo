@@ -1,0 +1,17 @@
+{
+  "name": "カジゴン - RPG家事分担システム",
+  "short_name": "カジゴン",
+  "description": "やった家事をワンタップで記録し、守護精霊ドラゴンを育てるRPG家事分担アプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1a24",
+  "theme_color": "#1a1a24",
+  "icons": [
+    {
+      "src": "dragon_all.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

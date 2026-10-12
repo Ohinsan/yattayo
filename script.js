@@ -428,6 +428,32 @@ function renderQuickAddButtons() {
             .map(c => c.name)
     );
 
+    // ⭐ Calculate frequently used / favorite chores
+    const counts = {};
+    completedList.forEach(c => {
+        counts[c.name] = (counts[c.name] || 0) + 1;
+    });
+    let topChores = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 3);
+    if (topChores.length === 0) {
+        topChores = ['キッチン：食器洗い', '洗面・洗濯：洗濯機を回す', 'リビング：掃除機がけ'];
+    }
+
+    const favHtml = `
+        <div class="quick-add-section favorites-section" style="border-radius: 8px;">
+            <span class="group-label" style="color: #ffd700;"><span>⭐</span> <span>よく使う家事</span></span>
+            <div class="quick-add-buttons">
+                ${topChores.map(choreName => {
+                    const isDoneToday = doneTodayNames.has(choreName);
+                    const stats = getChoreStats(choreName);
+                    const attrClass = stats.attr ? `attr-${stats.attr}` : '';
+                    const attrName = stats.attr || '';
+                    const checkLabel = isDoneToday ? '<span class="done-check-badge">✔ 完了</span>' : '';
+                    return `<button class="quick-add-btn ${attrClass} ${isDoneToday ? 'done' : ''}" ${isDoneToday ? 'disabled' : ''} onclick="addQuickChore('${choreName}', this)" onmouseenter="setTemporaryTheme('${attrName}')" onmouseleave="clearTemporaryTheme()">${choreName} ${checkLabel}</button>`;
+                }).join('')}
+            </div>
+        </div>
+    `;
+
     let sectionsHtml = base.map(section => {
         const customName = customRoomNames[section.id] || section.defaultName;
         const icon = getRoomIcon(section.id, customName);
@@ -494,7 +520,7 @@ function renderQuickAddButtons() {
         sectionsHtml += stairsHtml;
     }
 
-    container.innerHTML = sectionsHtml;
+    container.innerHTML = favHtml + sectionsHtml;
 }
 
 // ==========================================================================
@@ -939,6 +965,20 @@ function renderCompleted() {
         groupMap[key].items.push(chore);
     });
 
+    // Find today's MVP chore
+    const todayDateStr = getTodayDateString();
+    let todayMvpName = "";
+    let todayMaxPt = 0;
+    completedList
+        .filter(c => getDateKey(c.time) === todayDateStr)
+        .forEach(c => {
+            const st = getChoreStats(c.name);
+            if (st.pt > todayMaxPt) {
+                todayMaxPt = st.pt;
+                todayMvpName = c.name;
+            }
+        });
+
     container.innerHTML = groupOrder.map(key => {
         const group = groupMap[key];
         const items = [...group.items].reverse();
@@ -950,6 +990,7 @@ function renderCompleted() {
             const attrClass = stats.attr ? `attr-${stats.attr}` : '';
             const isSupply = chore.name.startsWith('[物品補充]');
             const isOther = chore.name.startsWith('[その他]');
+            const isMvp = (chore.name === todayMvpName && todayMaxPt >= 3);
             const displayName = chore.name
                 .replace(/^\[物品補充\]\s*/, '')
                 .replace(/^\[その他\]\s*/, '');
@@ -961,6 +1002,7 @@ function renderCompleted() {
                             ${isSupply ? '<span class="chore-item-completed-tag">補充</span>' : ''}
                             ${isOther ? '<span class="chore-item-completed-tag tag-other">その他</span>' : ''}
                             ${displayName}
+                            ${isMvp ? '<span class="mvp-badge">👑 MVP</span>' : ''}
                         </span>
                         <span class="chore-item-completed-time">${formatTime(chore.time)}</span>
                     </div>
@@ -973,11 +1015,15 @@ function renderCompleted() {
             const allIds = group.items.map(item => item.id).join(',');
             const stats = getChoreStats(items[0].name);
             const attrClass = stats.attr ? `attr-${stats.attr}` : '';
+            const hasMvp = items.some(it => it.name === todayMvpName && todayMaxPt >= 3);
 
             return `
                 <div class="chore-item-completed ${attrClass}">
                     <div class="chore-item-completed-info">
-                        <span class="chore-item-completed-name">${space}：${actions}</span>
+                        <span class="chore-item-completed-name">
+                            ${space}：${actions}
+                            ${hasMvp ? '<span class="mvp-badge">👑 MVP</span>' : ''}
+                        </span>
                         <span class="chore-item-completed-time">${formatTime(latestTime)}</span>
                     </div>
                     <button class="btn-undo" onclick="undoGroup('${allIds}')">取消</button>
@@ -1170,7 +1216,7 @@ function updateCompanionWidget() {
 
     widget.innerHTML = `
         <div class="companion-widget-container">
-            <div class="companion-status-card" title="おうちの様子">
+            <div class="companion-status-card" title="カジゴンをタップしておしゃべり！" onclick="onCompanionClick()" style="cursor: pointer;">
                 <div class="companion-display-row">
                     <div class="companion-avatar-box">
                         ${companionImgHtml}
@@ -1192,6 +1238,9 @@ function updateCompanionWidget() {
 function rebreedCompanion() {
     SoundEngine.playSE('click');
     if (window.confirm('現在の守護精霊を「そだてなおす」しますか？\nこれまでの経験値や属性ポイントがリセットされ、新しく卵（🥚）から育て直すことができます。\n※今日の家事履歴やカスタム部屋名は消えません。')) {
+        if (getLevel() >= 10) {
+            recordToEncyclopedia(getEvolvedForm());
+        }
         const themeChoice = window.prompt(
             '次の世代の育成環境テーマを選択してください：\n1: 🌋 灼熱の火山 (🔥火UP)\n2: 🌊 深海の神殿 (💧水UP)\n3: 🍃 天空の樹海 (🍃風UP)\n4: 🏜️ 砂漠の巨石遺跡 (🪵土UP)\n5: 📜 星降る神殿 (全属性バランス)\n6: 📟 初代レトロ (GB調)\n※半角数字 1〜6 を入力（キャンセルで現状維持）',
             '1'
@@ -1269,7 +1318,21 @@ function shareReport() {
         allTemplateChores.push('2F〜3F階段：拭き掃除');
     }
 
-    let doneText = Array.from(doneNames).map(name => `・${name}`).join('\n');
+    // Find MVP chore (highest pt)
+    let mvpChoreName = "";
+    let maxPt = 0;
+    doneNames.forEach(name => {
+        const stats = getChoreStats(name);
+        if (stats.pt > maxPt) {
+            maxPt = stats.pt;
+            mvpChoreName = name;
+        }
+    });
+
+    let doneText = Array.from(doneNames).map(name => {
+        const isMvp = (name === mvpChoreName && maxPt >= 3);
+        return isMvp ? `・${name} 👑(本日のMVP家事!)` : `・${name}`;
+    }).join('\n');
     if (!doneText) doneText = '（まだありません）';
 
     // Conditionally include undone chores
@@ -1285,12 +1348,21 @@ function shareReport() {
     }
 
     const message = document.getElementById('shareMessage').value.trim();
-    const messageText = message ? `\n🙏 伝言・お願い\n${message}` : '';
+    const messageText = message ? `\n\n🙏 伝言・お願い\n${message}` : '';
+
+    const dinnerMenuEl = document.getElementById('shareDinnerMenu');
+    const dinnerMenu = dinnerMenuEl ? dinnerMenuEl.value.trim() : '';
+    const dinnerText = dinnerMenu ? `\n\n🍳 今日・今夜のごはん\n${dinnerMenu}` : '';
+
+    const shareIncludeThanksEl = document.getElementById('shareIncludeThanks');
+    const includeThanks = shareIncludeThanksEl ? shareIncludeThanksEl.checked : true;
+    const thanksText = includeThanks ? `\n\n💌 家族からの返信・感謝スタンプ\n[いつもありがとう！💖 / 大助かり！🌟 / お疲れさま！🍵]` : '';
 
     const spell = generateSpellText();
-    const reportText = `🏠 今日の家事レポート\n\n✅ やったこと\n${doneText}${undoneSection}${messageText}\n\n💾同期用バックアップキー: ${spell}`;
+    const reportText = `🏠 今日の家事レポート\n\n✅ やったこと\n${doneText}${undoneSection}${dinnerText}${messageText}${thanksText}\n\n💾同期用バックアップキー: ${spell}`;
 
     navigator.clipboard.writeText(reportText).then(() => {
+        SoundEngine.playSE('click');
         alert('レポートと同期キーをコピーしました！LINEなどに貼り付けて送信できます。');
     }).catch(err => {
         console.error("コピー失敗:", err);
@@ -1644,6 +1716,45 @@ function showCompanionDialogue(text) {
     }
 }
 
+function onCompanionClick() {
+    SoundEngine.playSE('click');
+    const lv = getLevel();
+    const stage = getCompanionStage(lv);
+    const now = new Date();
+    const hour = now.getHours();
+
+    let lines = [];
+    if (hour >= 5 && hour < 10) {
+        lines.push('「おはようございます！今日も朝からおうちを綺麗にしていきましょう！」');
+        lines.push('「朝の空気が気持ちいいですね！朝イチの家事でスタートダッシュ！」');
+    } else if (hour >= 22 || hour < 4) {
+        lines.push('「夜遅くまで本当にお疲れさまです…！無理しないで休んでくださいね。」');
+        lines.push('「静かな夜のひと仕事、カジゴンはいつでも見ていますよ…zzz」');
+    }
+
+    if (stage === 'egg') {
+        lines.push('（卵はかすかに温かい…家事の気配を感じているようだ！）');
+        lines.push('（コトコト…中から小さな足音が聞こえる気がする！）');
+    } else if (stage === 'baby') {
+        lines.push('「ピピピッ！総監督、なでてくれてありがとう！」');
+        lines.push('「もっといっぱい家事を覚えて、かっこいいドラゴンになりたいな！」');
+    } else if (stage === 'teen') {
+        lines.push('「ふふん、最近おうちがどんどんピカピカになってるの、気づいてるよ！」');
+        lines.push('「どんな姿に進化するか楽しみだな〜！属性バランスはどうかな？」');
+    } else {
+        lines.push('「我が主よ、いつもおうちを慈しみ、守ってくれて感謝いたします。」');
+        lines.push('「この部屋の平和と清潔さは、あなたの毎日の努力の賜物です！」');
+    }
+
+    // Trash day reminder line
+    const dayOfWeek = now.getDay();
+    const daysMap = ['日', '月', '火', '水', '木', '金', '土'];
+    lines.push(`「今日は${daysMap[dayOfWeek]}曜日！忘れずにゴミ捨てチェックしておこう！」`);
+
+    const chosen = lines[Math.floor(Math.random() * lines.length)];
+    showCompanionDialogue(chosen);
+}
+
 function openEndingModal() {
     const modal = document.getElementById('ending-modal');
     const titleEl = document.getElementById('ending-celebration-title');
@@ -1688,6 +1799,9 @@ function openEndingModal() {
 
     modal.classList.remove('hidden');
 
+    // Automatically register unlocked companion to encyclopedia
+    recordToEncyclopedia(selectedDragon);
+
     // Only trigger sparkles if NOT Dark Golem (ゴールドの輝きを一切消し)
     if (selectedDragon.attr !== 'dark') {
         generateSparkles();
@@ -1706,6 +1820,191 @@ function closeEndingModal() {
     // Mark ending as seen and save
     kajigonState.endingSeen = true;
     saveToLocalStorage();
+}
+
+// ==========================================================================
+// --- 📖 守護精霊図鑑 (Encyclopedia System) ---
+// ==========================================================================
+const ALL_SPIRITS = [
+    {
+        id: 'light_dragon',
+        attr: 'light',
+        name: '🌟 創世輝龍アルティマ 🐉',
+        file: 'dragon_all.png',
+        desc: 'すべての家事を愛と調和の心でバランスよくこなし、世界に調和をもたらしました。',
+        hint: '【光】全属性の家事をバランスよく行うと進化'
+    },
+    {
+        id: 'fire_dragon',
+        attr: 'fire',
+        name: '🌋 獄炎龍ボルカノン 🦖',
+        file: 'dragon_fire.png',
+        desc: 'おうちのシンクやコンロをピカピカに磨き上げ、暮らしに熱い情熱の火を灯し続けてくれました。',
+        hint: '【火】料理・コンロなどの熱い家事を極めると進化'
+    },
+    {
+        id: 'water_dragon',
+        attr: 'water',
+        name: '🌊 海王神龍リヴァイア 🐙',
+        file: 'dragon_water.png',
+        desc: 'お風呂や洗濯、食器洗いで水回りを清め、家族みんなに清潔と潤いをもたらしてくれました。',
+        hint: '【水】お風呂・洗濯・食器洗いなど水回りを極めると進化'
+    },
+    {
+        id: 'wind_dragon',
+        attr: 'wind',
+        name: '🌪️ 嵐神翼龍ゼフィロス 🦅',
+        file: 'dragon_wind.png',
+        desc: '丁寧な掃除機がけや階段の掃き掃除でおうちの埃を吹き飛ばし、常に澄み切った新しい風を送り続けてくれました。',
+        hint: '【風】掃除機や換気など風の家事を極めると進化'
+    },
+    {
+        id: 'earth_dragon',
+        attr: 'earth',
+        name: '🪵 巌帝古龍ガイアード 🌲',
+        file: 'dragon_earth.png',
+        desc: '拭き掃除やゴミ捨て、ベッドメイキングでおうちの基礎をがっしりと支え、最高の安定感を与えてくれました。',
+        hint: '【土】拭き掃除・ゴミ捨て・整理整頓を極めると進化'
+    },
+    {
+        id: 'dark_golem',
+        attr: 'dark',
+        name: '👿 不完全なる闇 of 魔ゴーレム 🤖',
+        file: 'golem_dark.png',
+        desc: '古代パーツ（⚙️）が3個集まった、不穏で静かに佇む魔導のロボット。コアが怪しく光る不完全なドット絵姿です。',
+        hint: '【闇】古代パーツを3つ集めてバランスよく家事を行うと降臨'
+    },
+    {
+        id: 'fire_golem',
+        attr: 'fire',
+        name: '🌋 獄炎魔ゴーレム 🤖',
+        file: 'golem_fire.png',
+        desc: 'おうちのシンクやコンロをピカピカに磨き上げ、熱い鉄の魂で暮らしを支えてくれました。',
+        hint: '【火・機械】古代パーツを持ち、火の家事を極めると進化'
+    },
+    {
+        id: 'water_golem',
+        attr: 'water',
+        name: '🌊 海王魔ゴーレム 🤖',
+        file: 'golem_water.png',
+        desc: 'お風呂や洗濯、食器洗いで水回りを清め、無休の歯車で清潔と潤いをもたらしてくれました。',
+        hint: '【水・機械】古代パーツを持ち、水の家事を極めると進化'
+    },
+    {
+        id: 'wind_golem',
+        attr: 'wind',
+        name: '🌪️ 嵐神魔ゴーレム 🤖',
+        file: 'golem_wind.png',
+        desc: '掃除機がけや階段の掃き掃除で埃を吸い込み、強力なファンで新しい風を送り続けてくれました。',
+        hint: '【風・機械】古代パーツを持ち、風の家事を極めると進化'
+    },
+    {
+        id: 'earth_golem',
+        attr: 'earth',
+        name: '🪵 巌帝魔ゴーレム 🤖',
+        file: 'golem_earth.png',
+        desc: '拭き掃除やゴミ捨て、ベッドメイキングを行い、どっしりとした金属の躯体でおうちの基礎を支えてくれました。',
+        hint: '【土・機械】古代パーツを持ち、土の家事を極めると進化'
+    }
+];
+
+function recordToEncyclopedia(evolved) {
+    if (!evolved || !evolved.file) return;
+    try {
+        const raw = localStorage.getItem('kajigon_encyclopedia');
+        let list = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(list)) list = [];
+        
+        const existingIdx = list.findIndex(item => item.file === evolved.file);
+        const record = {
+            name: evolved.name,
+            file: evolved.file,
+            attr: evolved.attr,
+            desc: evolved.desc,
+            date: new Date().toLocaleDateString('ja-JP')
+        };
+        
+        if (existingIdx >= 0) {
+            list[existingIdx] = record;
+        } else {
+            list.push(record);
+        }
+        localStorage.setItem('kajigon_encyclopedia', JSON.stringify(list));
+    } catch(e) {
+        console.error('Error saving to encyclopedia:', e);
+    }
+}
+
+function openBookModal() {
+    SoundEngine.playSE('click');
+    if (getLevel() >= 10) {
+        recordToEncyclopedia(getEvolvedForm());
+    }
+    
+    let unlocked = [];
+    try {
+        const raw = localStorage.getItem('kajigon_encyclopedia');
+        unlocked = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(unlocked)) unlocked = [];
+    } catch(e) {
+        unlocked = [];
+    }
+
+    const container = document.getElementById('book-list-container');
+    if (!container) return;
+
+    const unlockedFiles = new Set(unlocked.map(u => u.file));
+    const totalCount = ALL_SPIRITS.length;
+    const unlockedCount = ALL_SPIRITS.filter(s => unlockedFiles.has(s.file)).length;
+
+    let html = `
+        <div style="background: rgba(255,255,255,0.06); border: 2px solid var(--accent); padding: 0.6rem 0.8rem; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center; color: var(--accent); margin-bottom: 0.5rem;">
+            発見数: ${unlockedCount} / ${totalCount} 体 （達成率: ${Math.round((unlockedCount / totalCount) * 100)}%）
+        </div>
+    `;
+
+    ALL_SPIRITS.forEach(spirit => {
+        const isDiscovered = unlockedFiles.has(spirit.file);
+        const record = unlocked.find(u => u.file === spirit.file);
+        const dateStr = record && record.date ? `（発見日: ${record.date}）` : '';
+
+        if (isDiscovered) {
+            html += `
+                <div class="book-card" style="border-color: var(--accent);">
+                    <div class="book-avatar">
+                        <img src="${spirit.file}" alt="${spirit.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span style="display:none; font-size: 32px;">${spirit.file.includes('golem') ? '🤖' : '🐉'}</span>
+                    </div>
+                    <div class="book-info">
+                        <div class="book-info-title">${spirit.name}</div>
+                        <div class="book-info-desc">${spirit.desc}</div>
+                        <div class="book-date">✨ 発見済み ${dateStr}</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="book-card" style="opacity: 0.65; border: 2px dashed #444; background: #0e0e14;">
+                    <div class="book-avatar" style="border-color: #444; background: #07070a; display:flex; align-items:center; justify-content:center; color: #888; font-size: 26px;">
+                        ❓
+                    </div>
+                    <div class="book-info">
+                        <div class="book-info-title" style="color: #888;">？？？？？？</div>
+                        <div class="book-info-desc" style="color: #71717a;">ヒント: ${spirit.hint}</div>
+                        <div class="book-date" style="color: #555;">🔒 未発見</div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    container.innerHTML = html;
+    document.getElementById('book-modal').classList.remove('hidden');
+}
+
+function closeBookModal() {
+    SoundEngine.playSE('click');
+    document.getElementById('book-modal').classList.add('hidden');
 }
 
 // 星屑 of ending sparkles
@@ -1954,6 +2253,17 @@ const SoundEngine = {
         }
     },
 
+    bgmTrack: 'village',
+
+    setBGMTrack(trackName) {
+        this.bgmTrack = trackName;
+        localStorage.setItem('kajigon_bgm_track', trackName);
+        if (this.bgmPlaying) {
+            this.stopBGM();
+            this.startBGM();
+        }
+    },
+
     startBGM() {
         this.resume();
         if (this.bgmPlaying || !this.ctx) return;
@@ -1962,30 +2272,81 @@ const SoundEngine = {
         const text = document.getElementById('bgm-toggle-btn-text');
         if (text) text.textContent = 'BGM 一時停止';
 
-        // Peaceful town / home RPG 8-bit arpeggio melody (C major / G major loop)
-        const melody = [
-            261.63, 329.63, 392.00, 523.25,  // C, E, G, C
-            293.66, 369.99, 440.00, 587.33,  // D, F#, A, D
-            246.94, 329.63, 392.00, 493.88,  // B, E, G, B
-            261.63, 392.00, 329.63, 261.63,  // C, G, E, C
-            329.63, 392.00, 523.25, 659.25,  // E, G, C, E
-            349.23, 440.00, 523.25, 698.46,  // F, A, C, F
-            392.00, 493.88, 587.33, 783.99,  // G, B, D, G
-            523.25, 392.00, 329.63, 261.63   // C, G, E, C
-        ];
+        // 3 Different 8-bit chip tracks
+        let melody = [];
+        let bassNotes = [];
+        let tickTime = 220;
 
-        const bassNotes = [
-            130.81, 130.81, 130.81, 130.81,
-            146.83, 146.83, 146.83, 146.83,
-            123.47, 123.47, 123.47, 123.47,
-            130.81, 130.81, 130.81, 130.81,
-            164.81, 164.81, 164.81, 164.81,
-            174.61, 174.61, 174.61, 174.61,
-            196.00, 196.00, 196.00, 196.00,
-            130.81, 130.81, 130.81, 130.81
-        ];
-
-        const tickTime = 220; // ms per 16th note
+        if (this.bgmTrack === 'ruins') {
+            // Mysterious ancient minor melody (A minor)
+            melody = [
+                220.00, 261.63, 329.63, 440.00,  // A, C, E, A
+                196.00, 246.94, 293.66, 392.00,  // G, B, D, G
+                174.61, 220.00, 261.63, 349.23,  // F, A, C, F
+                164.81, 207.65, 246.94, 329.63,  // E, G#, B, E
+                220.00, 329.63, 261.63, 220.00,
+                293.66, 349.23, 440.00, 349.23,
+                329.63, 246.94, 207.65, 246.94,
+                220.00, 261.63, 329.63, 440.00
+            ];
+            bassNotes = [
+                110.00, 110.00, 110.00, 110.00,
+                98.00, 98.00, 98.00, 98.00,
+                87.31, 87.31, 87.31, 87.31,
+                82.41, 82.41, 82.41, 82.41,
+                110.00, 110.00, 110.00, 110.00,
+                146.83, 146.83, 146.83, 146.83,
+                82.41, 82.41, 82.41, 82.41,
+                110.00, 110.00, 110.00, 110.00
+            ];
+            tickTime = 250;
+        } else if (this.bgmTrack === 'tavern') {
+            // Upbeat energetic casino / tavern dance (F major / C major)
+            melody = [
+                349.23, 440.00, 523.25, 440.00,  // F, A, C, A
+                392.00, 493.88, 587.33, 493.88,  // G, B, D, B
+                523.25, 659.25, 783.99, 659.25,  // C, E, G, E
+                440.00, 523.25, 659.25, 523.25,  // A, C, E, C
+                349.23, 523.25, 440.00, 349.23,
+                392.00, 587.33, 493.88, 392.00,
+                523.25, 392.00, 329.63, 261.63,
+                261.63, 329.63, 392.00, 523.25
+            ];
+            bassNotes = [
+                174.61, 174.61, 174.61, 174.61,
+                196.00, 196.00, 196.00, 196.00,
+                130.81, 130.81, 130.81, 130.81,
+                110.00, 110.00, 110.00, 110.00,
+                174.61, 174.61, 174.61, 174.61,
+                196.00, 196.00, 196.00, 196.00,
+                130.81, 130.81, 130.81, 130.81,
+                130.81, 130.81, 130.81, 130.81
+            ];
+            tickTime = 180;
+        } else {
+            // Default: Peaceful town / home RPG 8-bit arpeggio melody (C major / G major loop)
+            melody = [
+                261.63, 329.63, 392.00, 523.25,  // C, E, G, C
+                293.66, 369.99, 440.00, 587.33,  // D, F#, A, D
+                246.94, 329.63, 392.00, 493.88,  // B, E, G, B
+                261.63, 392.00, 329.63, 261.63,  // C, G, E, C
+                329.63, 392.00, 523.25, 659.25,  // E, G, C, E
+                349.23, 440.00, 523.25, 698.46,  // F, A, C, F
+                392.00, 493.88, 587.33, 783.99,  // G, B, D, G
+                523.25, 392.00, 329.63, 261.63   // C, G, E, C
+            ];
+            bassNotes = [
+                130.81, 130.81, 130.81, 130.81,
+                146.83, 146.83, 146.83, 146.83,
+                123.47, 123.47, 123.47, 123.47,
+                130.81, 130.81, 130.81, 130.81,
+                164.81, 164.81, 164.81, 164.81,
+                174.61, 174.61, 174.61, 174.61,
+                196.00, 196.00, 196.00, 196.00,
+                130.81, 130.81, 130.81, 130.81
+            ];
+            tickTime = 220;
+        }
 
         this.bgmTimer = setInterval(() => {
             if (!this.bgmPlaying || this.bgmVol <= 0) return;
@@ -2031,11 +2392,13 @@ function openSoundModal() {
     const modal = document.getElementById('sound-modal');
     if (modal) modal.classList.remove('hidden');
 
-    // Sync sliders
+    // Sync sliders & track select
     const sliderBgm = document.getElementById('bgmVolumeSlider');
     const sliderSe = document.getElementById('seVolumeSlider');
+    const trackSelect = document.getElementById('bgmTrackSelect');
     if (sliderBgm) sliderBgm.value = Math.round(SoundEngine.bgmVol * 100);
     if (sliderSe) sliderSe.value = Math.round(SoundEngine.seVol * 100);
+    if (trackSelect) trackSelect.value = SoundEngine.bgmTrack;
 }
 
 function closeSoundModal() {
@@ -2326,6 +2689,17 @@ async function generateAncientCardCanvas() {
     ctx.stroke();
     curY += 26;
 
+    // Find MVP chore
+    let mvpChoreName = "";
+    let maxPt = 0;
+    doneNames.forEach(name => {
+        const stats = getChoreStats(name);
+        if (stats.pt > maxPt) {
+            maxPt = stats.pt;
+            mvpChoreName = name;
+        }
+    });
+
     if (doneNames.length === 0) {
         ctx.fillStyle = '#a0a0b0';
         ctx.font = '16px "DotGothic16", sans-serif';
@@ -2334,10 +2708,11 @@ async function generateAncientCardCanvas() {
     } else {
         ctx.font = '17px "DotGothic16", sans-serif';
         doneNames.forEach(name => {
-            ctx.fillStyle = '#34d399';
-            ctx.fillText('✔', 60, curY);
+            const isMvp = (name === mvpChoreName && maxPt >= 3);
+            ctx.fillStyle = isMvp ? '#ffd700' : '#34d399';
+            ctx.fillText(isMvp ? '👑' : '✔', 60, curY);
             ctx.fillStyle = '#f4ede2';
-            ctx.fillText(name, 85, curY);
+            ctx.fillText(isMvp ? `${name} (本日の大功績！)` : name, 85, curY);
             curY += 30;
         });
     }
@@ -2365,12 +2740,33 @@ async function generateAncientCardCanvas() {
         });
     }
 
+    // 🍳 Dinner Menu Box (if any)
+    const dinnerMenuEl = document.getElementById('shareDinnerMenu');
+    const dinnerMenu = dinnerMenuEl ? dinnerMenuEl.value.trim() : '';
+    if (dinnerMenu) {
+        curY += 15;
+        ctx.fillStyle = '#1c1712';
+        ctx.fillRect(50, curY, width - 100, 56);
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(50, curY, width - 100, 56);
+
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = 'bold 15px "DotGothic16", sans-serif';
+        ctx.fillText('🍳 本日の献立・ごはん:', 65, curY + 22);
+
+        ctx.fillStyle = '#fde68a';
+        ctx.font = '16px "DotGothic16", sans-serif';
+        ctx.fillText(dinnerMenu, 65, curY + 44);
+        curY += 66;
+    }
+
     // 6. Message Section (if any)
     if (message) {
-        curY += 20;
+        curY += 15;
         ctx.fillStyle = '#1a1926';
         ctx.fillRect(50, curY, width - 100, 65);
-        ctx.strokeStyle = '#8b5a2b';
+        ctx.strokeStyle = cvColors.borderInner;
         ctx.lineWidth = 2;
         ctx.strokeRect(50, curY, width - 100, 65);
 
@@ -2382,6 +2778,25 @@ async function generateAncientCardCanvas() {
         ctx.font = '16px "DotGothic16", sans-serif';
         ctx.fillText(message, 65, curY + 48);
         curY += 75;
+    }
+
+    // 💌 Thanks Stamp Box
+    const shareIncludeThanksEl = document.getElementById('shareIncludeThanks');
+    const includeThanks = shareIncludeThanksEl ? shareIncludeThanksEl.checked : true;
+    if (includeThanks) {
+        curY += 10;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+        ctx.fillRect(50, curY, width - 100, 40);
+        ctx.strokeStyle = '#3a3a4c';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(50, curY, width - 100, 40);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '14px "DotGothic16", sans-serif';
+        ctx.fillText('💌 感謝の受領印: [ いつもありがとう！ 💖 大助かり！ 🌟 お疲れさま！ 🍵 ]', width / 2, curY + 25);
+        ctx.textAlign = 'left';
+        curY += 50;
     }
 
     // 7. Footer & Spell Key
@@ -2407,4 +2822,16 @@ async function generateAncientCardCanvas() {
         canvas.toBlob(blob => resolve(blob), 'image/png');
     });
 }
+
+// ==========================================================================
+// --- 📱 PWA Service Worker Registration ---
+// ==========================================================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+            console.log('PWA ServiceWorker registration failed:', err);
+        });
+    });
+}
+
 
