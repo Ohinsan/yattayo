@@ -1228,6 +1228,7 @@ function updateCompanionWidget() {
                 <button class="btn-legendary btn-rebreed" onclick="rebreedCompanion()" title="卵からそだてなおす">🔄 そだてなおす</button>
             </div>
         `;
+    }
     // 🏡 我が家のカジゴン部屋・インテリア飾り (案3：基本家具 ＋ 季節限定イベント家具)
     const totalDone = completedList.length;
     const furnitureItems = [];
