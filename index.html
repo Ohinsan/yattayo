@@ -78,124 +78,130 @@
         </div>
     </div>
 
-    <!-- Main Screen -->
+    <!-- Main Screen (Full-Screen Cozy Dragon Room with Side Buttons) -->
     <div id="main-screen" class="container hidden">
         <div class="app-wrapper">
-            <!-- Header -->
-            <div class="header">
-                <div class="header-top">
-                    <h1 class="title">✅ カジゴン</h1>
-                    <div class="header-actions">
-                        <button class="btn-sound-toggle" id="btn-sound-toggle" onclick="openSoundModal()" title="サウンド設定">🔊</button>
-                        <button class="btn-sound-toggle" id="btn-book-toggle" onclick="openBookModal()" title="守護精霊図鑑">📖</button>
-                        <button class="btn-sound-toggle" id="btn-news-toggle" onclick="openWeeklyNewsModal()" title="週刊カジゴン号外ニュース">📰</button>
-                        <button class="btn-settings" onclick="openSettingsModal()" title="設定を変更">🔧</button>
-                    </div>
-                </div>
-                <p class="subtitle">やった家事をワンタップで記録しよう</p>
+            
+            <!-- 🏡 全体がカジゴンの暮らす部屋（たまごっち・ポケスリ風フルスクリーンルーム） -->
+            <div id="tamagotchi-room-container" class="tamagotchi-room">
                 
-                <!-- 👾 相棒表示（絵文字2つで属性を可視化！カプセル型の美しいバッジに絵文字だけを常時浮遊） -->
-                <div id="companion-status-widget">
-                    <!-- JSで動的生成 -->
-                </div>
-
-                <!-- 🌿 育成環境テーマバッジ -->
-                <div id="env-badge-container" class="env-badge-container">
-                    <!-- JSで動的生成 -->
-                </div>
-
-                <!-- 💬 カジゴンのセリフ枠 -->
-                <div id="companion-speech-bubble" class="speech-bubble hidden" onclick="this.classList.add('hidden')">
-                    <p id="speech-text"></p>
-                </div>
-
-                <!-- ⭐今日のラッキー家事 -->
-                <div id="lucky-chore-widget" style="margin-top: 0.5rem;">
-                    <!-- JSで動的生成 -->
-                </div>
-
-                <!-- ⚔️ 突発討伐クエスト（名もなき家事ゲリラボス） -->
-                <div id="bounty-quest-widget" style="margin-top: 0.6rem;">
-                    <!-- JSで動的生成 -->
-                </div>
-            </div>
-
-            <!-- Chore Addition Area (Dynamic) -->
-            <div id="quick-add-container">
-                <!-- Buttons will be generated here -->
-            </div>
-
-            <!-- Free Input Area -->
-            <div class="chore-addition-card">
-                <!-- Free Input Section -->
-                <div class="free-input-section">
-                    <h3 class="section-title">✏️ 物品補充（自由記述）</h3>
-                    <div class="free-input-group">
-                        <input type="text" id="freeSupplyInput" placeholder="例）トイレットペーパー..."
-                            onkeypress="if(event.key==='Enter') addFreeSupply()">
-                        <button class="btn btn-add-supply" onclick="addFreeSupply()">➕ 追加</button>
+                <!-- 部屋の上部インテリア（星空の窓 & あたたかいランプ） -->
+                <div class="room-decor-top">
+                    <div class="room-window" title="星空の見える窓">
+                        <div class="window-glass">
+                            <span class="window-moon">🌙</span>
+                            <span class="window-star s1">✦</span>
+                            <span class="window-star s2">✦</span>
+                        </div>
+                    </div>
+                    <!-- ステータスヘッダー（相棒名 ＆ レベル） -->
+                    <div class="room-status-badge">
+                        <div class="room-status-title" id="room-status-name">✅ カジゴン (LV.1)</div>
+                        <div class="room-status-sub" id="room-status-exp">NEXT: 0/10 EXP</div>
+                    </div>
+                    <div class="room-lamp" title="あたたかいランプ">
+                        <div class="lamp-cord"></div>
+                        <div class="lamp-shade">💡</div>
+                        <div class="lamp-glow"></div>
                     </div>
                 </div>
 
-                <!-- Other Free Input Section -->
-                <div class="free-input-section">
-                    <h3 class="section-title">📝 その他（自由記述）</h3>
-                    <div class="free-input-group">
-                        <input type="text" id="otherChoreInput" placeholder="例）窓拭き、アイロンがけ..."
-                            onkeypress="if(event.key==='Enter') addOtherChore()">
-                        <button class="btn btn-add-other" onclick="addOtherChore()">➕ 追加</button>
+                <!-- 🏡 部屋の中央ステージ（サイドUI ＆ カジゴン） -->
+                <div class="room-stage">
+                    
+                    <!-- 👈 左サイドのコンパクトUI（クエスト・かるた・新聞） -->
+                    <div class="room-side-col room-side-left">
+                        <button class="side-action-btn side-quest-btn" onclick="openBountyModal()" title="突発討伐ボス（名もなき家事）">
+                            <span class="side-btn-icon">⚔️</span>
+                            <span class="side-btn-label">討伐ボス</span>
+                            <span id="side-quest-badge" class="side-btn-badge hidden">!</span>
+                        </button>
+                        <button class="side-action-btn side-karuta-btn" onclick="openKarutaAlbumModal()" title="家事かるた帳（全52種）">
+                            <span class="side-btn-icon">🥠</span>
+                            <span class="side-btn-label">かるた</span>
+                        </button>
+                        <button class="side-action-btn side-news-btn" onclick="openWeeklyNewsModal()" title="週刊カジゴン号外通信">
+                            <span class="side-btn-icon">📰</span>
+                            <span class="side-btn-label">号外新聞</span>
+                        </button>
+                        <button class="side-action-btn side-sound-btn" onclick="openSoundModal()" title="BGM・サウンド設定">
+                            <span class="side-btn-icon">🎵</span>
+                            <span class="side-btn-label">サウンド</span>
+                        </button>
                     </div>
+
+                    <!-- 🐉 カジゴン＆中央インテリア（くつろぎスペース） -->
+                    <div class="room-center-pet-area" onclick="onCompanionClick()">
+                        <!-- 吹き出しセリフ -->
+                        <div id="companion-speech-bubble" class="speech-bubble-pet hidden">
+                            <p id="speech-text">シチューのいい匂い！おうち快適だぞ〜！</p>
+                        </div>
+
+                        <!-- カジゴン本体スプライト -->
+                        <div class="pet-sprite-wrapper" id="room-pet-wrapper">
+                            <div id="companion-status-widget">
+                                <!-- JSでスプライト動的配置 -->
+                            </div>
+                        </div>
+
+                        <!-- 足元のふかふか丸絨毯 -->
+                        <div class="room-rug"></div>
+
+                        <!-- 部屋の床家具（観葉植物 ＆ シチュー鍋） -->
+                        <div class="room-floor-furniture">
+                            <div class="furniture-item item-plant" id="furniture-plant" title="小さな観葉植物">🪴</div>
+                            <div class="furniture-item item-stew" id="furniture-stew" title="ほかほかシチュー鍋">🍲</div>
+                            <div class="furniture-item item-shelf" id="furniture-shelf" title="季節の飾り">🌸</div>
+                        </div>
+                    </div>
+
+                    <!-- 👉 右サイドのコンパクトUI（家事きろく・共有・図鑑・設定） -->
+                    <div class="room-side-col room-side-right">
+                        <button class="side-action-btn side-add-btn" onclick="openChoreSelectModal()" title="家事を記録する">
+                            <span class="side-btn-icon">🔨</span>
+                            <span class="side-btn-label">家事きろく</span>
+                        </button>
+                        <button class="side-action-btn side-share-btn" onclick="openShareActionModal()" title="家族に共有する">
+                            <span class="side-btn-icon">📱</span>
+                            <span class="side-btn-label">共有する</span>
+                        </button>
+                        <button class="side-action-btn side-book-btn" onclick="openBookModal()" title="守護精霊図鑑">
+                            <span class="side-btn-icon">📖</span>
+                            <span class="side-btn-label">図鑑</span>
+                        </button>
+                        <button class="side-action-btn side-settings-btn" onclick="openSettingsModal()" title="お部屋・サウンド設定">
+                            <span class="side-btn-icon">⚙️</span>
+                            <span class="side-btn-label">設定</span>
+                        </button>
+                    </div>
+
                 </div>
+
+                <!-- 🔻 部屋の最下部：折りたたみ式の「最近やったこと（CHORE LOG）」引き出し -->
+                <div class="room-bottom-drawer">
+                    <details class="chore-log-details" id="chore-log-details">
+                        <summary class="chore-log-summary">
+                            <div class="chore-log-summary-title">
+                                <span>🧹</span>
+                                <span>最近やったこと（CHORE LOG）</span>
+                            </div>
+                            <span class="chore-log-toggle-icon">▲ 開く</span>
+                        </summary>
+                        <div id="completedList" class="chore-log-list">
+                            <!-- JSで完了履歴を動的生成 -->
+                        </div>
+                    </details>
+                </div>
+
             </div>
 
-            <!-- Completed History -->
-            <div class="card completed-card">
-                <h2 class="card-title">📝 最近やったこと</h2>
-                <div id="completedList" class="chores-list">
-                    <!-- Generated by JavaScript -->
-                </div>
-            </div>
+            <!-- 🌿 育成環境テーマバッジ（固定表示） -->
+            <div id="env-badge-container" class="env-badge-container" style="display:none;"></div>
+            <div id="lucky-chore-widget" style="display:none;"></div>
+            <div id="bounty-quest-widget" style="display:none;"></div>
 
-            <!-- Share Section -->
-            <div class="card share-card">
-                <h2 class="card-title">📱 家族にシェア</h2>
-                <div class="share-input-group">
-                    <label for="shareMessage" class="group-label">家族への伝言・お願い（任意）</label>
-                    <textarea id="shareMessage" placeholder="例：お風呂掃除ありがとう！トイレットペーパー買ってきたよ。" rows="2"></textarea>
-                </div>
-                <!-- 🍳 今日のごはんメモ（任意） -->
-                <div class="share-input-group" style="margin-top: 0.75rem;">
-                    <label for="shareDinnerMenu" class="group-label">🍳 今日・今夜のごはん（任意メモ）</label>
-                    <input type="text" id="shareDinnerMenu" placeholder="例：カレーライス、パスタ、ハンバーグなど" style="font-size: 14px; padding: 0.5rem 0.75rem;">
-                </div>
-                <!-- Checkbox for showing undone chores -->
-                <div class="share-checkbox-group" style="margin-top: 0.75rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; justify-content: flex-start;">
-                    <input type="checkbox" id="shareIncludeUndone" checked onclick="localStorage.setItem('kajigonUltimate_shareIncludeUndone', this.checked)" style="width: auto; height: auto; cursor: pointer; margin: 0;">
-                    <label for="shareIncludeUndone" style="font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; user-select: none; margin: 0;">まだやってない家事もリストに含める</label>
-                </div>
-                <!-- Checkbox for thank you stamp -->
-                <div class="share-checkbox-group" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; justify-content: flex-start;">
-                    <input type="checkbox" id="shareIncludeThanks" checked style="width: auto; height: auto; cursor: pointer; margin: 0;">
-                    <label for="shareIncludeThanks" style="font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; user-select: none; margin: 0;">LINE返信用の感謝スタンプ枠をつける</label>
-                </div>
-                <div class="share-btn-group">
-                    <button class="btn-share" onclick="shareReport()">
-                        <span>📱 テキストでコピー</span>
-                    </button>
-                    <button class="btn-share btn-share-ancient" onclick="openAncientScrollModal()">
-                        <span>📜 古代の石板画像で共有</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 2-Type Reset Buttons -->
-            <div class="reset-buttons-container">
-                <button class="btn-reset-light" onclick="resetDayOnly()">🧹 本日の記録を整理する</button>
-                <button class="btn-reset-full" onclick="resetAppFully()">🔄 アプリの設定とデータを完全初期化する</button>
-            </div>
-
-            <!-- Footer -->
-            <div class="footer">
+            <!-- Footer (控えめな復旧リンク) -->
+            <div class="footer" style="margin-top: 1rem;">
                 <p id="current-layout-display"></p>
                 <p class="footer-stealth-trigger" onclick="openSpellModal()">💾 データを復旧する</p>
             </div>
@@ -239,6 +245,7 @@
             <!-- 🏛️ 育成環境テーマの選択 -->
             <div class="settings-input-group">
                 <label>🏛️ 育成環境テーマ（育ちやすいモンスター）</label>
+                <div id="settings-theme-notice" style="margin-bottom: 0.5rem;"></div>
                 <div class="theme-selector-grid" id="settings-theme-selector">
                     <!-- JSで動的生成 -->
                 </div>
@@ -408,6 +415,118 @@
             </div>
             <div class="spell-btn-group" style="margin-top: 1.5rem;">
                 <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeSpiritDetailModal()">図鑑にもどる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔨 家事記録ポップアップモーダル（ADD CHORE） -->
+    <div id="chore-select-modal" class="spell-overlay hidden">
+        <div class="spell-content" style="max-width: 540px; max-height: 88vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                <h3 class="spell-title" style="margin:0;">🔨 やった家事を記録する</h3>
+                <button onclick="closeChoreSelectModal()" style="background:none; border:none; color:var(--text-sub); font-size:20px; cursor:pointer;">✕</button>
+            </div>
+            <p class="spell-desc">完了した家事をワンタップでチェックしよう！</p>
+            
+            <!-- Chore Addition Area (Dynamic) -->
+            <div id="quick-add-container" style="margin: 1rem 0;">
+                <!-- Buttons will be generated here -->
+            </div>
+
+            <!-- Free Input Area -->
+            <div class="chore-addition-card" style="margin-top: 1rem;">
+                <!-- Free Input Section -->
+                <div class="free-input-section">
+                    <h3 class="section-title">✏️ 物品補充（自由記述）</h3>
+                    <div class="free-input-group">
+                        <input type="text" id="freeSupplyInput" placeholder="例）トイレットペーパー..."
+                            onkeypress="if(event.key==='Enter') addFreeSupply()">
+                        <button class="btn btn-add-supply" onclick="addFreeSupply()">➕ 追加</button>
+                    </div>
+                </div>
+
+                <!-- Other Free Input Section -->
+                <div class="free-input-section" style="margin-top: 0.75rem;">
+                    <h3 class="section-title">📝 その他（自由記述）</h3>
+                    <div class="free-input-group">
+                        <input type="text" id="otherChoreInput" placeholder="例）窓拭き、アイロンがけ..."
+                            onkeypress="if(event.key==='Enter') addOtherChore()">
+                        <button class="btn btn-add-other" onclick="addOtherChore()">➕ 追加</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="spell-btn-group" style="margin-top: 1.25rem;">
+                <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeChoreSelectModal()">お部屋にもどる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📱 家族にシェア・報告モーダル（SHARE） -->
+    <div id="share-action-modal" class="spell-overlay hidden">
+        <div class="spell-content" style="max-width: 520px; max-height: 88vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                <h3 class="spell-title" style="margin:0;">📱 パートナー・家族にシェア</h3>
+                <button onclick="closeShareActionModal()" style="background:none; border:none; color:var(--text-sub); font-size:20px; cursor:pointer;">✕</button>
+            </div>
+            <p class="spell-desc">今日完了した家事や伝言をLINEなどで報告します。</p>
+
+            <div class="card share-card" style="background:#13131c; border-radius:12px; padding:1rem; margin-top:1rem;">
+                <div class="share-input-group">
+                    <label for="shareMessage" class="group-label">家族への伝言・お願い（任意）</label>
+                    <textarea id="shareMessage" placeholder="例：お風呂掃除ありがとう！トイレットペーパー買ってきたよ。" rows="2"></textarea>
+                </div>
+                <!-- 🍳 今日のごはんメモ（任意） -->
+                <div class="share-input-group" style="margin-top: 0.75rem;">
+                    <label for="shareDinnerMenu" class="group-label">🍳 今日・今夜のごはん（任意メモ）</label>
+                    <input type="text" id="shareDinnerMenu" placeholder="例：カレーライス、パスタ、ハンバーグなど" style="font-size: 14px; padding: 0.5rem 0.75rem;">
+                </div>
+                <!-- Checkbox for showing undone chores -->
+                <div class="share-checkbox-group" style="margin-top: 0.75rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; justify-content: flex-start;">
+                    <input type="checkbox" id="shareIncludeUndone" checked onclick="localStorage.setItem('kajigonUltimate_shareIncludeUndone', this.checked)" style="width: auto; height: auto; cursor: pointer; margin: 0;">
+                    <label for="shareIncludeUndone" style="font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; user-select: none; margin: 0;">まだやってない家事もリストに含める</label>
+                </div>
+                <!-- Checkbox for thank you stamp -->
+                <div class="share-checkbox-group" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; justify-content: flex-start;">
+                    <input type="checkbox" id="shareIncludeThanks" checked style="width: auto; height: auto; cursor: pointer; margin: 0;">
+                    <label for="shareIncludeThanks" style="font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; user-select: none; margin: 0;">LINE返信用の感謝スタンプ枠をつける</label>
+                </div>
+                <div class="share-btn-group" style="display:flex; flex-direction:column; gap:0.5rem;">
+                    <button class="btn-share" onclick="shareReport()">
+                        <span>📱 テキストでコピー</span>
+                    </button>
+                    <button class="btn-share btn-share-ancient" onclick="openAncientScrollModal()">
+                        <span>📜 古代の石板画像で共有</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="reset-buttons-container" style="margin-top: 1rem;">
+                <button class="btn-reset-light" onclick="resetDayOnly()">🧹 本日の記録を整理する</button>
+                <button class="btn-reset-full" onclick="resetAppFully()">🔄 アプリの設定とデータを完全初期化</button>
+            </div>
+
+            <div class="spell-btn-group" style="margin-top: 1.25rem;">
+                <button class="btn-spell-action btn-spell-cancel" style="width: 100%;" onclick="closeShareActionModal()">とじる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⚔️ 突発討伐ボス（名もなき家事）モーダル -->
+    <div id="bounty-modal" class="spell-overlay hidden">
+        <div class="spell-content" style="max-width: 480px; max-height: 85vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                <h3 class="spell-title" style="margin:0; color:#ff4b4b;">⚔️ 突発討伐クエスト</h3>
+                <button onclick="closeBountyModal()" style="background:none; border:none; color:var(--text-sub); font-size:20px; cursor:pointer;">✕</button>
+            </div>
+            <p class="spell-desc">今日のおうちに潜む名もなき家事ボスを討伐せよ！</p>
+            
+            <div id="bounty-quest-modal-container" style="margin-top: 1rem;">
+                <!-- JSで動的生成 -->
+            </div>
+
+            <div class="spell-btn-group" style="margin-top: 1.5rem;">
+                <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeBountyModal()">とじる</button>
             </div>
         </div>
     </div>

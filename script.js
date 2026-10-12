@@ -320,13 +320,34 @@ function renderSettingsThemeCards() {
     const container = document.getElementById('settings-theme-selector');
     if (!container) return;
 
+    const currentLvl = getLevel();
+    const isUnlocked = currentLvl >= 10;
+    const currentTheme = kajigonState.environmentTheme || 'classic';
+
+    // If level < 10, keep tempSettingsEnvTheme locked to the current theme
+    if (!isUnlocked) {
+        tempSettingsEnvTheme = currentTheme;
+    }
+
+    const noticeEl = document.getElementById('settings-theme-notice');
+    if (noticeEl) {
+        noticeEl.innerHTML = isUnlocked
+            ? `<span style="color:#4caf50; font-weight:bold;">✨ Lv.10到達！次の滞在フィールドへ移動できます</span>`
+            : `<span style="color:var(--text-sub,#888); font-size:11px;">🔒 現在の滞在フィールド（ポケモンスリープ仕様：Lv.10到達で次のフィールドへ移動可能 / 現在 Lv.${currentLvl}）</span>`;
+    }
+
     container.innerHTML = Object.keys(ENVIRONMENT_THEMES).map(key => {
         const t = ENVIRONMENT_THEMES[key];
+        const isCurrent = key === currentTheme;
         const isActive = tempSettingsEnvTheme === key;
+        const isLocked = !isUnlocked && !isCurrent;
+
         return `
-            <div class="theme-card-btn ${isActive ? 'active' : ''}" onclick="selectSettingsTheme('${key}')">
+            <div class="theme-card-btn ${isActive ? 'active' : ''} ${isLocked ? 'locked-field' : ''}" 
+                 onclick="selectSettingsTheme('${key}')"
+                 style="${isLocked ? 'opacity: 0.55; cursor: not-allowed; filter: grayscale(0.5);' : ''}">
                 <div class="theme-card-icon">${t.icon}</div>
-                <div class="theme-card-name">${t.name}</div>
+                <div class="theme-card-name">${t.name} ${isCurrent ? '<span style="font-size:10px; color:#4caf50;">(滞在中)</span>' : (isLocked ? '<span style="font-size:10px; color:#e74c3c;">🔒Lv10</span>' : '')}</div>
                 <div class="theme-card-boost">${t.boostLabel}</div>
             </div>
         `;
@@ -334,6 +355,12 @@ function renderSettingsThemeCards() {
 }
 
 function selectSettingsTheme(themeKey) {
+    const currentLvl = getLevel();
+    if (currentLvl < 10 && themeKey !== (kajigonState.environmentTheme || 'classic')) {
+        SoundEngine.playSE('undo');
+        showToast(`💤 ポケスリ仕様: 現在はこのフィールドで生活中です！Lv.10になると新しいフィールドへ旅立てます（現在 Lv.${currentLvl}）`);
+        return;
+    }
     SoundEngine.playSE('click');
     tempSettingsEnvTheme = themeKey;
     renderSettingsThemeCards();
@@ -393,7 +420,9 @@ function saveSettings() {
     currentFloors = newFloors;
     playerCount = newPlayers;
     customRoomNames = newNames;
-    kajigonState.environmentTheme = tempSettingsEnvTheme;
+    if (getLevel() >= 10 && tempSettingsEnvTheme) {
+        kajigonState.environmentTheme = tempSettingsEnvTheme;
+    }
 
     saveToLocalStorage();
     closeSettingsModal();
@@ -1220,65 +1249,49 @@ function updateCompanionWidget() {
         `;
     }
 
-    let buttonsHtml = '';
-    if (lv >= 10) {
-        buttonsHtml = `
-            <div class="legendary-action-buttons">
-                <button class="btn-legendary btn-review" onclick="openEndingModal()" title="表彰状を見なおす">🏆 みなおす</button>
-                <button class="btn-legendary btn-rebreed" onclick="rebreedCompanion()" title="卵からそだてなおす">🔄 そだてなおす</button>
-            </div>
-        `;
+    // Update top room status badge
+    const statusNameEl = document.getElementById('room-status-name');
+    const statusExpEl = document.getElementById('room-status-exp');
+    if (statusNameEl) {
+        statusNameEl.textContent = `✅ カジゴン (LV.${lv}) ${emojisStr}`;
     }
-    // 🏡 我が家のカジゴン部屋・インテリア飾り (案3：基本家具 ＋ 季節限定イベント家具)
+    if (statusExpEl) {
+        const nextLvExp = (typeof LEVEL_THRESHOLDS !== 'undefined' && LEVEL_THRESHOLDS[lv]) ? LEVEL_THRESHOLDS[lv] : 100;
+        statusExpEl.textContent = `EXP: ${kajigonState.totalExp || 0} (ステージ: ${stage.toUpperCase()})`;
+    }
+
+    // Update floor furniture visibility according to progress
+    const plantEl = document.getElementById('furniture-plant');
+    const stewEl = document.getElementById('furniture-stew');
+    const shelfEl = document.getElementById('furniture-shelf');
     const totalDone = completedList.length;
-    const furnitureItems = [];
-    if (typeof BASE_FURNITURE_LIST !== 'undefined') {
-        BASE_FURNITURE_LIST.forEach(f => {
-            if (totalDone >= f.count) furnitureItems.push({ icon: f.icon, name: f.name, desc: f.desc });
-        });
-    } else {
-        if (totalDone >= 2) furnitureItems.push({ icon: '🪴', name: '小さな観葉植物' });
-        if (totalDone >= 6) furnitureItems.push({ icon: '🛋️', name: 'ふかふか絨毯' });
-        if (totalDone >= 12) furnitureItems.push({ icon: '💡', name: '温かいランプ' });
-        if (totalDone >= 20) furnitureItems.push({ icon: '🍲', name: 'ほかほかシチュー鍋' });
-        if (totalDone >= 32) furnitureItems.push({ icon: '🪟', name: '星空の見える窓' });
-        if (totalDone >= 48) furnitureItems.push({ icon: '👑', name: '黄金のトロフィー' });
+
+    if (plantEl) plantEl.style.display = totalDone >= 2 ? 'block' : 'none';
+    if (stewEl) stewEl.style.display = totalDone >= 12 ? 'block' : 'none';
+    if (shelfEl) {
+        if (totalDone >= 4 && typeof getCurrentSeasonalFurniture === 'function') {
+            const seasonals = getCurrentSeasonalFurniture();
+            shelfEl.textContent = seasonals[0].icon;
+            shelfEl.title = `[季節] ${seasonals[0].name}`;
+            shelfEl.style.display = 'block';
+        } else {
+            shelfEl.style.display = 'none';
+        }
     }
 
-    // 🌸 季節の限定イベント家具（家事3回以上でボーナス飾付け！）
-    if (totalDone >= 3 && typeof getCurrentSeasonalFurniture === 'function') {
-        const seasonals = getCurrentSeasonalFurniture();
-        seasonals.forEach(s => furnitureItems.push({ icon: s.icon, name: `[季節] ${s.name}`, desc: s.desc }));
-    }
-
-    let furnitureHtml = '';
-    if (furnitureItems.length > 0) {
-        furnitureHtml = `
-            <div class="companion-room-shelf" title="家事を重ねておうちが快適に！季節アイテムも登場！">
-                <span class="companion-room-label">🏡 快適度:</span>
-                ${furnitureItems.map(item => `<span title="${item.name}: ${item.desc || ''}">${item.icon}</span>`).join(' ')}
-            </div>
-        `;
+    // Check if bounty quest cleared to hide/show notification ping
+    const questBadge = document.getElementById('side-quest-badge');
+    if (questBadge && typeof getTodayBounty === 'function') {
+        const { defeated } = getTodayBounty();
+        if (defeated) questBadge.classList.add('hidden');
+        else questBadge.classList.remove('hidden');
     }
 
     widget.innerHTML = `
-        <div class="companion-widget-container">
-            <div class="companion-status-card" title="カジゴンをタップしておしゃべり！" onclick="onCompanionClick()" style="cursor: pointer;">
-                <div class="companion-display-row">
-                    <div class="companion-avatar-box">
-                        ${companionImgHtml}
-                    </div>
-                    <div class="companion-info-box">
-                        <div class="companion-level">LV.${lv} (${stage.toUpperCase()})</div>
-                        <div class="status-emoji-container">
-                            ${emojisStr}
-                        </div>
-                        ${furnitureHtml}
-                    </div>
-                </div>
-            </div>
-            ${buttonsHtml}
+        <div style="width: 100%; height: 100%; display:flex; align-items:center; justify-content:center;">
+            ${companionImgHtml}
         </div>
+        ${buttonsHtml}
     `;
 }
 
@@ -2289,28 +2302,26 @@ function renderBountyWidget() {
     if (!container) return;
 
     const { boss, defeated } = getTodayBounty();
-    if (defeated) {
-        container.innerHTML = `
-            <div class="bounty-card defeated">
-                <div class="bounty-header-row">
-                    <span class="bounty-title" style="color: #34d399;">✨ 本日の討伐成功！</span>
-                    <span class="bounty-exp-badge" style="background:#10b981; color:#fff;">CLEARED</span>
-                </div>
-                <div class="bounty-defeated-msg">⚔️ ${boss.name} は討伐され、おうちの平和は守られた！</div>
+    const content = defeated ? `
+        <div class="bounty-card defeated" style="border: 2px solid #10b981; border-radius: 8px; padding: 1rem; background: #064e3b; text-align: center;">
+            <div style="font-size: 16px; font-weight: bold; color: #34d399; margin-bottom: 0.5rem;">✨ 本日の討伐成功！</div>
+            <div style="font-size: 13px; color: #a7f3d0;">⚔️ ${boss.name} は討伐され、おうちの平和は守られた！</div>
+        </div>
+    ` : `
+        <div class="bounty-card" style="border: 2px solid #ff4b4b; border-radius: 8px; padding: 1rem; background: #1f1416;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                <span style="font-size: 14px; font-weight: bold; color: #f87171;">⚔️ 【突発討伐】${boss.name} 現る！</span>
+                <span style="font-size: 11px; background: #ff4b4b; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: bold;">+${boss.exp} EXP</span>
             </div>
-        `;
-    } else {
-        container.innerHTML = `
-            <div class="bounty-card">
-                <div class="bounty-header-row">
-                    <span class="bounty-title">⚔️ 【突発討伐】${boss.name} 現る！</span>
-                    <span class="bounty-exp-badge">+${boss.exp} EXP</span>
-                </div>
-                <div class="bounty-desc">🎯 討伐任務：<strong>${boss.target}</strong><br><span style="color:#94a3b8; font-size:11px;">${boss.desc}</span></div>
-                <button class="bounty-action-btn" onclick="defeatBountyQuest()">⚔️ 討伐完了！</button>
-            </div>
-        `;
-    }
+            <div style="font-size: 13px; color: #f4ede2; margin-bottom: 0.5rem;">🎯 討伐任務：<strong>${boss.target}</strong></div>
+            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 1rem;">${boss.desc}</div>
+            <button class="btn-spell-action btn-spell-cast" style="width: 100%; background: #ff4b4b; border-color: #ff7878;" onclick="defeatBountyQuest()">⚔️ 討伐完了！</button>
+        </div>
+    `;
+
+    if (container) container.innerHTML = content;
+    const modalContainer = document.getElementById('bounty-quest-modal-container');
+    if (modalContainer) modalContainer.innerHTML = content;
 }
 
 function defeatBountyQuest() {
@@ -2338,6 +2349,52 @@ function defeatBountyQuest() {
     triggerCutIn('⚔️', () => {
         triggerFortuneToast(true);
     });
+}
+
+// ==========================================================================
+// --- 🎮 新UIモーダル開閉ハンドラ (ADD CHORE, SHARE, QUEST, KARUTA) ---
+// ==========================================================================
+function openChoreSelectModal() {
+    SoundEngine.playSE('click');
+    const modal = document.getElementById('chore-select-modal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeChoreSelectModal() {
+    SoundEngine.playSE('click');
+    const modal = document.getElementById('chore-select-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function openShareActionModal() {
+    SoundEngine.playSE('click');
+    const modal = document.getElementById('share-action-modal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeShareActionModal() {
+    SoundEngine.playSE('click');
+    const modal = document.getElementById('share-action-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function openBountyModal() {
+    SoundEngine.playSE('click');
+    renderBountyWidget();
+    const modal = document.getElementById('bounty-modal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeBountyModal() {
+    SoundEngine.playSE('click');
+    const modal = document.getElementById('bounty-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function openKarutaAlbumModal() {
+    SoundEngine.playSE('click');
+    window._currentBookTab = 'karuta';
+    openBookModal();
 }
 
 // ==========================================================================
@@ -2762,8 +2819,7 @@ const SoundEngine = {
     bgmVol: 0.3,
     seVol: 0.7,
     bgmPlaying: false,
-    bgmTimer: null,
-    bgmStep: 0,
+    filterNode: null,
 
     init() {
         if (this.ctx) return;
@@ -2771,10 +2827,16 @@ const SoundEngine = {
         if (!AudioContextClass) return;
         this.ctx = new AudioContextClass();
 
+        // Master Low-pass filter for cozy warm retro warmth (cuts harsh shrill frequencies)
+        this.filterNode = this.ctx.createBiquadFilter();
+        this.filterNode.type = 'lowpass';
+        this.filterNode.frequency.setValueAtTime(2200, this.ctx.currentTime);
+        this.filterNode.connect(this.ctx.destination);
+
         // BGM Gain node
         this.bgmGain = this.ctx.createGain();
         this.bgmGain.gain.setValueAtTime(this.bgmVol, this.ctx.currentTime);
-        this.bgmGain.connect(this.ctx.destination);
+        this.bgmGain.connect(this.filterNode);
 
         // SE Gain node
         this.seGain = this.ctx.createGain();
@@ -2831,22 +2893,26 @@ const SoundEngine = {
         }
     },
 
-    playTone(freq, type, duration, startTime = 0, gainTarget = this.seGain) {
-        if (!this.ctx || !gainTarget) return;
-        const osc = this.ctx.createOscillator();
-        const noteGain = this.ctx.createGain();
+    playTone(freq, type, duration, startTime = 0, gainTarget = this.seGain, maxGain = 0.25) {
+        if (!this.ctx || !gainTarget || freq <= 0) return;
+        try {
+            const osc = this.ctx.createOscillator();
+            const noteGain = this.ctx.createGain();
 
-        osc.type = type;
-        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + startTime);
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + startTime);
 
-        noteGain.gain.setValueAtTime(0.3, this.ctx.currentTime + startTime);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + startTime + duration);
+            noteGain.gain.setValueAtTime(maxGain, this.ctx.currentTime + startTime);
+            noteGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + startTime + duration);
 
-        osc.connect(noteGain);
-        noteGain.connect(gainTarget);
+            osc.connect(noteGain);
+            noteGain.connect(gainTarget);
 
-        osc.start(this.ctx.currentTime + startTime);
-        osc.stop(this.ctx.currentTime + startTime + duration);
+            osc.start(this.ctx.currentTime + startTime);
+            osc.stop(this.ctx.currentTime + startTime + duration);
+        } catch (e) {
+            // Audio context might be suspended or closed
+        }
     },
 
     playSE(type) {
@@ -2854,35 +2920,35 @@ const SoundEngine = {
         if (this.seVol <= 0 || !this.ctx) return;
 
         if (type === 'done') {
-            // High cheerful 8-bit blip (E5 -> B5)
-            this.playTone(659.25, 'square', 0.08, 0);
-            this.playTone(987.77, 'square', 0.12, 0.06);
+            // Cheerful mellow 8-bit blip (E5 -> B5)
+            this.playTone(659.25, 'triangle', 0.09, 0, this.seGain, 0.35);
+            this.playTone(987.77, 'square', 0.14, 0.06, this.seGain, 0.3);
         } else if (type === 'undo') {
             // Cancel sound (G3 -> E3)
-            this.playTone(196.00, 'triangle', 0.09, 0);
-            this.playTone(164.81, 'triangle', 0.14, 0.07);
+            this.playTone(196.00, 'triangle', 0.09, 0, this.seGain, 0.3);
+            this.playTone(164.81, 'triangle', 0.14, 0.07, this.seGain, 0.3);
         } else if (type === 'lucky') {
             // Lucky chore fanfare (C5 -> E5 -> G5 -> C6)
-            this.playTone(523.25, 'square', 0.08, 0);
-            this.playTone(659.25, 'square', 0.08, 0.07);
-            this.playTone(783.99, 'square', 0.08, 0.14);
-            this.playTone(1046.50, 'square', 0.25, 0.21);
+            this.playTone(523.25, 'triangle', 0.09, 0, this.seGain, 0.35);
+            this.playTone(659.25, 'triangle', 0.09, 0.07, this.seGain, 0.35);
+            this.playTone(783.99, 'square', 0.10, 0.14, this.seGain, 0.3);
+            this.playTone(1046.50, 'square', 0.28, 0.21, this.seGain, 0.35);
         } else if (type === 'artifact') {
             // Ancient relic sparkle (A5 -> D6 -> F#6 -> A6)
-            this.playTone(880.00, 'square', 0.07, 0);
-            this.playTone(1174.66, 'square', 0.07, 0.06);
-            this.playTone(1479.98, 'square', 0.07, 0.12);
-            this.playTone(1760.00, 'triangle', 0.25, 0.18);
+            this.playTone(880.00, 'triangle', 0.08, 0, this.seGain, 0.3);
+            this.playTone(1174.66, 'triangle', 0.08, 0.06, this.seGain, 0.3);
+            this.playTone(1479.98, 'square', 0.09, 0.12, this.seGain, 0.25);
+            this.playTone(1760.00, 'triangle', 0.28, 0.18, this.seGain, 0.3);
         } else if (type === 'levelup') {
             // Victorious fanfare
             const notes = [523.25, 523.25, 523.25, 659.25, 783.99, 1046.50];
             const delays = [0, 0.1, 0.2, 0.3, 0.45, 0.6];
             notes.forEach((n, idx) => {
-                this.playTone(n, 'square', idx === 5 ? 0.4 : 0.09, delays[idx]);
+                this.playTone(n, 'square', idx === 5 ? 0.45 : 0.1, delays[idx], this.seGain, 0.35);
             });
         } else if (type === 'click') {
-            // Short retro click
-            this.playTone(800, 'square', 0.04, 0);
+            // Short soft click
+            this.playTone(750, 'triangle', 0.04, 0, this.seGain, 0.2);
         }
     },
 
@@ -2905,98 +2971,152 @@ const SoundEngine = {
         const text = document.getElementById('bgm-toggle-btn-text');
         if (text) text.textContent = 'BGM 一時停止';
 
-        // 3 Different 8-bit chip tracks
-        let melody = [];
-        let bassNotes = [];
-        let tickTime = 220;
+        // 3 Distinct Chiptune compositions with rich 3/4-note chords, walking bass, and mellow melodies
+        let chordProgression = [];
+        let bassLine = [];
+        let melodyLine = [];
+        let tickInterval = 280;
 
         if (this.bgmTrack === 'ruins') {
-            // Mysterious ancient minor melody (A minor)
-            melody = [
-                220.00, 261.63, 329.63, 440.00,  // A, C, E, A
-                196.00, 246.94, 293.66, 392.00,  // G, B, D, G
-                174.61, 220.00, 261.63, 349.23,  // F, A, C, F
-                164.81, 207.65, 246.94, 329.63,  // E, G#, B, E
-                220.00, 329.63, 261.63, 220.00,
-                293.66, 349.23, 440.00, 349.23,
-                329.63, 246.94, 207.65, 246.94,
-                220.00, 261.63, 329.63, 440.00
+            // --- Ruins of Time (Ancient Mystic Chill / Lofi) ---
+            // Am7 -> Dm7 -> Fmaj7 -> E7
+            chordProgression = [
+                [220.00, 261.63, 329.63],
+                [220.00, 261.63, 329.63],
+                [146.83, 220.00, 261.63],
+                [146.83, 220.00, 261.63],
+                [174.61, 261.63, 329.63],
+                [174.61, 261.63, 329.63],
+                [164.81, 246.94, 329.63],
+                [164.81, 246.94, 329.63]
             ];
-            bassNotes = [
-                110.00, 110.00, 110.00, 110.00,
-                98.00, 98.00, 98.00, 98.00,
-                87.31, 87.31, 87.31, 87.31,
-                82.41, 82.41, 82.41, 82.41,
-                110.00, 110.00, 110.00, 110.00,
-                146.83, 146.83, 146.83, 146.83,
-                82.41, 82.41, 82.41, 82.41,
-                110.00, 110.00, 110.00, 110.00
+            bassLine = [
+                110.00, 110.00, 164.81, 110.00,
+                146.83, 146.83, 220.00, 146.83,
+                87.31, 87.31, 130.81, 87.31,
+                82.41, 82.41, 123.47, 82.41,
+                110.00, 130.81, 164.81, 220.00,
+                146.83, 174.61, 220.00, 261.63,
+                174.61, 164.81, 146.83, 130.81,
+                82.41, 98.00, 110.00, 123.47
             ];
-            tickTime = 250;
+            melodyLine = [
+                440.00, 0, 523.25, 0, 659.25, 587.33, 523.25, 0,
+                587.33, 0, 523.25, 0, 440.00, 392.00, 440.00, 0,
+                523.25, 0, 659.25, 0, 783.99, 659.25, 523.25, 0,
+                659.25, 0, 587.33, 0, 493.88, 440.00, 493.88, 0,
+                440.00, 523.25, 659.25, 783.99, 880.00, 0, 783.99, 0,
+                659.25, 587.33, 523.25, 440.00, 523.25, 0, 0, 0,
+                392.00, 440.00, 523.25, 659.25, 587.33, 0, 523.25, 0,
+                493.88, 0, 440.00, 0, 415.30, 0, 440.00, 0
+            ];
+            tickInterval = 270;
         } else if (this.bgmTrack === 'tavern') {
-            // Upbeat energetic casino / tavern dance (F major / C major)
-            melody = [
-                349.23, 440.00, 523.25, 440.00,  // F, A, C, A
-                392.00, 493.88, 587.33, 493.88,  // G, B, D, B
-                523.25, 659.25, 783.99, 659.25,  // C, E, G, E
-                440.00, 523.25, 659.25, 523.25,  // A, C, E, C
-                349.23, 523.25, 440.00, 349.23,
-                392.00, 587.33, 493.88, 392.00,
-                523.25, 392.00, 329.63, 261.63,
-                261.63, 329.63, 392.00, 523.25
+            // --- Cozy Tavern & Fest (Upbeat Folk Chiptune) ---
+            // F -> G -> Em -> Am
+            chordProgression = [
+                [174.61, 220.00, 261.63],
+                [174.61, 220.00, 261.63],
+                [196.00, 246.94, 293.66],
+                [196.00, 246.94, 293.66],
+                [164.81, 196.00, 246.94],
+                [164.81, 196.00, 246.94],
+                [220.00, 261.63, 329.63],
+                [220.00, 261.63, 329.63]
             ];
-            bassNotes = [
-                174.61, 174.61, 174.61, 174.61,
-                196.00, 196.00, 196.00, 196.00,
-                130.81, 130.81, 130.81, 130.81,
-                110.00, 110.00, 110.00, 110.00,
-                174.61, 174.61, 174.61, 174.61,
-                196.00, 196.00, 196.00, 196.00,
-                130.81, 130.81, 130.81, 130.81,
-                130.81, 130.81, 130.81, 130.81
+            bassLine = [
+                174.61, 174.61, 261.63, 174.61,
+                196.00, 196.00, 293.66, 196.00,
+                164.81, 164.81, 246.94, 164.81,
+                220.00, 220.00, 329.63, 220.00,
+                174.61, 220.00, 261.63, 174.61,
+                196.00, 246.94, 293.66, 196.00,
+                164.81, 196.00, 246.94, 164.81,
+                220.00, 196.00, 174.61, 164.81
             ];
-            tickTime = 180;
+            melodyLine = [
+                523.25, 587.33, 659.25, 523.25, 587.33, 659.25, 783.99, 0,
+                659.25, 783.99, 880.00, 659.25, 783.99, 880.00, 987.77, 0,
+                783.99, 659.25, 587.33, 659.25, 523.25, 440.00, 392.00, 0,
+                440.00, 523.25, 659.25, 523.25, 440.00, 0, 523.25, 0,
+                659.25, 0, 783.99, 0, 880.00, 783.99, 659.25, 0,
+                587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 440.00, 0,
+                523.25, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33, 0,
+                523.25, 0, 440.00, 0, 523.25, 0, 0, 0
+            ];
+            tickInterval = 210;
         } else {
-            // Default: Peaceful town / home RPG 8-bit arpeggio melody (C major / G major loop)
-            melody = [
-                261.63, 329.63, 392.00, 523.25,  // C, E, G, C
-                293.66, 369.99, 440.00, 587.33,  // D, F#, A, D
-                246.94, 329.63, 392.00, 493.88,  // B, E, G, B
-                261.63, 392.00, 329.63, 261.63,  // C, G, E, C
-                329.63, 392.00, 523.25, 659.25,  // E, G, C, E
-                349.23, 440.00, 523.25, 698.46,  // F, A, C, F
-                392.00, 493.88, 587.33, 783.99,  // G, B, D, G
-                523.25, 392.00, 329.63, 261.63   // C, G, E, C
+            // --- Default: Pokésleep & Cozy Tamagotchi Room (Lo-Fi Warm 8-bit) ---
+            // Cmaj7 -> Am7 -> Dm7 -> G7 (Classic mellow loop)
+            chordProgression = [
+                [261.63, 329.63, 392.00, 493.88],
+                [261.63, 329.63, 392.00, 493.88],
+                [220.00, 261.63, 329.63, 392.00],
+                [220.00, 261.63, 329.63, 392.00],
+                [146.83, 220.00, 261.63, 349.23],
+                [146.83, 220.00, 261.63, 349.23],
+                [196.00, 246.94, 293.66, 349.23],
+                [196.00, 246.94, 293.66, 349.23]
             ];
-            bassNotes = [
-                130.81, 130.81, 130.81, 130.81,
-                146.83, 146.83, 146.83, 146.83,
-                123.47, 123.47, 123.47, 123.47,
-                130.81, 130.81, 130.81, 130.81,
-                164.81, 164.81, 164.81, 164.81,
-                174.61, 174.61, 174.61, 174.61,
-                196.00, 196.00, 196.00, 196.00,
-                130.81, 130.81, 130.81, 130.81
+            bassLine = [
+                130.81, 0, 196.00, 130.81,
+                110.00, 0, 164.81, 110.00,
+                146.83, 0, 220.00, 146.83,
+                98.00, 0, 146.83, 196.00,
+                130.81, 164.81, 196.00, 246.94,
+                220.00, 196.00, 164.81, 130.81,
+                146.83, 174.61, 220.00, 261.63,
+                196.00, 174.61, 146.83, 123.47
             ];
-            tickTime = 220;
+            melodyLine = [
+                523.25, 0, 659.25, 0, 783.99, 0, 659.25, 523.25,
+                440.00, 0, 523.25, 0, 659.25, 0, 523.25, 0,
+                587.33, 0, 523.25, 0, 440.00, 0, 392.00, 440.00,
+                392.00, 0, 493.88, 0, 523.25, 0, 0, 0,
+                783.99, 0, 659.25, 0, 523.25, 659.25, 783.99, 0,
+                880.00, 0, 783.99, 0, 659.25, 0, 523.25, 0,
+                587.33, 659.25, 587.33, 523.25, 440.00, 0, 493.88, 0,
+                523.25, 0, 392.00, 0, 523.25, 0, 0, 0
+            ];
+            tickInterval = 290;
         }
+
+        const totalSteps = melodyLine.length;
 
         this.bgmTimer = setInterval(() => {
             if (!this.bgmPlaying || this.bgmVol <= 0) return;
-            const noteIdx = this.bgmStep % melody.length;
-            const freq = melody[noteIdx];
-            const bass = bassNotes[noteIdx];
 
-            // Lead synth (soft triangle/square)
-            this.playTone(freq, 'triangle', 0.18, 0, this.bgmGain);
+            const step = this.bgmStep % totalSteps;
 
-            // Bass beat every 2 steps
-            if (this.bgmStep % 2 === 0) {
-                this.playTone(bass, 'square', 0.12, 0, this.bgmGain);
+            // 1. Warm Chord Pad (Soft triangle wave every 4 steps / measure start)
+            if (step % 4 === 0) {
+                const chordIdx = Math.floor(step / 4) % chordProgression.length;
+                const chord = chordProgression[chordIdx];
+                if (chord) {
+                    chord.forEach((freq) => {
+                        this.playTone(freq, 'triangle', 1.05, 0, this.bgmGain, 0.08);
+                    });
+                }
+            }
+
+            // 2. Soft Bassline (Round low sine/triangle)
+            const bass = bassLine[step % bassLine.length];
+            if (bass && bass > 0) {
+                this.playTone(bass, 'triangle', 0.22, 0, this.bgmGain, 0.22);
+            }
+
+            // 3. Relaxing Melodic Lead (Gentle chime / soft square with decay)
+            const mel = melodyLine[step];
+            if (mel && mel > 0) {
+                this.playTone(mel, 'sine', 0.24, 0, this.bgmGain, 0.20);
+                // Subtle shimmer octave up
+                if (step % 8 === 0) {
+                    this.playTone(mel * 2, 'triangle', 0.15, 0.02, this.bgmGain, 0.05);
+                }
             }
 
             this.bgmStep++;
-        }, tickTime);
+        }, tickInterval);
     },
 
     stopBGM() {
