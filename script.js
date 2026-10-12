@@ -360,8 +360,11 @@ function renderSettingsThemeCards() {
 function selectSettingsTheme(themeKey) {
     const currentLvl = getLevel();
     if (currentLvl < 10 && themeKey !== (kajigonState.environmentTheme || 'classic')) {
-        SoundEngine.playSE('undo');
-        showToast(`💤 ポケスリ仕様: 現在はこのフィールドで生活中です！Lv.10になると新しいフィールドへ旅立てます（現在 Lv.${currentLvl}）`);
+        SoundEngine.playSE('click');
+        const noticeEl = document.getElementById('settings-theme-notice');
+        if (noticeEl) {
+            noticeEl.innerHTML = `<span style="color:#f87171; font-weight:bold; font-size:12px;">⚠️ ポケスリ仕様：現在は「${ENVIRONMENT_THEMES[kajigonState.environmentTheme || 'classic'].name}」で生活中です！Lv.10進化で新フィールドへ旅立てます（現在 Lv.${currentLvl}）</span>`;
+        }
         return;
     }
     SoundEngine.playSE('click');

@@ -1,9 +1,9 @@
-const CACHE_NAME = 'kajigon-cache-v2.5.4';
+const CACHE_NAME = 'kajigon-cache-v2.5.5';
 const urlsToCache = [
   './',
   './index.html',
-  './style.css?v=2.5.4',
-  './script.js?v=2.5.4',
+  './style.css?v=2.5.5',
+  './script.js?v=2.5.5',
   './dragon_all.png',
   './kajigon_baby.png',
   './kajigon_teen.png'

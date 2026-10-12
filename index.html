@@ -27,7 +27,7 @@
         if ('caches' in window) {
             caches.keys().then(function(names) {
                 for (var name of names) {
-                    if (name !== 'kajigon-cache-v2.5.4') {
+                    if (name !== 'kajigon-cache-v2.5.5') {
                         caches.delete(name);
                     }
                 }
@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.5.4">
+    <link rel="stylesheet" href="style.css?v=2.5.5">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a24">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -224,8 +224,11 @@
 
     <!-- 🔒 ギア設定モーダル (In-app Setup & Room Customization) -->
     <div id="settings-modal" class="spell-overlay hidden">
-        <div class="spell-content" style="max-width: 500px;">
-            <h3 class="spell-title">⚙️ 家事記録の設定</h3>
+        <div class="spell-content" style="max-width: 500px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                <h3 class="spell-title" style="margin:0;">⚙️ 家事記録の設定</h3>
+                <button onclick="closeSettingsModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
+            </div>
             <p class="spell-desc">間取りやフロア数、各部屋の呼び名をカスタマイズできます。</p>
             
             <!-- Settings Form -->
@@ -401,10 +404,15 @@
                 </button>
             </div>
         </div>
+    </div>
+
     <!-- 📖 守護精霊図鑑（ずかん）モーダル -->
     <div id="book-modal" class="spell-overlay hidden">
         <div class="spell-content" style="max-width: 540px; max-height: 85vh; overflow-y: auto;">
-            <h3 class="spell-title">📖 守護精霊図鑑</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                <h3 class="spell-title" style="margin:0;">📖 守護精霊図鑑</h3>
+                <button onclick="closeBookModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
+            </div>
             <p class="spell-desc">過去にLv10まで成長した歴代の守護精霊たちと、これまでに発見した精霊の記録です。</p>
             
             <div id="book-list-container" style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
@@ -412,7 +420,7 @@
             </div>
 
             <div class="spell-btn-group" style="margin-top: 1.5rem;">
-                <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeBookModal()">とじる</button>
+                <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeBookModal()">お部屋にもどる</button>
             </div>
         </div>
     </div>
@@ -420,7 +428,10 @@
     <!-- 📰 週刊カジゴン号外ニュース モーダル -->
     <div id="weekly-news-modal" class="spell-overlay hidden">
         <div class="spell-content" style="max-width: 540px; max-height: 85vh; overflow-y: auto;">
-            <h3 class="spell-title">📰 週刊カジゴン号外通信</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                <h3 class="spell-title" style="margin:0;">📰 週刊カジゴン号外通信</h3>
+                <button onclick="closeWeeklyNewsModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
+            </div>
             <p class="spell-desc">直近7日間の家庭内での家事大功績を称える特報ニュースです！</p>
             
             <div id="weekly-news-content" style="margin-top: 1rem;">
@@ -429,7 +440,7 @@
 
             <div class="spell-btn-group" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem;">
                 <button class="btn-spell-action btn-spell-cast" style="width: 100%; background: #ffd700; color: #0d0d13; font-weight: bold;" onclick="shareWeeklyNewsCard()">🖼️ 号外新聞を画像保存 / 共有</button>
-                <button class="btn-spell-action" style="width: 100%; background: #3a3a4c;" onclick="closeWeeklyNewsModal()">とじる</button>
+                <button class="btn-spell-action" style="width: 100%; background: #3a3a4c;" onclick="closeWeeklyNewsModal()">お部屋にもどる</button>
             </div>
         </div>
     </div>
@@ -494,7 +505,7 @@
         <div class="spell-content" style="max-width: 520px; max-height: 88vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0;">📱 パートナー・家族にシェア</h3>
-                <button onclick="closeShareActionModal()" style="background:none; border:none; color:var(--text-sub); font-size:20px; cursor:pointer;">✕</button>
+                <button onclick="closeShareActionModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
             <p class="spell-desc">今日完了した家事や伝言をLINEなどで報告します。</p>
 
@@ -534,7 +545,7 @@
             </div>
 
             <div class="spell-btn-group" style="margin-top: 1.25rem;">
-                <button class="btn-spell-action btn-spell-cancel" style="width: 100%;" onclick="closeShareActionModal()">とじる</button>
+                <button class="btn-spell-action btn-spell-cancel" style="width: 100%;" onclick="closeShareActionModal()">お部屋にもどる</button>
             </div>
         </div>
     </div>
@@ -544,7 +555,7 @@
         <div class="spell-content" style="max-width: 480px; max-height: 85vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0; color:#ff4b4b;">⚔️ 突発討伐クエスト</h3>
-                <button onclick="closeBountyModal()" style="background:none; border:none; color:var(--text-sub); font-size:20px; cursor:pointer;">✕</button>
+                <button onclick="closeBountyModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
             <p class="spell-desc">今日のおうちに潜む名もなき家事ボスを討伐せよ！</p>
             
@@ -553,7 +564,7 @@
             </div>
 
             <div class="spell-btn-group" style="margin-top: 1.5rem;">
-                <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeBountyModal()">とじる</button>
+                <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeBountyModal()">お部屋にもどる</button>
             </div>
         </div>
     </div>
@@ -567,15 +578,15 @@
     </div>
 
     <!-- JavaScript Data Files -->
-    <script src="js/data/bosses.js?v=2.5.4"></script>
-    <script src="js/data/karuta.js?v=2.5.4"></script>
-    <script src="js/data/furniture.js?v=2.5.4"></script>
-    <script src="js/data/spirit_profiles.js?v=2.5.4"></script>
-    <script src="js/data/dialogues.js?v=2.5.4"></script>
-    <script src="js/data/newspaper.js?v=2.5.4"></script>
+    <script src="js/data/bosses.js?v=2.5.5"></script>
+    <script src="js/data/karuta.js?v=2.5.5"></script>
+    <script src="js/data/furniture.js?v=2.5.5"></script>
+    <script src="js/data/spirit_profiles.js?v=2.5.5"></script>
+    <script src="js/data/dialogues.js?v=2.5.5"></script>
+    <script src="js/data/newspaper.js?v=2.5.5"></script>
 
     <!-- Main Application Logic -->
-    <script src="script.js?v=2.5.4"></script>
+    <script src="script.js?v=2.5.5"></script>
 </body>
 
 </html>
