@@ -400,6 +400,18 @@
         </div>
     </div>
 
+    <!-- 🐉 守護精霊・詳細プロフィールモーダル -->
+    <div id="spirit-detail-modal" class="spell-overlay hidden">
+        <div class="spell-content" style="max-width: 480px; max-height: 85vh; overflow-y: auto;">
+            <div id="spirit-detail-content">
+                <!-- JSで動的生成 -->
+            </div>
+            <div class="spell-btn-group" style="margin-top: 1.5rem;">
+                <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeSpiritDetailModal()">図鑑にもどる</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 🥠 家事かるた・おみくじ トースト通知 -->
     <div id="fortune-toast" class="fortune-toast hidden" onclick="hideFortuneToast()">
         <div class="fortune-toast-content">
@@ -408,7 +420,15 @@
         </div>
     </div>
 
-    <!-- JavaScript Region -->
+    <!-- JavaScript Data Files -->
+    <script src="js/data/bosses.js"></script>
+    <script src="js/data/karuta.js"></script>
+    <script src="js/data/furniture.js"></script>
+    <script src="js/data/spirit_profiles.js"></script>
+    <script src="js/data/dialogues.js"></script>
+    <script src="js/data/newspaper.js"></script>
+
+    <!-- Main Application Logic -->
     <script src="script.js"></script>
 </body>
 

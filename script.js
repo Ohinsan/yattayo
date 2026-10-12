@@ -1228,22 +1228,34 @@ function updateCompanionWidget() {
                 <button class="btn-legendary btn-rebreed" onclick="rebreedCompanion()" title="卵からそだてなおす">🔄 そだてなおす</button>
             </div>
         `;
-    // 🏡 我が家のカジゴン部屋・インテリア飾り (案3)
+    // 🏡 我が家のカジゴン部屋・インテリア飾り (案3：基本家具 ＋ 季節限定イベント家具)
     const totalDone = completedList.length;
     const furnitureItems = [];
-    if (totalDone >= 2) furnitureItems.push({ icon: '🪴', name: '小さな観葉植物' });
-    if (totalDone >= 6) furnitureItems.push({ icon: '🛋️', name: 'ふかふか絨毯' });
-    if (totalDone >= 12) furnitureItems.push({ icon: '💡', name: '温かいランプ' });
-    if (totalDone >= 20) furnitureItems.push({ icon: '🍲', name: 'ほかほかシチュー鍋' });
-    if (totalDone >= 32) furnitureItems.push({ icon: '🪟', name: '星空の見える窓' });
-    if (totalDone >= 48) furnitureItems.push({ icon: '👑', name: '黄金のトロフィー' });
+    if (typeof BASE_FURNITURE_LIST !== 'undefined') {
+        BASE_FURNITURE_LIST.forEach(f => {
+            if (totalDone >= f.count) furnitureItems.push({ icon: f.icon, name: f.name, desc: f.desc });
+        });
+    } else {
+        if (totalDone >= 2) furnitureItems.push({ icon: '🪴', name: '小さな観葉植物' });
+        if (totalDone >= 6) furnitureItems.push({ icon: '🛋️', name: 'ふかふか絨毯' });
+        if (totalDone >= 12) furnitureItems.push({ icon: '💡', name: '温かいランプ' });
+        if (totalDone >= 20) furnitureItems.push({ icon: '🍲', name: 'ほかほかシチュー鍋' });
+        if (totalDone >= 32) furnitureItems.push({ icon: '🪟', name: '星空の見える窓' });
+        if (totalDone >= 48) furnitureItems.push({ icon: '👑', name: '黄金のトロフィー' });
+    }
+
+    // 🌸 季節の限定イベント家具（家事3回以上でボーナス飾付け！）
+    if (totalDone >= 3 && typeof getCurrentSeasonalFurniture === 'function') {
+        const seasonals = getCurrentSeasonalFurniture();
+        seasonals.forEach(s => furnitureItems.push({ icon: s.icon, name: `[季節] ${s.name}`, desc: s.desc }));
+    }
 
     let furnitureHtml = '';
     if (furnitureItems.length > 0) {
         furnitureHtml = `
-            <div class="companion-room-shelf" title="家事を重ねておうちが快適に！">
+            <div class="companion-room-shelf" title="家事を重ねておうちが快適に！季節アイテムも登場！">
                 <span class="companion-room-label">🏡 快適度:</span>
-                ${furnitureItems.map(item => `<span title="${item.name}">${item.icon}</span>`).join(' ')}
+                ${furnitureItems.map(item => `<span title="${item.name}: ${item.desc || ''}">${item.icon}</span>`).join(' ')}
             </div>
         `;
     }
@@ -1733,35 +1745,27 @@ function onCompanionClick() {
     const lv = getLevel();
     const stage = getCompanionStage(lv);
     const now = new Date();
-    const hour = now.getHours();
+    const totalDone = completedList.length;
+
+    // 家事連続コンボの判定（直近15分以内に完了した家事の個数）
+    const fifteenMinAgo = Date.now() - 15 * 60 * 1000;
+    const comboCount = completedList.filter(c => {
+        const t = (typeof c.time === 'number') ? c.time : new Date(c.time).getTime();
+        return t >= fifteenMinAgo;
+    }).length;
 
     let lines = [];
-    if (hour >= 5 && hour < 10) {
-        lines.push('「おはようございます！今日も朝からおうちを綺麗にしていきましょう！」');
-        lines.push('「朝の空気が気持ちいいですね！朝イチの家事でスタートダッシュ！」');
-    } else if (hour >= 22 || hour < 4) {
-        lines.push('「夜遅くまで本当にお疲れさまです…！無理しないで休んでくださいね。」');
-        lines.push('「静かな夜のひと仕事、カジゴンはいつでも見ていますよ…zzz」');
-    }
-
-    if (stage === 'egg') {
-        lines.push('（卵はかすかに温かい…家事の気配を感じているようだ！）');
-        lines.push('（コトコト…中から小さな足音が聞こえる気がする！）');
-    } else if (stage === 'baby') {
-        lines.push('「ピピピッ！総監督、なでてくれてありがとう！」');
-        lines.push('「もっといっぱい家事を覚えて、かっこいいドラゴンになりたいな！」');
-    } else if (stage === 'teen') {
-        lines.push('「ふふん、最近おうちがどんどんピカピカになってるの、気づいてるよ！」');
-        lines.push('「どんな姿に進化するか楽しみだな〜！属性バランスはどうかな？」');
+    if (typeof getExpandedCompanionLines === 'function') {
+        lines = getExpandedCompanionLines({ lv, stage, now, totalDone, comboCount });
     } else {
-        lines.push('「我が主よ、いつもおうちを慈しみ、守ってくれて感謝いたします。」');
-        lines.push('「この部屋の平和と清潔さは、あなたの毎日の努力の賜物です！」');
+        const hour = now.getHours();
+        if (hour >= 5 && hour < 10) {
+            lines.push('「おはようございます！今日も朝からおうちを綺麗にしていきましょう！」');
+        } else if (hour >= 22 || hour < 4) {
+            lines.push('「夜遅くまで本当にお疲れさまです…！無理しないで休んでくださいね。」');
+        }
+        lines.push('「今日もマイペースにおうちを守っていきましょう！」');
     }
-
-    // Trash day reminder line
-    const dayOfWeek = now.getDay();
-    const daysMap = ['日', '月', '火', '水', '木', '金', '土'];
-    lines.push(`「今日は${daysMap[dayOfWeek]}曜日！忘れずにゴミ捨てチェックしておこう！」`);
 
     const chosen = lines[Math.floor(Math.random() * lines.length)];
     showCompanionDialogue(chosen);
@@ -2072,49 +2076,109 @@ function openBookModal() {
     const totalCount = ALL_SPIRITS.length;
     const unlockedCount = ALL_SPIRITS.filter(s => unlockedFiles.has(s.file)).length;
 
+    let currentTab = window._currentBookTab || 'spirits';
+
+    const unlockedKarutaSet = getUnlockedKarutaSet();
+    const karutaList = (typeof EXPANDED_KARUTA_LIST !== 'undefined') ? EXPANDED_KARUTA_LIST : [];
+    const karutaTotal = karutaList.length;
+    const karutaUnlockedCount = karutaList.filter(k => unlockedKarutaSet.has(k.id)).length;
+
     let html = `
-        <div style="background: rgba(255,255,255,0.06); border: 2px solid var(--accent); padding: 0.6rem 0.8rem; border-radius: 6px; font-weight: bold; font-size: 14px; text-align: center; color: var(--accent); margin-bottom: 0.5rem;">
-            発見数: ${unlockedCount} / ${totalCount} 体 （達成率: ${Math.round((unlockedCount / totalCount) * 100)}%）
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <button onclick="switchBookTab('spirits')" style="flex:1; padding: 0.5rem; border: 2px solid var(--accent); background: ${currentTab === 'spirits' ? 'var(--accent)' : '#0d0d13'}; color: ${currentTab === 'spirits' ? '#0d0d13' : 'var(--accent)'}; font-weight: bold; cursor: pointer; border-radius: 4px;">
+                🐉 守護精霊 (${unlockedCount}/${totalCount})
+            </button>
+            <button onclick="switchBookTab('karuta')" style="flex:1; padding: 0.5rem; border: 2px solid var(--accent); background: ${currentTab === 'karuta' ? 'var(--accent)' : '#0d0d13'}; color: ${currentTab === 'karuta' ? '#0d0d13' : 'var(--accent)'}; font-weight: bold; cursor: pointer; border-radius: 4px;">
+                🥠 かるた帳 (${karutaUnlockedCount}/${karutaTotal})
+            </button>
         </div>
     `;
 
-    ALL_SPIRITS.forEach(spirit => {
-        const isDiscovered = unlockedFiles.has(spirit.file);
-        const record = unlocked.find(u => u.file === spirit.file);
-        const dateStr = record && record.date ? `（発見日: ${record.date}）` : '';
+    if (currentTab === 'spirits') {
+        html += `
+            <div style="background: rgba(255,255,255,0.06); border: 2px solid var(--accent); padding: 0.6rem 0.8rem; border-radius: 6px; font-weight: bold; font-size: 13px; text-align: center; color: var(--accent); margin-bottom: 0.5rem;">
+                発見数: ${unlockedCount} / ${totalCount} 体 （達成率: ${Math.round((unlockedCount / totalCount) * 100)}%）<br>
+                <span style="font-size: 11px; color: #a1a1aa; font-weight: normal;">※発見した精霊をタップすると【裏設定・好物・メッセージ】が読めます！</span>
+            </div>
+        `;
 
-        if (isDiscovered) {
-            html += `
-                <div class="book-card" style="border-color: var(--accent);">
-                    <div class="book-avatar">
-                        <img src="${spirit.file}" alt="${spirit.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <span style="display:none; font-size: 32px;">${spirit.file.includes('golem') ? '🤖' : '🐉'}</span>
+        ALL_SPIRITS.forEach(spirit => {
+            const isDiscovered = unlockedFiles.has(spirit.file);
+            const record = unlocked.find(u => u.file === spirit.file);
+            const dateStr = record && record.date ? `（発見日: ${record.date}）` : '';
+
+            if (isDiscovered) {
+                html += `
+                    <div class="book-card" style="border-color: var(--accent); cursor: pointer;" onclick="openSpiritDetailModal('${spirit.id}')" title="タップして裏設定・メッセージを見る！">
+                        <div class="book-avatar">
+                            <img src="${spirit.file}" alt="${spirit.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <span style="display:none; font-size: 32px;">${spirit.file.includes('golem') ? '🤖' : '🐉'}</span>
+                        </div>
+                        <div class="book-info">
+                            <div class="book-info-title">${spirit.name} <span style="font-size:11px; color:var(--accent); font-weight:bold;">🔍 詳しく見る</span></div>
+                            <div class="book-info-desc">${spirit.desc}</div>
+                            <div class="book-date">✨ 発見済み ${dateStr}</div>
+                        </div>
                     </div>
-                    <div class="book-info">
-                        <div class="book-info-title">${spirit.name}</div>
-                        <div class="book-info-desc">${spirit.desc}</div>
-                        <div class="book-date">✨ 発見済み ${dateStr}</div>
+                `;
+            } else {
+                html += `
+                    <div class="book-card" style="opacity: 0.65; border: 2px dashed #444; background: #0e0e14;">
+                        <div class="book-avatar" style="border-color: #444; background: #07070a; display:flex; align-items:center; justify-content:center; color: #888; font-size: 26px;">
+                            ❓
+                        </div>
+                        <div class="book-info">
+                            <div class="book-info-title" style="color: #888;">？？？？？？</div>
+                            <div class="book-info-desc" style="color: #71717a;">ヒント: ${spirit.hint}</div>
+                            <div class="book-date" style="color: #555;">🔒 未発見</div>
+                        </div>
                     </div>
-                </div>
-            `;
-        } else {
-            html += `
-                <div class="book-card" style="opacity: 0.65; border: 2px dashed #444; background: #0e0e14;">
-                    <div class="book-avatar" style="border-color: #444; background: #07070a; display:flex; align-items:center; justify-content:center; color: #888; font-size: 26px;">
-                        ❓
+                `;
+            }
+        });
+    } else {
+        // かるた帳タブ
+        html += `
+            <div style="background: rgba(255,255,255,0.06); border: 2px solid var(--accent); padding: 0.6rem 0.8rem; border-radius: 6px; font-weight: bold; font-size: 13px; text-align: center; color: var(--accent); margin-bottom: 0.5rem;">
+                集めた家事かるた: ${karutaUnlockedCount} / ${karutaTotal} 枚 （収集率: ${Math.round((karutaUnlockedCount / karutaTotal) * 100)}%）
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        `;
+
+        karutaList.forEach(k => {
+            const isUnlocked = unlockedKarutaSet.has(k.id);
+            if (isUnlocked) {
+                const isUltra = (k.rarity === 'ultra');
+                html += `
+                    <div style="background: #14141f; border: 2px solid ${isUltra ? '#ff007f' : 'var(--accent)'}; border-radius: 6px; padding: 0.6rem 0.8rem; box-shadow: ${isUltra ? '0 0 10px rgba(255,0,128,0.3)' : 'none'};">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.25rem;">
+                            <span style="font-size: 12px; font-weight: bold; color: ${isUltra ? '#ff007f' : 'var(--accent)'};">${k.rank}</span>
+                            <span style="font-size: 10px; color: #10b981; font-weight: bold;">COLLECTED</span>
+                        </div>
+                        <div style="font-size: 13px; color: #f4ede2; line-height: 1.4;">${k.text}</div>
                     </div>
-                    <div class="book-info">
-                        <div class="book-info-title" style="color: #888;">？？？？？？</div>
-                        <div class="book-info-desc" style="color: #71717a;">ヒント: ${spirit.hint}</div>
-                        <div class="book-date" style="color: #555;">🔒 未発見</div>
+                `;
+            } else {
+                html += `
+                    <div style="background: #0e0e14; border: 2px dashed #444; border-radius: 6px; padding: 0.6rem 0.8rem; opacity: 0.6;">
+                        <div style="font-size: 12px; font-weight: bold; color: #71717a;">🔒 未発見のかるた</div>
+                        <div style="font-size: 12px; color: #555; margin-top: 0.2rem;">家事を完了してかるた・おみくじを引くと解放！</div>
                     </div>
-                </div>
-            `;
-        }
-    });
+                `;
+            }
+        });
+
+        html += `</div>`;
+    }
 
     container.innerHTML = html;
     document.getElementById('book-modal').classList.remove('hidden');
+}
+
+function switchBookTab(tab) {
+    SoundEngine.playSE('click');
+    window._currentBookTab = tab;
+    openBookModal();
 }
 
 function closeBookModal() {
@@ -2122,10 +2186,65 @@ function closeBookModal() {
     document.getElementById('book-modal').classList.add('hidden');
 }
 
+function openSpiritDetailModal(spiritId) {
+    SoundEngine.playSE('click');
+    const spirit = ALL_SPIRITS.find(s => s.id === spiritId);
+    if (!spirit) return;
+
+    const profile = (typeof SPIRIT_PROFILES !== 'undefined' && SPIRIT_PROFILES[spiritId]) ? SPIRIT_PROFILES[spiritId] : {
+        favorite: '美味しいご飯 & 家族の笑顔',
+        specialty: 'おうちの清潔と平和を守ること',
+        episode: 'いつも家族の頑張りを見守り、温かい応援の光を届けてくれる優しい精霊。',
+        message: '「今日も家事を頑張ってくれてありがとう！おうちがピカピカで嬉しいよ！」'
+    };
+
+    const container = document.getElementById('spirit-detail-content');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div style="text-align: center; margin-bottom: 1rem;">
+            <div style="width: 100px; height: 100px; margin: 0 auto; background: rgba(0,0,0,0.3); border: 3px solid var(--accent); border-radius: 8px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                <img src="${spirit.file}" alt="${spirit.name}" style="width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));">
+            </div>
+            <h3 style="font-size: 16px; font-weight: bold; color: var(--accent); margin-top: 0.5rem; letter-spacing: 0.5px;">${spirit.name}</h3>
+            <p style="font-size: 12px; color: var(--text-sub); margin-top: 0.2rem;">${spirit.desc}</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; text-align: left;">
+            <div style="background: #14141f; border-left: 4px solid #ef4444; padding: 0.5rem 0.75rem; border-radius: 4px;">
+                <div style="font-size: 11px; font-weight: bold; color: #f87171;">🍽️ 大好物</div>
+                <div style="font-size: 13px; color: #f4ede2; margin-top: 0.2rem;">${profile.favorite}</div>
+            </div>
+
+            <div style="background: #14141f; border-left: 4px solid #3b82f6; padding: 0.5rem 0.75rem; border-radius: 4px;">
+                <div style="font-size: 11px; font-weight: bold; color: #60a5fa;">⚔️ 得意な家事</div>
+                <div style="font-size: 13px; color: #f4ede2; margin-top: 0.2rem;">${profile.specialty}</div>
+            </div>
+
+            <div style="background: #14141f; border-left: 4px solid #10b981; padding: 0.5rem 0.75rem; border-radius: 4px;">
+                <div style="font-size: 11px; font-weight: bold; color: #34d399;">📜 知られざる裏設定・日常エピソード</div>
+                <div style="font-size: 12px; color: #cbd5e1; line-height: 1.5; margin-top: 0.25rem;">${profile.episode}</div>
+            </div>
+
+            <div style="background: #1e1b4b; border: 1.5px solid #818cf8; padding: 0.6rem 0.75rem; border-radius: 6px; margin-top: 0.25rem;">
+                <div style="font-size: 11px; font-weight: bold; color: #a5b4fc;">💖 住まい手への感謝メッセージ</div>
+                <div style="font-size: 13px; color: #fff; font-weight: 500; font-style: italic; line-height: 1.4; margin-top: 0.25rem;">${profile.message}</div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('spirit-detail-modal').classList.remove('hidden');
+}
+
+function closeSpiritDetailModal() {
+    SoundEngine.playSE('click');
+    document.getElementById('spirit-detail-modal').classList.add('hidden');
+}
+
 // ==========================================================================
-// --- ⚔️ 名もなき家事 突発討伐クエスト (案2) ---
+// --- ⚔️ 名もなき家事 突発討伐クエスト (案1：20種以上のシチュエーション別ボス) ---
 // ==========================================================================
-const BOUNTY_BOSSES = [
+const BOUNTY_BOSSES = (typeof EXPANDED_BOUNTY_BOSSES !== 'undefined') ? EXPANDED_BOUNTY_BOSSES : [
     { id: 'cardboard', name: '📦 ダンボールゴーレム', target: '玄関や廊下のダンボール解体・まとめ', exp: 50, attr: 'earth', desc: '通販の箱が溜まりつつある！一気に畳んで撃破せよ！' },
     { id: 'drain', name: '🫧 排水口ヘドロサタン', target: 'キッチンか風呂の排水口ネット交換＆掃除', exp: 45, attr: 'water', desc: 'ヌメリの魔王が潜んでいる！新しいネットを張って清めよ！' },
     { id: 'shampoo', name: '🧴 詰め替えキメラ', target: 'シャンプー・ハンドソープの補充', exp: 35, attr: 'water', desc: 'ボトルが軽くなっている！最後の一滴が出る前に満タンにせよ！' },
@@ -2145,12 +2264,14 @@ function getTodayBounty() {
         bountyData = null;
     }
 
+    const bossList = (typeof EXPANDED_BOUNTY_BOSSES !== 'undefined') ? EXPANDED_BOUNTY_BOSSES : BOUNTY_BOSSES;
+
     if (!bountyData || bountyData.date !== todayStr) {
         let seed = 0;
         for (let i = 0; i < todayStr.length; i++) {
             seed = (seed * 31 + todayStr.charCodeAt(i)) >>> 0;
         }
-        const boss = BOUNTY_BOSSES[seed % BOUNTY_BOSSES.length];
+        const boss = bossList[seed % bossList.length];
         bountyData = {
             date: todayStr,
             bossId: boss.id,
@@ -2158,7 +2279,7 @@ function getTodayBounty() {
         };
         localStorage.setItem('kajigon_bounty_quest', JSON.stringify(bountyData));
     }
-    const boss = BOUNTY_BOSSES.find(b => b.id === bountyData.bossId) || BOUNTY_BOSSES[0];
+    const boss = bossList.find(b => b.id === bountyData.bossId) || bossList[0];
     return { boss, defeated: bountyData.defeated };
 }
 
@@ -2221,25 +2342,30 @@ function defeatBountyQuest() {
 // ==========================================================================
 // --- 🥠 家事かるた・おみくじ トースト演出 (案4) ---
 // ==========================================================================
-const FORTUNE_LIST = [
-    { rank: '🎉 大吉', text: '靴下の裏返しが1発で直った！奇跡の快感！' },
-    { rank: '✨ 中吉', text: '冷蔵庫の奥から賞味期限内のお宝プリンを発見！' },
-    { rank: '🍃 吉', text: '洗濯物を干し終えた瞬間に心地よい南風が吹いた！' },
-    { rank: '🍵 末吉', text: 'ゴミ袋の口を縛った直後に丸めたティッシュを発見…あるある！' },
-    { rank: '💫 小吉', text: 'シャンプーの詰め替え、一滴もこぼさず大成功！' },
-    { rank: '💖 特吉', text: 'パートナーが背中でそっと「ありがとう」と呟いた気がする！' },
-    { rank: '🔥 大吉', text: 'フライパンの焦げ付きがツルンと剥がれて大勝利！' },
-    { rank: '🌟 中吉', text: 'ラップの端っこが迷子にならず、1発で引き出せた！' },
-    { rank: '🍀 吉', text: 'コロコロテープが綺麗にミシン目でスパッとちぎれた！' },
-    { rank: '☕ 末吉', text: '掃除機をかけたら、行方不明だった靴下の片方が出てきた！' },
-    { rank: '👑 超大吉', text: '今日のあなたは家事の神！お風呂のお湯加減が神域に達する！' },
-    { rank: '🎯 中吉', text: 'スーパーの特売卵パックを割らずに無事生還！' },
-    { rank: '🌈 吉', text: '排水口がピカピカになり、カジゴンが背伸びして喜んでいる！' },
-    { rank: '🛁 大吉', text: 'お風呂掃除後の1番風呂、極上の整い確定！' },
-    { rank: '🍞 小吉', text: '食パンの最後の1枚、絶妙なキツネ色に焼き上がった！' }
+const FORTUNE_LIST = (typeof EXPANDED_KARUTA_LIST !== 'undefined') ? EXPANDED_KARUTA_LIST : [
+    { id: 'k_default_1', rank: '🎉 大吉', text: '靴下の裏返しが1発で直った！奇跡の快感！', rarity: 'common' },
+    { id: 'k_default_2', rank: '✨ 中吉', text: '冷蔵庫の奥から賞味期限内のお宝プリンを発見！', rarity: 'common' }
 ];
 
 let fortuneToastTimer = null;
+
+function getUnlockedKarutaSet() {
+    try {
+        const raw = localStorage.getItem('kajigon_unlocked_karuta');
+        return new Set(raw ? JSON.parse(raw) : []);
+    } catch(e) {
+        return new Set();
+    }
+}
+
+function saveUnlockedKaruta(id) {
+    if (!id) return;
+    try {
+        const set = getUnlockedKarutaSet();
+        set.add(id);
+        localStorage.setItem('kajigon_unlocked_karuta', JSON.stringify(Array.from(set)));
+    } catch(e) {}
+}
 
 function triggerFortuneToast(force = false) {
     if (!force && Math.random() > 0.35) return;
@@ -2249,16 +2375,34 @@ function triggerFortuneToast(force = false) {
     const textEl = document.getElementById('fortune-toast-text');
     if (!toast || !rankEl || !textEl) return;
 
-    const chosen = FORTUNE_LIST[Math.floor(Math.random() * FORTUNE_LIST.length)];
+    const list = (typeof EXPANDED_KARUTA_LIST !== 'undefined') ? EXPANDED_KARUTA_LIST : FORTUNE_LIST;
+    const chosen = list[Math.floor(Math.random() * list.length)];
+    
+    // Save to collected karuta album
+    if (chosen.id) {
+        saveUnlockedKaruta(chosen.id);
+    }
+
     rankEl.textContent = chosen.rank;
     textEl.textContent = chosen.text;
+
+    // Apply rainbow glow styling for ultra rare
+    if (chosen.rarity === 'ultra') {
+        rankEl.style.background = 'linear-gradient(90deg, #ff007f, #7928ca, #0070f3, #00dfd8)';
+        rankEl.style.color = '#fff';
+        rankEl.style.boxShadow = '0 0 10px rgba(255, 0, 128, 0.8)';
+    } else {
+        rankEl.style.background = '';
+        rankEl.style.color = '';
+        rankEl.style.boxShadow = '';
+    }
 
     toast.classList.remove('hidden');
 
     if (fortuneToastTimer) clearTimeout(fortuneToastTimer);
     fortuneToastTimer = setTimeout(() => {
         hideFortuneToast();
-    }, 3800);
+    }, 4200);
 }
 
 function hideFortuneToast() {
@@ -2282,79 +2426,58 @@ function openWeeklyNewsModal() {
         return time >= sevenDaysAgo;
     });
 
-    const totalCount = weeklyChores.length;
-    let totalExp = 0;
-    const choreCounts = {};
-    let nightChoreCount = 0;
-
-    weeklyChores.forEach(c => {
-        totalExp += (c.gainedExp || 10);
-        choreCounts[c.name] = (choreCounts[c.name] || 0) + 1;
-        const d = new Date((typeof c.time === 'number') ? c.time : c.time);
-        const hour = d.getHours();
-        if (hour >= 20 || hour < 4) {
-            nightChoreCount++;
-        }
-    });
-
-    let topChoreName = "（まだ今週の記録はありません）";
-    let topChoreMax = 0;
-    Object.keys(choreCounts).forEach(name => {
-        if (choreCounts[name] > topChoreMax) {
-            topChoreMax = choreCounts[name];
-            topChoreName = name;
-        }
-    });
-
-    let editorial = "";
-    if (totalCount >= 20) {
-        editorial = "『今週のおうちは伝説級の神殿！2人の目覚ましい奮闘により、あらゆる魔物（汚れ）が一掃された！文句なしの大殊勲である！』";
-    } else if (totalCount >= 8) {
-        editorial = "『素晴らしい連携プレイ！日々の細やかな心配りが光り、おうちの清潔度と居心地は最高レベルを維持しているぞ！』";
-    } else if (totalCount > 0) {
-        editorial = "『コツコツと確かな歩み！無理せずそれぞれのペースで暮らしを守り抜いた。今夜はゆっくりおいしいご飯で乾杯しよう！』";
-    } else {
-        editorial = "『今週はのんびり休息ウィーク！たまには家事を忘れて羽を伸ばすのも大切だぞ。カジゴンも巣でぬくぬくしている！』";
-    }
+    const article = (typeof generateWeeklyNewsArticle === 'function') 
+        ? generateWeeklyNewsArticle(weeklyChores)
+        : {
+            totalCount: weeklyChores.length,
+            totalExp: weeklyChores.reduce((s, c) => s + (c.gainedExp || 10), 0),
+            topChoreName: "（記録なし）",
+            topChoreMax: 0,
+            nightChoreCount: 0,
+            bannerTitle: "★ 坂本家・特別号外速報 ★",
+            mainHeadline: "📰 週刊カジゴン通信",
+            editorial: "『コツコツと確かな歩み！おうちの平和は守られた！』",
+            themeColor: "#b91c1c"
+        };
 
     const todayDate = new Date().toLocaleDateString('ja-JP');
 
     container.innerHTML = `
         <div class="weekly-news-paper" id="weekly-news-paper-element">
-            <div class="weekly-news-header">
+            <div class="weekly-news-header" style="border-bottom: 3px double ${article.themeColor};">
                 <div>
-                    <div style="font-size: 11px; color: #b91c1c; font-weight: 900; letter-spacing: 1px;">★ 坂本家・特別号外速報 ★</div>
-                    <div class="weekly-news-maintitle">📰 週刊カジゴン通信</div>
+                    <div style="font-size: 11px; color: ${article.themeColor}; font-weight: 900; letter-spacing: 1px;">${article.bannerTitle}</div>
+                    <div class="weekly-news-maintitle">${article.mainHeadline}</div>
                 </div>
                 <div class="weekly-news-date">発行日: ${todayDate}</div>
             </div>
 
             <div class="weekly-news-stats-grid">
                 <div class="weekly-stat-box">
-                    <div class="weekly-stat-val">${totalCount} <span style="font-size:12px;">回</span></div>
+                    <div class="weekly-stat-val">${article.totalCount} <span style="font-size:12px;">回</span></div>
                     <div class="weekly-stat-lbl">今週の家事達成数</div>
                 </div>
                 <div class="weekly-stat-box">
-                    <div class="weekly-stat-val">+${totalExp} <span style="font-size:12px;">EXP</span></div>
+                    <div class="weekly-stat-val">+${article.totalExp} <span style="font-size:12px;">EXP</span></div>
                     <div class="weekly-stat-lbl">家庭内総獲得EXP</div>
                 </div>
             </div>
 
             <div class="weekly-highlight-section">
-                <div class="weekly-highlight-title">👑 今週の最多討伐王（MVP家事）</div>
-                <div class="weekly-highlight-item">${topChoreName} ${topChoreMax > 0 ? `（計 ${topChoreMax} 回達成！）` : ''}</div>
+                <div class="weekly-highlight-title" style="color: ${article.themeColor};">👑 今週の最多討伐王（MVP家事）</div>
+                <div class="weekly-highlight-item">${article.topChoreName} ${article.topChoreMax > 0 ? `（計 ${article.topChoreMax} 回達成！）` : ''}</div>
             </div>
 
-            ${nightChoreCount > 0 ? `
+            ${article.nightChoreCount > 0 ? `
             <div class="weekly-highlight-section" style="border-left: 3px solid #8b5cf6;">
                 <div class="weekly-highlight-title" style="color:#6d28d9;">🌙 電撃ナイトファインプレー</div>
-                <div class="weekly-highlight-item">夜遅くの家事：計 ${nightChoreCount} 回 （寝る前のリセット大感謝！）</div>
+                <div class="weekly-highlight-item">夜遅くの家事：計 ${article.nightChoreCount} 回 （寝る前のリセット大感謝！）</div>
             </div>
             ` : ''}
 
-            <div class="weekly-editorial">
+            <div class="weekly-editorial" style="border-left-color: ${article.themeColor};">
                 <strong>🐉 カジゴン記者の一言社説：</strong><br>
-                ${editorial}
+                ${article.editorial}
             </div>
         </div>
     `;
