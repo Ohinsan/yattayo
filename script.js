@@ -1198,9 +1198,19 @@ function updateCompanionWidget() {
             <div class="companion-avatar-emoji" style="display:none;">🐣</div>
         `;
     } else if (stage === 'teen') {
+        const envTheme = kajigonState.environmentTheme || 'classic';
+        const teenMap = {
+            volcano: { file: 'teen_fire.jpg', name: '溶岩ティーン', emoji: '🔥' },
+            abyss: { file: 'teen_water.jpg', name: '深海ティーン', emoji: '💧' },
+            sky: { file: 'teen_wind.jpg', name: '樹海ティーン', emoji: '🍃' },
+            earth: { file: 'teen_earth.jpg', name: '遺跡ティーン', emoji: '🪵' },
+            classic: { file: 'teen_light.jpg', name: 'ルクスティーン', emoji: '🌟' },
+            gameboy: { file: 'teen_retro.jpg', name: 'GBティーン', emoji: '📟' }
+        };
+        const currentTeen = teenMap[envTheme] || teenMap.classic;
         companionImgHtml = `
-            <img class="companion-avatar-img" src="kajigon_teen.png" alt="ティーンカジゴン" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-            <div class="companion-avatar-emoji" style="display:none;">👾</div>
+            <img class="companion-avatar-img" src="${currentTeen.file}" alt="${currentTeen.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div class="companion-avatar-emoji" style="display:none;">${currentTeen.emoji}</div>
         `;
     } else { // final
         const selected = getEvolvedForm();
@@ -1546,7 +1556,6 @@ function getEvolvedForm() {
     ];
 
     const maxVal = Math.max(...pts.map(p => p.val));
-    
     const maxPtsList = pts.filter(p => p.val === maxVal);
     const isLightCondition = maxPtsList.length >= 2;
 
@@ -1555,93 +1564,71 @@ function getEvolvedForm() {
 
     const isGolemRoute = kajigonState.artifactCount >= 1;
     const isDarkGolem = isForcedDark || (isLightCondition && kajigonState.artifactCount === 3);
-    const isLightDragon = isForcedLight || (isLightCondition && kajigonState.artifactCount < 3) || maxVal === 0;
 
     if (isDarkGolem) {
-        return {
-            attr: 'dark',
-            name: '👿 不完全なる闇 of 魔ゴーレム 🤖',
-            file: 'golem_dark.png',
-            desc: '古代パーツ（⚙️）が3個集まった、不穏で静かに佇む魔導のロボット。コアが怪しく光る不完全なドット絵姿です。'
-        };
+        return ALL_SPIRITS.find(s => s.id === 'dark_golem');
     }
 
-    if (isLightDragon) {
-        return {
-            attr: 'light',
-            name: '🌟 創世輝龍アルティマ 🐉',
-            file: 'dragon_all.png',
-            desc: 'すべての家事を愛と調和の心でバランスよくこなし、世界に調和をもたらしました。'
-        };
-    }
-
-    // Seed-based fair pseudo-random choice if there is a tie but it didn't trigger Light condition
     const seed = kajigonState.totalExp;
     const winnerAttr = maxPtsList[seed % maxPtsList.length].attr;
+    const envTheme = kajigonState.environmentTheme || 'classic';
 
-    if (isGolemRoute) {
-        switch (winnerAttr) {
-            case 'fire':
-                return {
-                    attr: 'fire',
-                    name: '🌋 獄炎魔ゴーレム 🤖',
-                    file: 'golem_fire.png',
-                    desc: 'おうちのシンクやコンロをピカピカに磨き上げ、熱い鉄の魂で暮らしを支えてくれました。'
-                };
-            case 'water':
-                return {
-                    attr: 'water',
-                    name: '🌊 海王魔ゴーレム 🤖',
-                    file: 'golem_water.png',
-                    desc: 'お風呂や洗濯、食器洗いで水回りを清め、無休の歯車で清潔と潤いをもたらしてくれました。'
-                };
-            case 'wind':
-                return {
-                    attr: 'wind',
-                    name: '🌪️ 嵐神魔ゴーレム 🤖',
-                    file: 'golem_wind.png',
-                    desc: '掃除機がけや階段の掃き掃除で埃を吸い込み、強力なファンで新しい風を送り続けてくれました。'
-                };
-            case 'earth':
-                return {
-                    attr: 'earth',
-                    name: '🪵 巌帝魔ゴーレム 🤖',
-                    file: 'golem_earth.png',
-                    desc: '拭き掃除やゴミ捨て、ベッドメイキングを行い、どっしりとした金属の躯体でおうちの基礎を支えてくれました。'
-                };
-        }
-    } else {
-        switch (winnerAttr) {
-            case 'fire':
-                return {
-                    attr: 'fire',
-                    name: '🌋 獄炎龍ボルカノン 🦖',
-                    file: 'dragon_fire.png',
-                    desc: 'おうちのシンクやコンロをピカピカに磨き上げ、暮らしに熱い情熱の火を灯し続けてくれました。'
-                };
-            case 'water':
-                return {
-                    attr: 'water',
-                    name: '🌊 海王神龍リヴァイア 🐙',
-                    file: 'dragon_water.png',
-                    desc: 'お風呂や洗濯、食器洗いで水回りを清め、家族みんなに清潔と潤いをもたらしてくれました。'
-                };
-            case 'wind':
-                return {
-                    attr: 'wind',
-                    name: '🌪️ 嵐神翼龍ゼフィロス 🦅',
-                    file: 'dragon_wind.png',
-                    desc: '丁寧な掃除機がけや階段の掃き掃除でおうちの埃を吹き飛ばし、常に澄み切った新しい風を送り続けてくれました。'
-                };
-            case 'earth':
-                return {
-                    attr: 'earth',
-                    name: '🪵 巌帝古龍ガイアード 🌲',
-                    file: 'dragon_earth.png',
-                    desc: '拭き掃除やゴミ捨て、ベッドメイキングでおうちの基礎をがっしりと支え、最高の安定感を与えてくれました。'
-                };
-        }
+    // 1. 環境特化・地域固有種ルート (Environment Uniques)
+    if (envTheme === 'gameboy') {
+        return ALL_SPIRITS.find(s => s.id === 'unique_retro');
     }
+    if (envTheme === 'classic' && (isLightCondition || isForcedLight)) {
+        return (seed % 2 === 0) 
+            ? ALL_SPIRITS.find(s => s.id === 'unique_temple') 
+            : ALL_SPIRITS.find(s => s.id === 'light_dragon');
+    }
+    if (envTheme === 'volcano' && winnerAttr === 'fire' && !isGolemRoute) {
+        if (seed % 3 === 0) return ALL_SPIRITS.find(s => s.id === 'unique_volcano');
+        if (seed % 3 === 1) return ALL_SPIRITS.find(s => s.id === 'fairy_cook');
+        return ALL_SPIRITS.find(s => s.id === 'fire_dragon');
+    }
+    if (envTheme === 'abyss' && winnerAttr === 'water' && !isGolemRoute) {
+        if (seed % 3 === 0) return ALL_SPIRITS.find(s => s.id === 'unique_abyss');
+        if (seed % 3 === 1) return ALL_SPIRITS.find(s => s.id === 'fairy_cat');
+        return ALL_SPIRITS.find(s => s.id === 'water_dragon');
+    }
+    if (envTheme === 'sky' && winnerAttr === 'wind' && !isGolemRoute) {
+        if (seed % 3 === 0) return ALL_SPIRITS.find(s => s.id === 'unique_sky');
+        if (seed % 3 === 1) return ALL_SPIRITS.find(s => s.id === 'fairy_broom');
+        return ALL_SPIRITS.find(s => s.id === 'wind_dragon');
+    }
+    if (envTheme === 'earth' && winnerAttr === 'earth' && !isGolemRoute) {
+        if (seed % 3 === 0) return ALL_SPIRITS.find(s => s.id === 'unique_earth');
+        if (seed % 3 === 1) return ALL_SPIRITS.find(s => s.id === 'relic_book');
+        return ALL_SPIRITS.find(s => s.id === 'earth_dragon');
+    }
+
+    // 2. 機械魔ゴーレムルート (Golems)
+    if (isGolemRoute) {
+        const golemMap = {
+            fire: 'fire_golem',
+            water: 'water_golem',
+            wind: 'wind_golem',
+            earth: 'earth_golem'
+        };
+        return ALL_SPIRITS.find(s => s.id === (golemMap[winnerAttr] || 'earth_golem'));
+    }
+
+    // 3. スライム・光の調和ルート (Prism Slime vs Light Dragon)
+    if (isLightCondition || isForcedLight || maxVal === 0) {
+        if (seed % 3 === 0) return ALL_SPIRITS.find(s => s.id === 'slime_prism');
+        if (seed % 3 === 1) return ALL_SPIRITS.find(s => s.id === 'relic_lamp');
+        return ALL_SPIRITS.find(s => s.id === 'light_dragon');
+    }
+
+    // 4. 王道ドラゴンルート (Dragons)
+    const dragonMap = {
+        fire: 'fire_dragon',
+        water: 'water_dragon',
+        wind: 'wind_dragon',
+        earth: 'earth_dragon'
+    };
+    return ALL_SPIRITS.find(s => s.id === (dragonMap[winnerAttr] || 'light_dragon'));
 }
 
 function getCurrentKajigonTheme() {
@@ -1851,6 +1838,7 @@ function closeEndingModal() {
 // --- 📖 守護精霊図鑑 (Encyclopedia System) ---
 // ==========================================================================
 const ALL_SPIRITS = [
+    // 🐉 王道ドラゴン系統
     {
         id: 'light_dragon',
         attr: 'light',
@@ -1891,6 +1879,8 @@ const ALL_SPIRITS = [
         desc: '拭き掃除やゴミ捨て、ベッドメイキングでおうちの基礎をがっしりと支え、最高の安定感を与えてくれました。',
         hint: '【土】拭き掃除・ゴミ捨て・整理整頓を極めると進化'
     },
+
+    // 🤖 機械魔ゴーレム系統
     {
         id: 'dark_golem',
         attr: 'dark',
@@ -1930,6 +1920,106 @@ const ALL_SPIRITS = [
         file: 'golem_earth.png',
         desc: '拭き掃除やゴミ捨て、ベッドメイキングを行い、どっしりとした金属の躯体でおうちの基礎を支えてくれました。',
         hint: '【土・機械】古代パーツを持ち、土の家事を極めると進化'
+    },
+
+    // 🌍 環境特化・固有種系統
+    {
+        id: 'unique_volcano',
+        attr: 'fire',
+        name: '🌋 溶岩料理神 ボルケフ 🐢',
+        file: 'unique_volcano.jpg',
+        desc: '火山玄武岩の甲羅にかまど鍋を背負い、家族の温かい食卓と美味しいご飯を永遠に見守る大地のカメ神。',
+        hint: '【火山限定】灼熱の火山環境で火の家事を極めると降臨'
+    },
+    {
+        id: 'unique_abyss',
+        attr: 'water',
+        name: '🌊 清流クラゲ姫 アンフィトリテ 🪼',
+        file: 'unique_abyss.jpg',
+        desc: '深海で青く透き通り発光するクラゲの姫君。水回りの滑りやカビを浄化し、家族に極上の潤いを与える。',
+        hint: '【深海限定】深海の神殿環境で水の家事を極めると降臨'
+    },
+    {
+        id: 'unique_sky',
+        attr: 'wind',
+        name: '🍃 樹海番人 シルヴァニアン 🦉',
+        file: 'unique_sky.jpg',
+        desc: '緑深き樹海の葉をまとう森の賢者フクロウ。窓から入る澄んだ風とともに家中を駆け抜け、埃を吹き払う。',
+        hint: '【樹海限定】天空の樹海環境で風の家事を極めると降臨'
+    },
+    {
+        id: 'unique_earth',
+        attr: 'earth',
+        name: '🏜️ 機巧魔神 ギアオメガ ⚙️',
+        file: 'unique_earth.jpg',
+        desc: '古代スチームパンクの歯車と振り子時計を胸に宿した巨神。正確無比なリズムでおうちの秩序と生活リズムを守る。',
+        hint: '【遺跡限定】砂漠の巨石遺跡環境で土の家事を極めると降臨'
+    },
+    {
+        id: 'unique_temple',
+        attr: 'light',
+        name: '📜 彗星神竜 コスモアルティマ 🌌',
+        file: 'unique_temple.jpg',
+        desc: '星空の銀河と星座をその身に宿した神話の宇宙竜。家中が愛と調和でピカピカに満ちた時にのみ空から舞い降りる。',
+        hint: '【神殿限定】星降る神殿で全属性を調和させると降臨'
+    },
+    {
+        id: 'unique_retro',
+        attr: 'wind',
+        name: '👾 原初ビット ビットゴン 📟',
+        file: 'unique_retro.jpg',
+        desc: 'ゲームボーイ初期の4階調ドット画面から実体化した原初のピクセル龍。ノスタルジックな魔力でおうちを包み込む。',
+        hint: '【レトロ限定】初代レトロ環境で進化させると降臨'
+    },
+
+    // 🧚 妖精・レリック・スライム新種族系統
+    {
+        id: 'fairy_cook',
+        attr: 'fire',
+        name: '🍳 フライパン小人 ポックル 👨‍🍳',
+        file: 'fairy_cook.jpg',
+        desc: 'コック帽をかぶり黄金のフライパンを手にした料理妖精。フライパンやコンロをピカピカにする人に最高の朝食の幸運を授ける。',
+        hint: '【妖精族】料理やキッチン周りの家事をたくさん行うと出現'
+    },
+    {
+        id: 'fairy_cat',
+        attr: 'water',
+        name: '🧼 あわあわバブルキャット 🐱',
+        file: 'fairy_cat.svg',
+        desc: '石鹸のフワフワな泡でできた不思議な白猫。お風呂や洗濯を頑張る人の周りをぷかぷか漂い、いい匂いで癒やしてくれる。',
+        hint: '【妖精族】お風呂掃除や洗濯の家事をたくさん行うと出現'
+    },
+    {
+        id: 'fairy_broom',
+        attr: 'wind',
+        name: '🧹 ほうき小僧 ほうき丸 👺',
+        file: 'fairy_broom.svg',
+        desc: '職人気質の小さなほうき小僧。床や階段のチリひとつ許さず、ササッと掃き清めて爽快な一日を届けてくれる。',
+        hint: '【妖精族】掃き掃除や掃除機がけをたくさん行うと出現'
+    },
+    {
+        id: 'relic_book',
+        attr: 'earth',
+        name: '📖 飛翔魔導書 グリモワール 📜',
+        file: 'relic_book.svg',
+        desc: '家族の毎日の家事の歴史が書き込まれるにつれて自我を持った古代の魔導書。ページを開くたびにおうちに幸せの魔法をかける。',
+        hint: '【レリック族】拭き掃除やゴミ捨てなど日々の記録を積み重ねると覚醒'
+    },
+    {
+        id: 'relic_lamp',
+        attr: 'fire',
+        name: '🪔 団欒の魔人 ジン・ランタン 🧞',
+        file: 'relic_lamp.svg',
+        desc: '温かい光を放つ魔法のランプから現れる魔人。家族団欒のひとときを黄金のぬくもりで包み込み、みんなを笑顔にする。',
+        hint: '【レリック族】夜の家事や物品補充を行うとランプが点灯'
+    },
+    {
+        id: 'slime_prism',
+        attr: 'light',
+        name: '💎 キングプリズムスライム 👑',
+        file: 'slime_prism.svg',
+        desc: 'おうちの汚れを吸い取って体内でピカピカの虹色宝石に変えた奇跡のスライム王。王冠を輝かせ、家中に最高の福をもたらす。',
+        hint: '【スライム族】ラッキー家事や討伐クエストを重ねると降臨'
     }
 ];
 
@@ -3047,7 +3137,16 @@ async function generateAncientCardCanvas() {
     } else if (currentLv <= 5) {
         avatarImgSrc = "kajigon_baby.png";
     } else if (currentLv <= 9) {
-        avatarImgSrc = "kajigon_teen.png";
+        const envTheme = kajigonState.environmentTheme || 'classic';
+        const teenMap = {
+            volcano: 'teen_fire.jpg',
+            abyss: 'teen_water.jpg',
+            sky: 'teen_wind.jpg',
+            earth: 'teen_earth.jpg',
+            classic: 'teen_light.jpg',
+            gameboy: 'teen_retro.jpg'
+        };
+        avatarImgSrc = teenMap[envTheme] || 'teen_light.jpg';
     } else {
         avatarImgSrc = evolved.file;
     }

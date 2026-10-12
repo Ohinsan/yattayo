@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" shape-rendering="crispEdges">
+  <rect width="100" height="100" fill="#151022" />
+  <!-- Magical Runes Ring -->
+  <circle cx="50" cy="50" r="42" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6" />
+  <circle cx="50" cy="50" r="36" fill="none" stroke="#e879f9" stroke-width="1" opacity="0.4" />
+  <!-- Book Wings (Floating Pages) -->
+  <path d="M 50,52 Q 22,25 10,40 Q 20,68 50,60 Z" fill="#4c1d95" stroke="#a855f7" stroke-width="1.5" />
+  <path d="M 50,52 Q 78,25 90,40 Q 80,68 50,60 Z" fill="#4c1d95" stroke="#a855f7" stroke-width="1.5" />
+  <!-- Open Pages Inner (Glowing Gold/Parchment) -->
+  <path d="M 50,50 Q 26,30 16,42 Q 24,62 50,56 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="1" />
+  <path d="M 50,50 Q 74,30 84,42 Q 76,62 50,56 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="1" />
+  <!-- Text lines in book -->
+  <line x1="26" y1="42" x2="42" y2="40" stroke="#a16207" stroke-width="1" stroke-dasharray="2,2" />
+  <line x1="28" y1="46" x2="44" y2="44" stroke="#a16207" stroke-width="1" stroke-dasharray="2,2" />
+  <line x1="30" y1="50" x2="44" y2="48" stroke="#a16207" stroke-width="1" stroke-dasharray="2,2" />
+  <line x1="58" y1="40" x2="74" y2="42" stroke="#a16207" stroke-width="1" stroke-dasharray="2,2" />
+  <line x1="56" y1="44" x2="72" y2="46" stroke="#a16207" stroke-width="1" stroke-dasharray="2,2" />
+  <line x1="56" y1="48" x2="70" y2="50" stroke="#a16207" stroke-width="1" stroke-dasharray="2,2" />
+  <!-- Glowing Magical Eye / Crest in Spine -->
+  <ellipse cx="50" cy="51" rx="6" ry="9" fill="#c084fc" stroke="#fdf4ff" stroke-width="1.5" />
+  <circle cx="50" cy="51" r="3" fill="#ffffff" />
+  <!-- Floating Magic Sparkles -->
+  <polygon points="50,16 52,22 58,24 52,26 50,32 48,26 42,24 48,22" fill="#f0abfc" />
+  <polygon points="20,70 21,74 25,75 21,76 20,80 19,76 15,75 19,74" fill="#fef08a" />
+  <polygon points="80,72 81,76 85,77 81,78 80,82 79,78 75,77 79,76" fill="#fef08a" />
+  <!-- Bookmark Ribbon -->
+  <path d="M 50,58 L 50,78 L 47,74 L 44,78 L 44,58" fill="#dc2626" />
+</svg>

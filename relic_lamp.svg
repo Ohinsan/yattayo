@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" shape-rendering="crispEdges">
+  <rect width="100" height="100" fill="#181210" />
+  <!-- Warm glow aura in background -->
+  <circle cx="50" cy="50" r="38" fill="#f59e0b" opacity="0.25" />
+  <!-- Genie Smoke Spirit Upper Body -->
+  <path d="M 50,22 Q 40,25 40,35 Q 40,46 50,52 Q 60,46 60,35 Q 60,25 50,22 Z" fill="#f97316" />
+  <!-- Friendly Flame Face -->
+  <circle cx="50" cy="34" r="10" fill="#fef08a" />
+  <circle cx="46" cy="33" r="1.8" fill="#9a3412" />
+  <circle cx="54" cy="33" r="1.8" fill="#9a3412" />
+  <path d="M 47,38 Q 50,41 53,38" fill="none" stroke="#9a3412" stroke-width="1.5" stroke-linecap="round" />
+  <!-- Flame Crown Hair -->
+  <path d="M 45,24 Q 50,14 55,24 Q 52,20 48,20 Z" fill="#ea580c" />
+  <!-- Smoke Tail curling into Lamp -->
+  <path d="M 50,50 Q 56,58 48,64 Q 40,70 48,74" fill="none" stroke="#fbbf24" stroke-width="5" stroke-linecap="round" />
+  <!-- Magic Brass Lamp -->
+  <!-- Lamp Base -->
+  <ellipse cx="50" cy="85" rx="14" ry="4" fill="#b45309" stroke="#78350f" stroke-width="1" />
+  <!-- Lamp Body -->
+  <path d="M 36,83 Q 32,74 50,72 Q 68,74 64,83 Z" fill="#f59e0b" stroke="#78350f" stroke-width="1.5" />
+  <!-- Lamp Spout (Left) -->
+  <path d="M 34,76 Q 22,74 20,68 Q 24,78 36,80 Z" fill="#f59e0b" stroke="#78350f" stroke-width="1.5" />
+  <!-- Lamp Handle (Right) -->
+  <path d="M 64,75 Q 76,70 74,80 Q 72,85 64,82" fill="none" stroke="#d97706" stroke-width="3" stroke-linecap="round" />
+  <!-- Floating Ember Stars -->
+  <circle cx="30" cy="30" r="2" fill="#fed7aa" />
+  <circle cx="70" cy="28" r="2.5" fill="#fed7aa" />
+  <circle cx="25" cy="50" r="1.5" fill="#fdba74" />
+  <circle cx="75" cy="55" r="2" fill="#fdba74" />
+  <polygon points="50,10 52,14 56,15 52,16 50,20 48,16 44,15 48,14" fill="#fef08a" />
+</svg>
