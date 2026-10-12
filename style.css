@@ -2236,10 +2236,12 @@ body.theme-earth .tamagotchi-room {
 
 /* 👈 👉 左右サイドのコンパクトボタン群 */
 .room-side-col {
+    position: relative;
+    z-index: 100;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
-    z-index: 20;
+    pointer-events: auto;
 }
 .side-action-btn {
     width: 58px;
@@ -2256,6 +2258,8 @@ body.theme-earth .tamagotchi-room {
     transition: all 0.15s ease-out;
     position: relative;
     user-select: none;
+    touch-action: manipulation;
+    pointer-events: auto;
 }
 .side-action-btn:hover {
     transform: scale(1.06);
@@ -2329,6 +2333,9 @@ body.theme-earth .tamagotchi-room {
     align-items: center;
     justify-content: center;
     position: relative;
+    z-index: 10;
+    max-width: calc(100% - 130px);
+    margin: 0 auto;
     cursor: pointer;
     min-height: 280px;
 }

@@ -1442,13 +1442,51 @@ function shareReport() {
     const spell = generateSpellText();
     const reportText = `🏠 今日の家事レポート\n\n✅ やったこと\n${doneText}${undoneSection}${dinnerText}${messageText}${thanksText}\n\n💾同期用バックアップキー: ${spell}`;
 
-    navigator.clipboard.writeText(reportText).then(() => {
-        SoundEngine.playSE('click');
+    SoundEngine.playSE('click');
+
+    // 📱 スマートフォンのネイティブ共有シート (LINE, メモ帳, メール等) を優先呼び出し
+    if (navigator.share) {
+        navigator.share({
+            title: '🏠 今日の家事レポート - カジゴンといっしょ',
+            text: reportText
+        }).catch(err => {
+            // ユーザーが共有をキャンセルした場合はエラーにしない
+            if (err.name !== 'AbortError') {
+                copyReportToClipboard(reportText);
+            }
+        });
+    } else {
+        copyReportToClipboard(reportText);
+    }
+}
+
+function copyReportToClipboard(reportText) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(reportText).then(() => {
+            alert('レポートと同期キーをクリップボードにコピーしました！LINEなどに貼り付けて送信できます。');
+        }).catch(() => {
+            fallbackCopyText(reportText);
+        });
+    } else {
+        fallbackCopyText(reportText);
+    }
+}
+
+function fallbackCopyText(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
         alert('レポートと同期キーをコピーしました！LINEなどに貼り付けて送信できます。');
-    }).catch(err => {
-        console.error("コピー失敗:", err);
-        alert('コピーに失敗しました。');
-    });
+    } catch (e) {
+        alert('クリップボードへのコピーに失敗しました。画面のテキストを手動で選択してください。');
+    }
+    document.body.removeChild(textArea);
 }
 
 // ==========================================================================
@@ -2090,8 +2128,15 @@ function recordToEncyclopedia(evolved) {
 
 function openBookModal() {
     SoundEngine.playSE('click');
-    if (getLevel() >= 10) {
-        recordToEncyclopedia(getEvolvedForm());
+    try {
+        if (typeof getLevel === 'function' && getLevel() >= 10 && typeof getEvolvedForm === 'function') {
+            const form = getEvolvedForm();
+            if (form && typeof recordToEncyclopedia === 'function') {
+                recordToEncyclopedia(form);
+            }
+        }
+    } catch(err) {
+        console.warn('Encyclopedia check failed:', err);
     }
     
     let unlocked = [];
@@ -2104,11 +2149,15 @@ function openBookModal() {
     }
 
     const container = document.getElementById('book-list-container');
+    const modal = document.getElementById('book-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
     if (!container) return;
 
     const unlockedFiles = new Set(unlocked.map(u => u.file));
-    const totalCount = ALL_SPIRITS.length;
-    const unlockedCount = ALL_SPIRITS.filter(s => unlockedFiles.has(s.file)).length;
+    const totalCount = (typeof ALL_SPIRITS !== 'undefined' && Array.isArray(ALL_SPIRITS)) ? ALL_SPIRITS.length : 0;
+    const unlockedCount = (typeof ALL_SPIRITS !== 'undefined' && Array.isArray(ALL_SPIRITS)) ? ALL_SPIRITS.filter(s => unlockedFiles.has(s.file)).length : 0;
 
     let currentTab = window._currentBookTab || 'spirits';
 
