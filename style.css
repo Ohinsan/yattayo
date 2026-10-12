@@ -1836,6 +1836,224 @@ body.env-classic {
     gap: 0.3rem;
 }
 
+/* ⚔️ 突発ボス・名もなき家事討伐クエスト */
+.bounty-card {
+    background: #151320 !important;
+    border: 3px solid #f59e0b !important;
+    box-shadow: 3px 3px 0px #0d0d13 !important;
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    position: relative;
+    text-align: left;
+    margin-bottom: 0.6rem;
+}
+.bounty-card.defeated {
+    border-color: #10b981 !important;
+    background: #0f1c16 !important;
+}
+.bounty-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.bounty-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #fbbf24;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.bounty-exp-badge {
+    background: #f59e0b;
+    color: #0d0d13;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 0.1rem 0.45rem;
+    box-shadow: 1px 1px 0px #0d0d13;
+}
+.bounty-desc {
+    font-size: 12px;
+    color: #e2e8f0;
+    line-height: 1.4;
+}
+.bounty-action-btn {
+    align-self: flex-end;
+    background: #dc2626 !important;
+    color: #fff !important;
+    border: 2px solid #0d0d13 !important;
+    box-shadow: 2px 2px 0px #0d0d13 !important;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 0.35rem 0.8rem;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+.bounty-action-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: none !important;
+}
+.bounty-defeated-msg {
+    font-size: 12px;
+    font-weight: bold;
+    color: #34d399;
+    text-align: center;
+    padding: 0.2rem 0;
+}
+
+/* 🏡 我が家のカジゴン部屋・インテリア飾り */
+.companion-room-shelf {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px dashed #4a4a60;
+    padding: 0.25rem 0.5rem;
+    font-size: 13px;
+    margin-top: 0.35rem;
+    border-radius: 4px;
+    max-width: 100%;
+    overflow-x: auto;
+}
+.companion-room-label {
+    font-size: 10px;
+    color: #a0a0b0;
+    font-weight: bold;
+    margin-right: 0.2rem;
+    white-space: nowrap;
+}
+
+/* 🥠 家事かるた・おみくじ トースト通知 */
+.fortune-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    background: #181824 !important;
+    border: 3px solid #ffd700 !important;
+    box-shadow: 4px 4px 0px #0d0d13 !important;
+    padding: 0.65rem 1rem;
+    max-width: 90vw;
+    width: 380px;
+    cursor: pointer;
+    animation: fortuneSlideUp 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+.fortune-toast.hidden {
+    display: none !important;
+}
+@keyframes fortuneSlideUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 40px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+.fortune-toast-content {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-align: left;
+}
+.fortune-toast-badge {
+    background: #ffd700;
+    color: #0d0d13;
+    font-size: 12px;
+    font-weight: 900;
+    padding: 0.2rem 0.45rem;
+    box-shadow: 1px 1px 0px #0d0d13;
+    flex-shrink: 0;
+}
+.fortune-toast-text {
+    font-size: 13px;
+    color: #f4ede2;
+    line-height: 1.35;
+    font-weight: bold;
+}
+
+/* 📰 週刊カジゴン号外ニュース */
+.weekly-news-paper {
+    background: #fdf6e2;
+    color: #2b2b2b;
+    border: 4px double #2b2b2b;
+    padding: 1.2rem;
+    font-family: "DotGothic16", monospace, sans-serif;
+    box-shadow: 4px 4px 0px #0d0d13;
+    text-align: left;
+}
+.weekly-news-header {
+    border-bottom: 2px solid #2b2b2b;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+.weekly-news-maintitle {
+    font-size: 20px;
+    font-weight: 900;
+    color: #1a1a24;
+    letter-spacing: 2px;
+}
+.weekly-news-date {
+    font-size: 11px;
+    color: #555;
+    font-weight: bold;
+}
+.weekly-news-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+}
+.weekly-stat-box {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid #777;
+    padding: 0.5rem;
+    text-align: center;
+}
+.weekly-stat-val {
+    font-size: 18px;
+    font-weight: 900;
+    color: #b91c1c;
+}
+.weekly-stat-lbl {
+    font-size: 10px;
+    color: #444;
+}
+.weekly-highlight-section {
+    background: #fff;
+    border: 1px solid #333;
+    padding: 0.6rem;
+    margin-bottom: 0.8rem;
+}
+.weekly-highlight-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #1e3a8a;
+    margin-bottom: 0.3rem;
+}
+.weekly-highlight-item {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+}
+.weekly-editorial {
+    border-top: 1px dashed #777;
+    padding-top: 0.6rem;
+    font-size: 12px;
+    color: #333;
+    line-height: 1.5;
+    font-style: italic;
+}
+
+
 
 
 

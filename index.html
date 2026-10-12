@@ -88,6 +88,7 @@
                     <div class="header-actions">
                         <button class="btn-sound-toggle" id="btn-sound-toggle" onclick="openSoundModal()" title="サウンド設定">🔊</button>
                         <button class="btn-sound-toggle" id="btn-book-toggle" onclick="openBookModal()" title="守護精霊図鑑">📖</button>
+                        <button class="btn-sound-toggle" id="btn-news-toggle" onclick="openWeeklyNewsModal()" title="週刊カジゴン号外ニュース">📰</button>
                         <button class="btn-settings" onclick="openSettingsModal()" title="設定を変更">🔧</button>
                     </div>
                 </div>
@@ -110,6 +111,11 @@
 
                 <!-- ⭐今日のラッキー家事 -->
                 <div id="lucky-chore-widget" style="margin-top: 0.5rem;">
+                    <!-- JSで動的生成 -->
+                </div>
+
+                <!-- ⚔️ 突発討伐クエスト（名もなき家事ゲリラボス） -->
+                <div id="bounty-quest-widget" style="margin-top: 0.6rem;">
                     <!-- JSで動的生成 -->
                 </div>
             </div>
@@ -374,6 +380,31 @@
             <div class="spell-btn-group" style="margin-top: 1.5rem;">
                 <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeBookModal()">とじる</button>
             </div>
+        </div>
+    </div>
+
+    <!-- 📰 週刊カジゴン号外ニュース モーダル -->
+    <div id="weekly-news-modal" class="spell-overlay hidden">
+        <div class="spell-content" style="max-width: 540px; max-height: 85vh; overflow-y: auto;">
+            <h3 class="spell-title">📰 週刊カジゴン号外通信</h3>
+            <p class="spell-desc">直近7日間の家庭内での家事大功績を称える特報ニュースです！</p>
+            
+            <div id="weekly-news-content" style="margin-top: 1rem;">
+                <!-- JSで動的生成 -->
+            </div>
+
+            <div class="spell-btn-group" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem;">
+                <button class="btn-spell-action btn-spell-cast" style="width: 100%; background: #ffd700; color: #0d0d13; font-weight: bold;" onclick="shareWeeklyNewsCard()">🖼️ 号外新聞を画像保存 / 共有</button>
+                <button class="btn-spell-action" style="width: 100%; background: #3a3a4c;" onclick="closeWeeklyNewsModal()">とじる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🥠 家事かるた・おみくじ トースト通知 -->
+    <div id="fortune-toast" class="fortune-toast hidden" onclick="hideFortuneToast()">
+        <div class="fortune-toast-content">
+            <span class="fortune-toast-badge" id="fortune-toast-rank">🎉 大吉</span>
+            <span class="fortune-toast-text" id="fortune-toast-text">靴下の裏返しが1発で直った！奇跡の快感！</span>
         </div>
     </div>
 

@@ -223,6 +223,9 @@ function initApp() {
         // 初回の相棒表示
         updateCompanionWidget();
 
+        // 突発ボス・名もなき家事討伐クエスト
+        renderBountyWidget();
+
         // サウンドエンジンの初期化
         SoundEngine.init();
 
@@ -847,6 +850,7 @@ function addQuickChore(choreName, buttonElement) {
     saveToLocalStorage();
     renderCompleted();
     renderQuickAddButtons(); // Refresh buttons to disable the clicked one
+    triggerFortuneToast(wasLucky);
 }
 
 function addFreeSupply() {
@@ -861,6 +865,7 @@ function addFreeSupply() {
         input.value = '';
         saveToLocalStorage();
         renderCompleted();
+        triggerFortuneToast(wasLucky);
     }
 }
 
@@ -876,6 +881,7 @@ function addOtherChore() {
         input.value = '';
         saveToLocalStorage();
         renderCompleted();
+        triggerFortuneToast(wasLucky);
     }
 }
 
@@ -1212,6 +1218,24 @@ function updateCompanionWidget() {
                 <button class="btn-legendary btn-rebreed" onclick="rebreedCompanion()" title="卵からそだてなおす">🔄 そだてなおす</button>
             </div>
         `;
+    // 🏡 我が家のカジゴン部屋・インテリア飾り (案3)
+    const totalDone = completedList.length;
+    const furnitureItems = [];
+    if (totalDone >= 2) furnitureItems.push({ icon: '🪴', name: '小さな観葉植物' });
+    if (totalDone >= 6) furnitureItems.push({ icon: '🛋️', name: 'ふかふか絨毯' });
+    if (totalDone >= 12) furnitureItems.push({ icon: '💡', name: '温かいランプ' });
+    if (totalDone >= 20) furnitureItems.push({ icon: '🍲', name: 'ほかほかシチュー鍋' });
+    if (totalDone >= 32) furnitureItems.push({ icon: '🪟', name: '星空の見える窓' });
+    if (totalDone >= 48) furnitureItems.push({ icon: '👑', name: '黄金のトロフィー' });
+
+    let furnitureHtml = '';
+    if (furnitureItems.length > 0) {
+        furnitureHtml = `
+            <div class="companion-room-shelf" title="家事を重ねておうちが快適に！">
+                <span class="companion-room-label">🏡 快適度:</span>
+                ${furnitureItems.map(item => `<span title="${item.name}">${item.icon}</span>`).join(' ')}
+            </div>
+        `;
     }
 
     widget.innerHTML = `
@@ -1226,6 +1250,7 @@ function updateCompanionWidget() {
                         <div class="status-emoji-container">
                             ${emojisStr}
                         </div>
+                        ${furnitureHtml}
                     </div>
                 </div>
             </div>
@@ -2005,6 +2030,400 @@ function openBookModal() {
 function closeBookModal() {
     SoundEngine.playSE('click');
     document.getElementById('book-modal').classList.add('hidden');
+}
+
+// ==========================================================================
+// --- ⚔️ 名もなき家事 突発討伐クエスト (案2) ---
+// ==========================================================================
+const BOUNTY_BOSSES = [
+    { id: 'cardboard', name: '📦 ダンボールゴーレム', target: '玄関や廊下のダンボール解体・まとめ', exp: 50, attr: 'earth', desc: '通販の箱が溜まりつつある！一気に畳んで撃破せよ！' },
+    { id: 'drain', name: '🫧 排水口ヘドロサタン', target: 'キッチンか風呂の排水口ネット交換＆掃除', exp: 45, attr: 'water', desc: 'ヌメリの魔王が潜んでいる！新しいネットを張って清めよ！' },
+    { id: 'shampoo', name: '🧴 詰め替えキメラ', target: 'シャンプー・ハンドソープの補充', exp: 35, attr: 'water', desc: 'ボトルが軽くなっている！最後の一滴が出る前に満タンにせよ！' },
+    { id: 'toilet_core', name: '🧻 芯ファントム', target: 'トイレットペーパーの芯回収＆新しいペーパー装着', exp: 30, attr: 'wind', desc: 'ホルダーの上に置き去りにされた芯を成仏させよ！' },
+    { id: 'vent_dust', name: '🌪️ 換気扇ホコリバード', target: '換気扇や通気口のホコリ取り・拭き掃除', exp: 60, attr: 'wind', desc: '見えざるホコリの怪鳥！サッと拭き取って爽やかな風を呼べ！' },
+    { id: 'sponge', name: '🧽 スポンジ老朽ナイト', target: 'キッチンスポンジの交換または熱湯消毒', exp: 35, attr: 'fire', desc: '使い古したスポンジを新調して、シンクの魔力を高めよ！' },
+    { id: 'icebox_check', name: '🧊 賞味期限シャドウ', target: '冷蔵庫のドレッシングや奥の食材チェック', exp: 40, attr: 'fire', desc: '奥に眠る怪しい調味料を点検し、安全な庫内を取り戻せ！' }
+];
+
+function getTodayBounty() {
+    const todayStr = getTodayDateString();
+    let bountyData = null;
+    try {
+        const raw = localStorage.getItem('kajigon_bounty_quest');
+        bountyData = raw ? JSON.parse(raw) : null;
+    } catch(e) {
+        bountyData = null;
+    }
+
+    if (!bountyData || bountyData.date !== todayStr) {
+        let seed = 0;
+        for (let i = 0; i < todayStr.length; i++) {
+            seed = (seed * 31 + todayStr.charCodeAt(i)) >>> 0;
+        }
+        const boss = BOUNTY_BOSSES[seed % BOUNTY_BOSSES.length];
+        bountyData = {
+            date: todayStr,
+            bossId: boss.id,
+            defeated: false
+        };
+        localStorage.setItem('kajigon_bounty_quest', JSON.stringify(bountyData));
+    }
+    const boss = BOUNTY_BOSSES.find(b => b.id === bountyData.bossId) || BOUNTY_BOSSES[0];
+    return { boss, defeated: bountyData.defeated };
+}
+
+function renderBountyWidget() {
+    const container = document.getElementById('bounty-quest-widget');
+    if (!container) return;
+
+    const { boss, defeated } = getTodayBounty();
+    if (defeated) {
+        container.innerHTML = `
+            <div class="bounty-card defeated">
+                <div class="bounty-header-row">
+                    <span class="bounty-title" style="color: #34d399;">✨ 本日の討伐成功！</span>
+                    <span class="bounty-exp-badge" style="background:#10b981; color:#fff;">CLEARED</span>
+                </div>
+                <div class="bounty-defeated-msg">⚔️ ${boss.name} は討伐され、おうちの平和は守られた！</div>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="bounty-card">
+                <div class="bounty-header-row">
+                    <span class="bounty-title">⚔️ 【突発討伐】${boss.name} 現る！</span>
+                    <span class="bounty-exp-badge">+${boss.exp} EXP</span>
+                </div>
+                <div class="bounty-desc">🎯 討伐任務：<strong>${boss.target}</strong><br><span style="color:#94a3b8; font-size:11px;">${boss.desc}</span></div>
+                <button class="bounty-action-btn" onclick="defeatBountyQuest()">⚔️ 討伐完了！</button>
+            </div>
+        `;
+    }
+}
+
+function defeatBountyQuest() {
+    const { boss, defeated } = getTodayBounty();
+    if (defeated) return;
+
+    const todayStr = getTodayDateString();
+    localStorage.setItem('kajigon_bounty_quest', JSON.stringify({
+        date: todayStr,
+        bossId: boss.id,
+        defeated: true
+    }));
+
+    const choreName = `⚔️ 討伐：${boss.name}（${boss.target}）`;
+    const id = Date.now();
+    const { finalExp } = addChoreExp(choreName);
+    completedList.unshift({ id, name: choreName, time: id, gainedExp: finalExp, isLucky: true });
+
+    saveToLocalStorage();
+    renderCompleted();
+    renderBountyWidget();
+    updateCompanionWidget();
+
+    SoundEngine.playSE('lucky');
+    triggerCutIn('⚔️', () => {
+        triggerFortuneToast(true);
+    });
+}
+
+// ==========================================================================
+// --- 🥠 家事かるた・おみくじ トースト演出 (案4) ---
+// ==========================================================================
+const FORTUNE_LIST = [
+    { rank: '🎉 大吉', text: '靴下の裏返しが1発で直った！奇跡の快感！' },
+    { rank: '✨ 中吉', text: '冷蔵庫の奥から賞味期限内のお宝プリンを発見！' },
+    { rank: '🍃 吉', text: '洗濯物を干し終えた瞬間に心地よい南風が吹いた！' },
+    { rank: '🍵 末吉', text: 'ゴミ袋の口を縛った直後に丸めたティッシュを発見…あるある！' },
+    { rank: '💫 小吉', text: 'シャンプーの詰め替え、一滴もこぼさず大成功！' },
+    { rank: '💖 特吉', text: 'パートナーが背中でそっと「ありがとう」と呟いた気がする！' },
+    { rank: '🔥 大吉', text: 'フライパンの焦げ付きがツルンと剥がれて大勝利！' },
+    { rank: '🌟 中吉', text: 'ラップの端っこが迷子にならず、1発で引き出せた！' },
+    { rank: '🍀 吉', text: 'コロコロテープが綺麗にミシン目でスパッとちぎれた！' },
+    { rank: '☕ 末吉', text: '掃除機をかけたら、行方不明だった靴下の片方が出てきた！' },
+    { rank: '👑 超大吉', text: '今日のあなたは家事の神！お風呂のお湯加減が神域に達する！' },
+    { rank: '🎯 中吉', text: 'スーパーの特売卵パックを割らずに無事生還！' },
+    { rank: '🌈 吉', text: '排水口がピカピカになり、カジゴンが背伸びして喜んでいる！' },
+    { rank: '🛁 大吉', text: 'お風呂掃除後の1番風呂、極上の整い確定！' },
+    { rank: '🍞 小吉', text: '食パンの最後の1枚、絶妙なキツネ色に焼き上がった！' }
+];
+
+let fortuneToastTimer = null;
+
+function triggerFortuneToast(force = false) {
+    if (!force && Math.random() > 0.35) return;
+
+    const toast = document.getElementById('fortune-toast');
+    const rankEl = document.getElementById('fortune-toast-rank');
+    const textEl = document.getElementById('fortune-toast-text');
+    if (!toast || !rankEl || !textEl) return;
+
+    const chosen = FORTUNE_LIST[Math.floor(Math.random() * FORTUNE_LIST.length)];
+    rankEl.textContent = chosen.rank;
+    textEl.textContent = chosen.text;
+
+    toast.classList.remove('hidden');
+
+    if (fortuneToastTimer) clearTimeout(fortuneToastTimer);
+    fortuneToastTimer = setTimeout(() => {
+        hideFortuneToast();
+    }, 3800);
+}
+
+function hideFortuneToast() {
+    const toast = document.getElementById('fortune-toast');
+    if (toast) toast.classList.add('hidden');
+    if (fortuneToastTimer) clearTimeout(fortuneToastTimer);
+}
+
+// ==========================================================================
+// --- 📰 週刊カジゴン号外ニュース (案5) ---
+// ==========================================================================
+function openWeeklyNewsModal() {
+    SoundEngine.playSE('click');
+    const container = document.getElementById('weekly-news-content');
+    if (!container) return;
+
+    const now = Date.now();
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+    const weeklyChores = completedList.filter(c => {
+        const time = (typeof c.time === 'number') ? c.time : new Date(c.time).getTime();
+        return time >= sevenDaysAgo;
+    });
+
+    const totalCount = weeklyChores.length;
+    let totalExp = 0;
+    const choreCounts = {};
+    let nightChoreCount = 0;
+
+    weeklyChores.forEach(c => {
+        totalExp += (c.gainedExp || 10);
+        choreCounts[c.name] = (choreCounts[c.name] || 0) + 1;
+        const d = new Date((typeof c.time === 'number') ? c.time : c.time);
+        const hour = d.getHours();
+        if (hour >= 20 || hour < 4) {
+            nightChoreCount++;
+        }
+    });
+
+    let topChoreName = "（まだ今週の記録はありません）";
+    let topChoreMax = 0;
+    Object.keys(choreCounts).forEach(name => {
+        if (choreCounts[name] > topChoreMax) {
+            topChoreMax = choreCounts[name];
+            topChoreName = name;
+        }
+    });
+
+    let editorial = "";
+    if (totalCount >= 20) {
+        editorial = "『今週のおうちは伝説級の神殿！2人の目覚ましい奮闘により、あらゆる魔物（汚れ）が一掃された！文句なしの大殊勲である！』";
+    } else if (totalCount >= 8) {
+        editorial = "『素晴らしい連携プレイ！日々の細やかな心配りが光り、おうちの清潔度と居心地は最高レベルを維持しているぞ！』";
+    } else if (totalCount > 0) {
+        editorial = "『コツコツと確かな歩み！無理せずそれぞれのペースで暮らしを守り抜いた。今夜はゆっくりおいしいご飯で乾杯しよう！』";
+    } else {
+        editorial = "『今週はのんびり休息ウィーク！たまには家事を忘れて羽を伸ばすのも大切だぞ。カジゴンも巣でぬくぬくしている！』";
+    }
+
+    const todayDate = new Date().toLocaleDateString('ja-JP');
+
+    container.innerHTML = `
+        <div class="weekly-news-paper" id="weekly-news-paper-element">
+            <div class="weekly-news-header">
+                <div>
+                    <div style="font-size: 11px; color: #b91c1c; font-weight: 900; letter-spacing: 1px;">★ 坂本家・特別号外速報 ★</div>
+                    <div class="weekly-news-maintitle">📰 週刊カジゴン通信</div>
+                </div>
+                <div class="weekly-news-date">発行日: ${todayDate}</div>
+            </div>
+
+            <div class="weekly-news-stats-grid">
+                <div class="weekly-stat-box">
+                    <div class="weekly-stat-val">${totalCount} <span style="font-size:12px;">回</span></div>
+                    <div class="weekly-stat-lbl">今週の家事達成数</div>
+                </div>
+                <div class="weekly-stat-box">
+                    <div class="weekly-stat-val">+${totalExp} <span style="font-size:12px;">EXP</span></div>
+                    <div class="weekly-stat-lbl">家庭内総獲得EXP</div>
+                </div>
+            </div>
+
+            <div class="weekly-highlight-section">
+                <div class="weekly-highlight-title">👑 今週の最多討伐王（MVP家事）</div>
+                <div class="weekly-highlight-item">${topChoreName} ${topChoreMax > 0 ? `（計 ${topChoreMax} 回達成！）` : ''}</div>
+            </div>
+
+            ${nightChoreCount > 0 ? `
+            <div class="weekly-highlight-section" style="border-left: 3px solid #8b5cf6;">
+                <div class="weekly-highlight-title" style="color:#6d28d9;">🌙 電撃ナイトファインプレー</div>
+                <div class="weekly-highlight-item">夜遅くの家事：計 ${nightChoreCount} 回 （寝る前のリセット大感謝！）</div>
+            </div>
+            ` : ''}
+
+            <div class="weekly-editorial">
+                <strong>🐉 カジゴン記者の一言社説：</strong><br>
+                ${editorial}
+            </div>
+        </div>
+    `;
+
+    document.getElementById('weekly-news-modal').classList.remove('hidden');
+}
+
+function closeWeeklyNewsModal() {
+    SoundEngine.playSE('click');
+    document.getElementById('weekly-news-modal').classList.add('hidden');
+}
+
+async function shareWeeklyNewsCard() {
+    SoundEngine.playSE('click');
+    const width = 640;
+    const height = 760;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    // Newspaper background
+    ctx.fillStyle = '#fbf0d9';
+    ctx.fillRect(0, 0, width, height);
+
+    // Double borders
+    ctx.strokeStyle = '#2b2b2b';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(15, 15, width - 30, height - 30);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(23, 23, width - 46, height - 46);
+
+    // Header
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#b91c1c';
+    ctx.font = 'bold 16px "DotGothic16", sans-serif';
+    ctx.fillText('★ 坂本家・家庭内特別号外速報 ★', width / 2, 60);
+
+    ctx.fillStyle = '#1a1a24';
+    ctx.font = '900 32px "DotGothic16", sans-serif';
+    ctx.fillText('📰 週刊カジゴン通信', width / 2, 105);
+
+    ctx.strokeStyle = '#2b2b2b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(35, 125);
+    ctx.lineTo(width - 35, 125);
+    ctx.stroke();
+
+    // Date
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#555';
+    ctx.font = '14px "DotGothic16", sans-serif';
+    ctx.fillText(`発行日: ${new Date().toLocaleDateString('ja-JP')}`, width - 40, 150);
+
+    // Weekly Stats Box
+    const now = Date.now();
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+    const weeklyChores = completedList.filter(c => {
+        const time = (typeof c.time === 'number') ? c.time : new Date(c.time).getTime();
+        return time >= sevenDaysAgo;
+    });
+
+    const totalCount = weeklyChores.length;
+    let totalExp = 0;
+    const choreCounts = {};
+    weeklyChores.forEach(c => {
+        totalExp += (c.gainedExp || 10);
+        choreCounts[c.name] = (choreCounts[c.name] || 0) + 1;
+    });
+    let topChoreName = "（まだ今週の記録はありません）";
+    let topChoreMax = 0;
+    Object.keys(choreCounts).forEach(name => {
+        if (choreCounts[name] > topChoreMax) {
+            topChoreMax = choreCounts[name];
+            topChoreName = name;
+        }
+    });
+
+    // Draw Stats
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(40, 175, width - 80, 95);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(40, 175, width - 80, 95);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#777';
+    ctx.font = '14px "DotGothic16", sans-serif';
+    ctx.fillText('今週の家事総達成数', 180, 205);
+    ctx.fillText('家庭内総獲得EXP', width - 180, 205);
+
+    ctx.fillStyle = '#b91c1c';
+    ctx.font = 'bold 36px "DotGothic16", sans-serif';
+    ctx.fillText(`${totalCount} 回`, 180, 250);
+    ctx.fillText(`+${totalExp} EXP`, width - 180, 250);
+
+    // MVP Chore
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(40, 295, width - 80, 90);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(40, 295, width - 80, 90);
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#1e3a8a';
+    ctx.font = 'bold 17px "DotGothic16", sans-serif';
+    ctx.fillText('👑 今週の最多討伐王（MVP家事）', 60, 325);
+
+    ctx.fillStyle = '#111';
+    ctx.font = 'bold 20px "DotGothic16", sans-serif';
+    ctx.fillText(`${topChoreName} ${topChoreMax > 0 ? `(計 ${topChoreMax} 回)` : ''}`, 60, 360);
+
+    // Companion Avatar Box
+    const companionY = 415;
+    ctx.fillStyle = '#f4e5c8';
+    ctx.fillRect(40, companionY, width - 80, 155);
+    ctx.strokeStyle = '#8b5a2b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(40, companionY, width - 80, 155);
+
+    ctx.textAlign = 'center';
+    ctx.font = '54px sans-serif';
+    ctx.fillText(getCompanionEmoji(), 110, companionY + 90);
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#8b5a2b';
+    ctx.font = 'bold 16px "DotGothic16", sans-serif';
+    ctx.fillText('🐉 カジゴン記者の一言社説：', 180, companionY + 40);
+
+    let editorial = "『今週もおうちを支えてくれて本当にありがとう！素晴らしい連携に最大の敬意を！今夜は乾杯だ！』";
+    if (totalCount >= 20) {
+        editorial = "『今週は伝説級の神殿！2人の奮闘であらゆる汚れが一掃された！文句なしの大殊勲である！』";
+    } else if (totalCount === 0) {
+        editorial = "『今週はのんびり休息ウィーク！たまには家事を忘れて羽を伸ばすのも大切だぞ！』";
+    }
+
+    ctx.fillStyle = '#222';
+    ctx.font = '16px "DotGothic16", sans-serif';
+    ctx.fillText(editorial.slice(0, 24), 180, companionY + 75);
+    if (editorial.length > 24) {
+        ctx.fillText(editorial.slice(24), 180, companionY + 105);
+    }
+
+    // Footer
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#555';
+    ctx.font = '14px "DotGothic16", sans-serif';
+    ctx.fillText('✨ 坂本家 家事分担プロジェクト - 週刊カジゴン号外 ✨', width / 2, height - 50);
+
+    canvas.toBlob(blob => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `kajigon_weekly_news_${new Date().toISOString().slice(0, 10)}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, 'image/png');
 }
 
 // 星屑 of ending sparkles
