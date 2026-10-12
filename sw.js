@@ -1,9 +1,9 @@
-const CACHE_NAME = 'kajigon-cache-v1';
+const CACHE_NAME = 'kajigon-cache-v2.5';
 const urlsToCache = [
   './',
   './index.html',
-  './style.css',
-  './script.js',
+  './style.css?v=2.5.0',
+  './script.js?v=2.5.0',
   './dragon_all.png',
   './kajigon_baby.png',
   './kajigon_teen.png'
@@ -25,10 +25,18 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
+// Network-First Strategy: Always fetch fresh network content first!
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request).catch(() => caches.match('./index.html'));
-    })
+    fetch(event.request)
+      .then(response => {
+        if (response && response.status === 200) {
+          const resClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, resClone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });

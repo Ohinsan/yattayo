@@ -1230,6 +1230,35 @@ input:focus, select:focus, textarea:focus {
     gap: 4px;
 }
 
+/* 🔄 最新版へ強制更新ボタン（PWAキャッシュ強制クリア） */
+.btn-force-refresh {
+    position: fixed;
+    top: 0.8rem;
+    right: 0.8rem;
+    z-index: 1000;
+    background: rgba(13, 13, 19, 0.85);
+    color: #ffd700;
+    border: 2px solid #ffd700;
+    border-radius: 20px;
+    padding: 0.35rem 0.75rem;
+    font-size: 11px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    transition: transform 0.15s, background 0.15s;
+    user-select: none;
+}
+.btn-force-refresh:hover {
+    background: #ffd700;
+    color: #0d0d13;
+    transform: scale(1.05);
+}
+.btn-force-refresh:active {
+    transform: scale(0.95);
+}
+
 /* Stepped Ring flash keyframes */
 @keyframes stepped-flash {
     0%, 100% {

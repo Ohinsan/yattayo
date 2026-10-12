@@ -212,7 +212,10 @@ function initApp() {
         
         renderQuickAddButtons();
         renderCompleted();
-        document.getElementById('current-layout-display').textContent = `現在のおうち: ${currentLayout} / ${currentFloors}フロア`;
+        const layoutDisp = document.getElementById('current-layout-display');
+        if (layoutDisp) {
+            layoutDisp.textContent = `現在のおうち: ${currentLayout} / ${currentFloors}フロア`;
+        }
         
         // Update Artifact Indicator UI
         updateArtifactIndicator();
@@ -448,6 +451,7 @@ function getRoomIcon(roomId, roomName) {
 
 function renderQuickAddButtons() {
     const container = document.getElementById('quick-add-container');
+    if (!container) return;
     const base = BASE_TEMPLATES[currentLayout];
     
     if (!base) return;
@@ -983,6 +987,7 @@ function resetAppFully() {
 // ==========================================================================
 function renderCompleted() {
     const container = document.getElementById('completedList');
+    if (!container) return;
     if (completedList.length === 0) {
         container.innerHTML = '<div class="empty">まだありません</div>';
         return;
@@ -3586,14 +3591,47 @@ async function generateAncientCardCanvas() {
 }
 
 // ==========================================================================
-// --- 📱 PWA Service Worker Registration ---
+// --- 📱 PWA Service Worker Registration & Cache Busting ---
 // ==========================================================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            // Check for updates immediately
+            reg.update();
+        }).catch(err => {
             console.log('PWA ServiceWorker registration failed:', err);
         });
     });
+
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+        }
+    });
+}
+
+// 🔄 強制リロード＆キャッシュクリア関数（設定画面やトラブル時にタップ1発で最新化）
+function forceReloadApp() {
+    if ('caches' in window) {
+        caches.keys().then(names => {
+            return Promise.all(names.map(name => caches.delete(name)));
+        }).then(() => {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let reg of registrations) {
+                        reg.unregister();
+                    }
+                    window.location.reload(true);
+                });
+            } else {
+                window.location.reload(true);
+            }
+        });
+    } else {
+        window.location.reload(true);
+    }
 }
 
 

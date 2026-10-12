@@ -22,11 +22,22 @@
             document.body.appendChild(errorDiv);
             return false;
         };
+
+        // 🚀 強制キャッシュバスター & ServiceWorker自動更新ロジック
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (var name of names) {
+                    if (name !== 'kajigon-cache-v2.5') {
+                        caches.delete(name);
+                    }
+                }
+            });
+        }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.5.0">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a24">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -35,10 +46,13 @@
 </head>
 
 <body>
-    <!-- 画面端の小さなUI（⚙️×0） -->
+    <!-- 画面端の小さなUI（⚙️×0 ＆ 🔄 最新版へ更新） -->
     <div id="artifact-indicator" class="artifact-indicator">
         <span>⚙️×</span><span id="artifact-count-val">0</span>
     </div>
+    <button id="btn-force-refresh" onclick="forceReloadApp()" class="btn-force-refresh" title="最新版へ更新（キャッシュクリア）">
+        🔄 最新版
+    </button>
 
     <!-- Setup Screen (3-Step UI) -->
     <div id="setup-screen" class="container hidden">
@@ -259,6 +273,12 @@
             <div class="spell-btn-group">
                 <button class="btn-spell-action btn-spell-cancel" onclick="closeSettingsModal()">キャンセル</button>
                 <button class="btn-spell-action btn-spell-cast" onclick="saveSettings()">保存して反映</button>
+            </div>
+
+            <div style="margin-top: 1rem; border-top: 1px dashed var(--border-color); padding-top: 0.8rem; text-align: center;">
+                <button type="button" onclick="forceReloadApp()" style="background: none; border: 1px solid var(--border-color); color: var(--text-sub); font-size: 11px; padding: 0.35rem 0.7rem; border-radius: 4px; cursor: pointer;">
+                    🔄 画面が変わらない時はここをタップ（最新版へ強制更新）
+                </button>
             </div>
         </div>
     </div>
@@ -540,15 +560,15 @@
     </div>
 
     <!-- JavaScript Data Files -->
-    <script src="js/data/bosses.js"></script>
-    <script src="js/data/karuta.js"></script>
-    <script src="js/data/furniture.js"></script>
-    <script src="js/data/spirit_profiles.js"></script>
-    <script src="js/data/dialogues.js"></script>
-    <script src="js/data/newspaper.js"></script>
+    <script src="js/data/bosses.js?v=2.5.0"></script>
+    <script src="js/data/karuta.js?v=2.5.0"></script>
+    <script src="js/data/furniture.js?v=2.5.0"></script>
+    <script src="js/data/spirit_profiles.js?v=2.5.0"></script>
+    <script src="js/data/dialogues.js?v=2.5.0"></script>
+    <script src="js/data/newspaper.js?v=2.5.0"></script>
 
     <!-- Main Application Logic -->
-    <script src="script.js"></script>
+    <script src="script.js?v=2.5.0"></script>
 </body>
 
 </html>
