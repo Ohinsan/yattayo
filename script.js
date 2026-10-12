@@ -1200,12 +1200,12 @@ function updateCompanionWidget() {
     } else if (stage === 'teen') {
         const envTheme = kajigonState.environmentTheme || 'classic';
         const teenMap = {
-            volcano: { file: 'teen_fire.jpg', name: '溶岩ティーン', emoji: '🔥' },
-            abyss: { file: 'teen_water.jpg', name: '深海ティーン', emoji: '💧' },
-            sky: { file: 'teen_wind.jpg', name: '樹海ティーン', emoji: '🍃' },
-            earth: { file: 'teen_earth.jpg', name: '遺跡ティーン', emoji: '🪵' },
-            classic: { file: 'teen_light.jpg', name: 'ルクスティーン', emoji: '🌟' },
-            gameboy: { file: 'teen_retro.jpg', name: 'GBティーン', emoji: '📟' }
+            volcano: { file: 'teen_fire.png', name: '溶岩ティーン', emoji: '🔥' },
+            abyss: { file: 'teen_water.png', name: '深海ティーン', emoji: '💧' },
+            sky: { file: 'teen_wind.png', name: '樹海ティーン', emoji: '🍃' },
+            earth: { file: 'teen_earth.png', name: '遺跡ティーン', emoji: '🪵' },
+            classic: { file: 'teen_light.png', name: 'ルクスティーン', emoji: '🌟' },
+            gameboy: { file: 'teen_retro.png', name: 'GBティーン', emoji: '📟' }
         };
         const currentTeen = teenMap[envTheme] || teenMap.classic;
         companionImgHtml = `
@@ -1927,7 +1927,7 @@ const ALL_SPIRITS = [
         id: 'unique_volcano',
         attr: 'fire',
         name: '🌋 溶岩料理神 ボルケフ 🐢',
-        file: 'unique_volcano.jpg',
+        file: 'unique_volcano.png',
         desc: '火山玄武岩の甲羅にかまど鍋を背負い、家族の温かい食卓と美味しいご飯を永遠に見守る大地のカメ神。',
         hint: '【火山限定】灼熱の火山環境で火の家事を極めると降臨'
     },
@@ -1935,7 +1935,7 @@ const ALL_SPIRITS = [
         id: 'unique_abyss',
         attr: 'water',
         name: '🌊 清流クラゲ姫 アンフィトリテ 🪼',
-        file: 'unique_abyss.jpg',
+        file: 'unique_abyss.png',
         desc: '深海で青く透き通り発光するクラゲの姫君。水回りの滑りやカビを浄化し、家族に極上の潤いを与える。',
         hint: '【深海限定】深海の神殿環境で水の家事を極めると降臨'
     },
@@ -1943,7 +1943,7 @@ const ALL_SPIRITS = [
         id: 'unique_sky',
         attr: 'wind',
         name: '🍃 樹海番人 シルヴァニアン 🦉',
-        file: 'unique_sky.jpg',
+        file: 'unique_sky.png',
         desc: '緑深き樹海の葉をまとう森の賢者フクロウ。窓から入る澄んだ風とともに家中を駆け抜け、埃を吹き払う。',
         hint: '【樹海限定】天空の樹海環境で風の家事を極めると降臨'
     },
@@ -1951,7 +1951,7 @@ const ALL_SPIRITS = [
         id: 'unique_earth',
         attr: 'earth',
         name: '🏜️ 機巧魔神 ギアオメガ ⚙️',
-        file: 'unique_earth.jpg',
+        file: 'unique_earth.png',
         desc: '古代スチームパンクの歯車と振り子時計を胸に宿した巨神。正確無比なリズムでおうちの秩序と生活リズムを守る。',
         hint: '【遺跡限定】砂漠の巨石遺跡環境で土の家事を極めると降臨'
     },
@@ -1959,7 +1959,7 @@ const ALL_SPIRITS = [
         id: 'unique_temple',
         attr: 'light',
         name: '📜 彗星神竜 コスモアルティマ 🌌',
-        file: 'unique_temple.jpg',
+        file: 'unique_temple.png',
         desc: '星空の銀河と星座をその身に宿した神話の宇宙竜。家中が愛と調和でピカピカに満ちた時にのみ空から舞い降りる。',
         hint: '【神殿限定】星降る神殿で全属性を調和させると降臨'
     },
@@ -1967,7 +1967,7 @@ const ALL_SPIRITS = [
         id: 'unique_retro',
         attr: 'wind',
         name: '👾 原初ビット ビットゴン 📟',
-        file: 'unique_retro.jpg',
+        file: 'unique_retro.png',
         desc: 'ゲームボーイ初期の4階調ドット画面から実体化した原初のピクセル龍。ノスタルジックな魔力でおうちを包み込む。',
         hint: '【レトロ限定】初代レトロ環境で進化させると降臨'
     },
@@ -1977,7 +1977,7 @@ const ALL_SPIRITS = [
         id: 'fairy_cook',
         attr: 'fire',
         name: '🍳 フライパン小人 ポックル 👨‍🍳',
-        file: 'fairy_cook.jpg',
+        file: 'fairy_cook.png',
         desc: 'コック帽をかぶり黄金のフライパンを手にした料理妖精。フライパンやコンロをピカピカにする人に最高の朝食の幸運を授ける。',
         hint: '【妖精族】料理やキッチン周りの家事をたくさん行うと出現'
     },
@@ -3139,14 +3139,14 @@ async function generateAncientCardCanvas() {
     } else if (currentLv <= 9) {
         const envTheme = kajigonState.environmentTheme || 'classic';
         const teenMap = {
-            volcano: 'teen_fire.jpg',
-            abyss: 'teen_water.jpg',
-            sky: 'teen_wind.jpg',
-            earth: 'teen_earth.jpg',
-            classic: 'teen_light.jpg',
-            gameboy: 'teen_retro.jpg'
+            volcano: 'teen_fire.png',
+            abyss: 'teen_water.png',
+            sky: 'teen_wind.png',
+            earth: 'teen_earth.png',
+            classic: 'teen_light.png',
+            gameboy: 'teen_retro.png'
         };
-        avatarImgSrc = teenMap[envTheme] || 'teen_light.jpg';
+        avatarImgSrc = teenMap[envTheme] || 'teen_light.png';
     } else {
         avatarImgSrc = evolved.file;
     }
