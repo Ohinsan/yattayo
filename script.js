@@ -456,13 +456,14 @@ function renderQuickAddButtons() {
     
     if (!base) return;
 
-    // Get unique names of all chores done today
+    // Count how many times each chore was done today
     const todayStr = getTodayDateString();
-    const doneTodayNames = new Set(
-        completedList
-            .filter(c => getDateKey(c.time) === todayStr)
-            .map(c => c.name)
-    );
+    const todayCounts = {};
+    completedList
+        .filter(c => getDateKey(c.time) === todayStr)
+        .forEach(c => {
+            todayCounts[c.name] = (todayCounts[c.name] || 0) + 1;
+        });
 
     // ⭐ Calculate frequently used / favorite chores
     const counts = {};
@@ -479,12 +480,12 @@ function renderQuickAddButtons() {
             <span class="group-label" style="color: #ffd700;"><span>⭐</span> <span>よく使う家事</span></span>
             <div class="quick-add-buttons">
                 ${topChores.map(choreName => {
-                    const isDoneToday = doneTodayNames.has(choreName);
+                    const doneCount = todayCounts[choreName] || 0;
                     const stats = getChoreStats(choreName);
                     const attrClass = stats.attr ? `attr-${stats.attr}` : '';
                     const attrName = stats.attr || '';
-                    const checkLabel = isDoneToday ? '<span class="done-check-badge">✔ 完了</span>' : '';
-                    return `<button class="quick-add-btn ${attrClass} ${isDoneToday ? 'done' : ''}" ${isDoneToday ? 'disabled' : ''} onclick="addQuickChore('${choreName}', this)" onmouseenter="setTemporaryTheme('${attrName}')" onmouseleave="clearTemporaryTheme()">${choreName} ${checkLabel}</button>`;
+                    const checkLabel = doneCount > 0 ? `<span class="done-check-badge">✔ 済(${doneCount})</span>` : '';
+                    return `<button class="quick-add-btn ${attrClass} ${doneCount > 0 ? 'done' : ''}" onclick="addQuickChore('${choreName}', this)" onmouseenter="setTemporaryTheme('${attrName}')" onmouseleave="clearTemporaryTheme()">${choreName} ${checkLabel}</button>`;
                 }).join('')}
             </div>
         </div>
@@ -500,13 +501,13 @@ function renderQuickAddButtons() {
                 <div class="quick-add-buttons">
                     ${section.chores.map(chore => {
                         const fullName = section.id === 'trash' ? chore : `${customName}：${chore}`;
-                        const isDoneToday = doneTodayNames.has(fullName);
+                        const doneCount = todayCounts[fullName] || 0;
                         const stats = getChoreStats(fullName);
                         const attrClass = stats.attr ? `attr-${stats.attr}` : '';
                         const attrName = stats.attr || '';
-                        const checkLabel = isDoneToday ? '<span class="done-check-badge">✔ 完了</span>' : '';
+                        const checkLabel = doneCount > 0 ? `<span class="done-check-badge">✔ 済(${doneCount})</span>` : '';
                         
-                        return `<button class="quick-add-btn ${attrClass} ${isDoneToday ? 'done' : ''}" ${isDoneToday ? 'disabled' : ''} onclick="addQuickChore('${fullName}', this)" onmouseenter="setTemporaryTheme('${attrName}')" onmouseleave="clearTemporaryTheme()">${chore} ${checkLabel}</button>`;
+                        return `<button class="quick-add-btn ${attrClass} ${doneCount > 0 ? 'done' : ''}" onclick="addQuickChore('${fullName}', this)" onmouseenter="setTemporaryTheme('${attrName}')" onmouseleave="clearTemporaryTheme()">${chore} ${checkLabel}</button>`;
                     }).join('')}
                 </div>
             </div>
@@ -521,30 +522,29 @@ function renderQuickAddButtons() {
                 <div class="quick-add-buttons">
         `;
 
-        if (currentFloors >= 2) {
-            const stair1Sweep = '1F〜2F階段：掃き掃除';
-            const stair1Wipe = '1F〜2F階段：拭き掃除';
-            const doneSweep = doneTodayNames.has(stair1Sweep);
-            const doneWipe = doneTodayNames.has(stair1Wipe);
-            const checkSweep = doneSweep ? '<span class="done-check-badge">✔ 完了</span>' : '';
-            const checkWipe = doneWipe ? '<span class="done-check-badge">✔ 完了</span>' : '';
-            
-            stairsHtml += `
-                <button class="quick-add-btn attr-wind ${doneSweep ? 'done' : ''}" ${doneSweep ? 'disabled' : ''} onclick="addQuickChore('${stair1Sweep}', this)" onmouseenter="setTemporaryTheme('wind')" onmouseleave="clearTemporaryTheme()">1F〜2F階段 掃き ${checkSweep}</button>
-                <button class="quick-add-btn attr-earth ${doneWipe ? 'done' : ''}" ${doneWipe ? 'disabled' : ''} onclick="addQuickChore('${stair1Wipe}', this)" onmouseenter="setTemporaryTheme('earth')" onmouseleave="clearTemporaryTheme()">1F〜2F階段 拭き ${checkWipe}</button>
-            `;
-        }
+        const stair1Sweep = '1F〜2F階段：掃き掃除';
+        const stair1Wipe = '1F〜2F階段：拭き掃除';
+        const countSweep = todayCounts[stair1Sweep] || 0;
+        const countWipe = todayCounts[stair1Wipe] || 0;
+        const checkSweep = countSweep > 0 ? `<span class="done-check-badge">✔ 済(${countSweep})</span>` : '';
+        const checkWipe = countWipe > 0 ? `<span class="done-check-badge">✔ 済(${countWipe})</span>` : '';
+        
+        stairsHtml += `
+            <button class="quick-add-btn attr-wind ${countSweep > 0 ? 'done' : ''}" onclick="addQuickChore('${stair1Sweep}', this)" onmouseenter="setTemporaryTheme('wind')" onmouseleave="clearTemporaryTheme()">1F〜2F階段 掃き ${checkSweep}</button>
+            <button class="quick-add-btn attr-earth ${countWipe > 0 ? 'done' : ''}" onclick="addQuickChore('${stair1Wipe}', this)" onmouseenter="setTemporaryTheme('earth')" onmouseleave="clearTemporaryTheme()">1F〜2F階段 拭き ${checkWipe}</button>
+        `;
+
         if (currentFloors === 3) {
             const stair2Sweep = '2F〜3F階段：掃き掃除';
             const stair2Wipe = '2F〜3F階段：拭き掃除';
-            const doneSweep2 = doneTodayNames.has(stair2Sweep);
-            const doneWipe2 = doneTodayNames.has(stair2Wipe);
-            const checkSweep2 = doneSweep2 ? '<span class="done-check-badge">✔ 完了</span>' : '';
-            const checkWipe2 = doneWipe2 ? '<span class="done-check-badge">✔ 完了</span>' : '';
+            const countSweep2 = todayCounts[stair2Sweep] || 0;
+            const countWipe2 = todayCounts[stair2Wipe] || 0;
+            const checkSweep2 = countSweep2 > 0 ? `<span class="done-check-badge">✔ 済(${countSweep2})</span>` : '';
+            const checkWipe2 = countWipe2 > 0 ? `<span class="done-check-badge">✔ 済(${countWipe2})</span>` : '';
             
             stairsHtml += `
-                <button class="quick-add-btn attr-wind ${doneSweep2 ? 'done' : ''}" ${doneSweep2 ? 'disabled' : ''} onclick="addQuickChore('${stair2Sweep}', this)" onmouseenter="setTemporaryTheme('wind')" onmouseleave="clearTemporaryTheme()">2F〜3F階段 掃き ${checkSweep2}</button>
-                <button class="quick-add-btn attr-earth ${doneWipe2 ? 'done' : ''}" ${doneWipe2 ? 'disabled' : ''} onclick="addQuickChore('${stair2Wipe}', this)" onmouseenter="setTemporaryTheme('earth')" onmouseleave="clearTemporaryTheme()">2F〜3F階段 拭き ${checkWipe2}</button>
+                <button class="quick-add-btn attr-wind ${countSweep2 > 0 ? 'done' : ''}" onclick="addQuickChore('${stair2Sweep}', this)" onmouseenter="setTemporaryTheme('wind')" onmouseleave="clearTemporaryTheme()">2F〜3F階段 掃き ${checkSweep2}</button>
+                <button class="quick-add-btn attr-earth ${countWipe2 > 0 ? 'done' : ''}" onclick="addQuickChore('${stair2Wipe}', this)" onmouseenter="setTemporaryTheme('earth')" onmouseleave="clearTemporaryTheme()">2F〜3F階段 拭き ${checkWipe2}</button>
             `;
         }
 
@@ -876,14 +876,30 @@ function undoChoreExp(chore) {
 // --- Chore Interactive Logic ---
 // ==========================================================================
 function addQuickChore(choreName, buttonElement) {
+    SoundEngine.playSE('done');
     const id = Date.now();
     const { finalExp, wasLucky } = addChoreExp(choreName);
     completedList.unshift({ id, name: choreName, time: id, gainedExp: finalExp, isLucky: wasLucky });
     
     saveToLocalStorage();
     renderCompleted();
-    renderQuickAddButtons(); // Refresh buttons to disable the clicked one
-    triggerFortuneToast(wasLucky);
+    renderQuickAddButtons();
+    
+    // Quick success toast
+    showToast(`🧹「${choreName}」を記録しました！（+${finalExp} EXP）`);
+
+    // Let pet dragon speak a cheerful line
+    if (typeof showCompanionDialogue === 'function') {
+        const cheerLines = [
+            `「お疲れさま！『${choreName}』完了だな！ピカピカだぞ〜！」`,
+            `「わーい！『${choreName}』やってくれた！ありがとう！」`,
+            `「さすが総監督！家事スキルがどんどん上がってるぞ！」`,
+            `「いい調子だぞ！おうちが喜んでるのが伝わってくる！」`
+        ];
+        showCompanionDialogue(cheerLines[Math.floor(Math.random() * cheerLines.length)]);
+    }
+
+    triggerFortuneToast(wasLucky || Math.random() < 0.6);
 }
 
 function addFreeSupply() {
@@ -2157,6 +2173,13 @@ function openBookModal() {
     } else {
         // かるた帳タブ
         html += `
+            <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%); border: 2px solid #8b5cf6; border-radius: 8px; padding: 0.8rem; margin-bottom: 0.8rem; text-align: center;">
+                <button onclick="drawKarutaFortuneNow()" style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); color: #fff; font-weight: 900; font-size: 14px; padding: 0.6rem 1.2rem; border: 2px solid #fff; border-radius: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.5); width: 100%;">
+                    🥠 かるた・おみくじを1枚引く！
+                </button>
+                <div id="karuta-draw-result-area" style="margin-top: 0.5rem;"></div>
+            </div>
+
             <div style="background: rgba(255,255,255,0.06); border: 2px solid var(--accent); padding: 0.6rem 0.8rem; border-radius: 6px; font-weight: bold; font-size: 13px; text-align: center; color: var(--accent); margin-bottom: 0.5rem;">
                 集めた家事かるた: ${karutaUnlockedCount} / ${karutaTotal} 枚 （収集率: ${Math.round((karutaUnlockedCount / karutaTotal) * 100)}%）
             </div>
@@ -2349,7 +2372,10 @@ function defeatBountyQuest() {
     renderBountyWidget();
     updateCompanionWidget();
 
-    SoundEngine.playSE('lucky');
+    SoundEngine.playSE('bounty');
+    setTimeout(() => {
+        SoundEngine.playSE('lucky');
+    }, 200);
     triggerCutIn('⚔️', () => {
         triggerFortuneToast(true);
     });
@@ -2399,6 +2425,37 @@ function openKarutaAlbumModal() {
     SoundEngine.playSE('click');
     window._currentBookTab = 'karuta';
     openBookModal();
+}
+
+// 🥠 かるた・おみくじをその場で引く関数
+function drawKarutaFortuneNow() {
+    SoundEngine.playSE('karuta');
+    const list = (typeof EXPANDED_KARUTA_LIST !== 'undefined') ? EXPANDED_KARUTA_LIST : FORTUNE_LIST;
+    const chosen = list[Math.floor(Math.random() * list.length)];
+    
+    if (chosen.id) {
+        saveUnlockedKaruta(chosen.id);
+    }
+
+    const resultArea = document.getElementById('karuta-draw-result-area');
+    if (resultArea) {
+        const isUltra = (chosen.rarity === 'ultra');
+        resultArea.innerHTML = `
+            <div style="background: ${isUltra ? 'linear-gradient(135deg, #2b1055, #751758)' : '#1b1b26'}; border: 2px solid ${isUltra ? '#ff007f' : '#ffd700'}; border-radius: 8px; padding: 0.8rem; margin-top: 0.6rem; animation: petFloat 0.5s ease; box-shadow: ${isUltra ? '0 0 15px rgba(255,0,128,0.5)' : 'none'};">
+                <div style="font-size: 14px; font-weight: 900; color: ${isUltra ? '#ff007f' : '#ffd700'}; margin-bottom: 0.3rem;">
+                    ${chosen.rank} ${isUltra ? '🌈 [超激レアかるた]' : ''}
+                </div>
+                <div style="font-size: 14px; color: #fff; line-height: 1.5; font-weight: bold;">
+                    「${chosen.text}」
+                </div>
+                <div style="font-size: 11px; color: #a1a1aa; margin-top: 0.4rem;">
+                    ✨ かるた帳にコレクション保存されました！
+                </div>
+            </div>
+        `;
+    }
+
+    triggerFortuneToast(true);
 }
 
 // ==========================================================================
@@ -2924,9 +2981,10 @@ const SoundEngine = {
         if (this.seVol <= 0 || !this.ctx) return;
 
         if (type === 'done') {
-            // Cheerful mellow 8-bit blip (E5 -> B5)
+            // Cheerful mellow 8-bit blip (E5 -> B5 -> E6)
             this.playTone(659.25, 'triangle', 0.09, 0, this.seGain, 0.35);
-            this.playTone(987.77, 'square', 0.14, 0.06, this.seGain, 0.3);
+            this.playTone(987.77, 'square', 0.12, 0.05, this.seGain, 0.3);
+            this.playTone(1318.51, 'triangle', 0.22, 0.11, this.seGain, 0.3);
         } else if (type === 'undo') {
             // Cancel sound (G3 -> E3)
             this.playTone(196.00, 'triangle', 0.09, 0, this.seGain, 0.3);
@@ -2937,6 +2995,18 @@ const SoundEngine = {
             this.playTone(659.25, 'triangle', 0.09, 0.07, this.seGain, 0.35);
             this.playTone(783.99, 'square', 0.10, 0.14, this.seGain, 0.3);
             this.playTone(1046.50, 'square', 0.28, 0.21, this.seGain, 0.35);
+        } else if (type === 'karuta') {
+            // Sparkly mystic fortune chimes (F#5 -> A5 -> C#6 -> E6 -> A6)
+            this.playTone(739.99, 'triangle', 0.08, 0, this.seGain, 0.3);
+            this.playTone(880.00, 'sine', 0.09, 0.06, this.seGain, 0.35);
+            this.playTone(1108.73, 'triangle', 0.10, 0.12, this.seGain, 0.35);
+            this.playTone(1318.51, 'square', 0.12, 0.18, this.seGain, 0.25);
+            this.playTone(1760.00, 'triangle', 0.35, 0.25, this.seGain, 0.3);
+        } else if (type === 'bounty') {
+            // Sword slash / boss hit impact
+            this.playTone(220, 'square', 0.05, 0, this.seGain, 0.4);
+            this.playTone(110, 'sawtooth', 0.15, 0.04, this.seGain, 0.45);
+            this.playTone(55, 'triangle', 0.25, 0.08, this.seGain, 0.5);
         } else if (type === 'artifact') {
             // Ancient relic sparkle (A5 -> D6 -> F#6 -> A6)
             this.playTone(880.00, 'triangle', 0.08, 0, this.seGain, 0.3);
@@ -2975,14 +3045,58 @@ const SoundEngine = {
         const text = document.getElementById('bgm-toggle-btn-text');
         if (text) text.textContent = 'BGM 一時停止';
 
-        // 3 Distinct Chiptune compositions with rich 3/4-note chords, walking bass, and mellow melodies
+        // 5 Distinct Chiptune compositions with chords, walking bass, and mellow melodies
         let chordProgression = [];
         let bassLine = [];
         let melodyLine = [];
         let tickInterval = 280;
 
-        if (this.bgmTrack === 'ruins') {
-            // --- Ruins of Time (Ancient Mystic Chill / Lofi) ---
+        if (this.bgmTrack === 'pop') {
+            // --- 🌞 PokoPoko Daily Pop (Lighthearted Uplifting 8-bit Pop) ---
+            // C -> G -> Am -> F (Catchy energetic tempo)
+            chordProgression = [
+                [261.63, 329.63, 392.00], // C
+                [196.00, 246.94, 293.66], // G
+                [220.00, 261.63, 329.63], // Am
+                [174.61, 220.00, 261.63]  // F
+            ];
+            bassLine = [
+                130.81, 130.81, 196.00, 130.81,
+                98.00, 98.00, 146.83, 98.00,
+                110.00, 110.00, 164.81, 110.00,
+                87.31, 87.31, 130.81, 87.31
+            ];
+            melodyLine = [
+                523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 523.25, 0,
+                587.33, 783.99, 587.33, 493.88, 392.00, 493.88, 587.33, 0,
+                659.25, 783.99, 880.00, 783.99, 659.25, 523.25, 440.00, 0,
+                523.25, 659.25, 783.99, 659.25, 523.25, 440.00, 392.00, 0
+            ];
+            tickInterval = 190;
+        } else if (this.bgmTrack === 'battle') {
+            // --- ⚔️ Quest Battle Chiptune (Heroic RPG Battle Track) ---
+            // Dm -> Bb -> C -> Dm (Fast, intense, heroic)
+            chordProgression = [
+                [146.83, 220.00, 261.63], // Dm
+                [116.54, 146.83, 233.08], // Bb
+                [130.81, 164.81, 196.00], // C
+                [146.83, 220.00, 293.66]  // Dm
+            ];
+            bassLine = [
+                146.83, 146.83, 146.83, 220.00,
+                116.54, 116.54, 116.54, 174.61,
+                130.81, 130.81, 130.81, 196.00,
+                146.83, 146.83, 220.00, 293.66
+            ];
+            melodyLine = [
+                587.33, 587.33, 880.00, 783.99, 698.46, 587.33, 698.46, 783.99,
+                932.33, 932.33, 880.00, 783.99, 698.46, 587.33, 466.16, 587.33,
+                523.25, 659.25, 783.99, 1046.50, 987.77, 783.99, 659.25, 523.25,
+                587.33, 698.46, 880.00, 1174.66, 880.00, 698.46, 587.33, 0
+            ];
+            tickInterval = 160;
+        } else if (this.bgmTrack === 'ruins') {
+            // --- 📜 Ruins of Time (Ancient Mystic Chill / Lofi) ---
             // Am7 -> Dm7 -> Fmaj7 -> E7
             chordProgression = [
                 [220.00, 261.63, 329.63],
@@ -3016,7 +3130,7 @@ const SoundEngine = {
             ];
             tickInterval = 270;
         } else if (this.bgmTrack === 'tavern') {
-            // --- Cozy Tavern & Fest (Upbeat Folk Chiptune) ---
+            // --- 🍻 Cozy Tavern & Fest (Upbeat Folk Chiptune) ---
             // F -> G -> Em -> Am
             chordProgression = [
                 [174.61, 220.00, 261.63],
@@ -3050,7 +3164,7 @@ const SoundEngine = {
             ];
             tickInterval = 210;
         } else {
-            // --- Default: Pokésleep & Cozy Tamagotchi Room (Lo-Fi Warm 8-bit) ---
+            // --- 🏡 Default: Pokésleep & Cozy Tamagotchi Room (Lo-Fi Warm 8-bit) ---
             // Cmaj7 -> Am7 -> Dm7 -> G7 (Classic mellow loop)
             chordProgression = [
                 [261.63, 329.63, 392.00, 493.88],

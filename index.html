@@ -27,7 +27,7 @@
         if ('caches' in window) {
             caches.keys().then(function(names) {
                 for (var name of names) {
-                    if (name !== 'kajigon-cache-v2.5.2') {
+                    if (name !== 'kajigon-cache-v2.5.3') {
                         caches.delete(name);
                     }
                 }
@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.5.2">
+    <link rel="stylesheet" href="style.css?v=2.5.3">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a24">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -341,10 +341,12 @@
                 </div>
                 <div style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
                     <span style="font-weight: bold; color: var(--text-sub);">曲の選択:</span>
-                    <select id="bgmTrackSelect" onchange="SoundEngine.setBGMTrack(this.value)" style="padding: 0.25rem 0.5rem; background: #0d0d13; color: var(--accent); border: 2px solid var(--border); font-family: inherit;">
-                        <option value="village">🏡 のどかな拠点（日常）</option>
-                        <option value="ruins">🏛️ 古代の遺跡（神秘）</option>
-                        <option value="tavern">🎲 酒場とカジノ（陽気）</option>
+                    <select id="bgmTrackSelect" onchange="SoundEngine.setBGMTrack(this.value)" style="padding: 0.35rem 0.6rem; background: #0d0d13; color: var(--accent); border: 2px solid var(--border); font-family: inherit; border-radius: 4px;">
+                        <option value="village">🏡 我が家チル（ポケスリ風Lo-Fi）</option>
+                        <option value="pop">🌞 日常ポップ（明るいテンポ）</option>
+                        <option value="tavern">🍻 にぎやか酒場（愉快な民謡）</option>
+                        <option value="ruins">📜 古代遺跡（神秘の調べ）</option>
+                        <option value="battle">⚔️ ボス討伐バトル（熱血RPG）</option>
                     </select>
                 </div>
             </div>
@@ -357,11 +359,16 @@
                 <div class="sound-slider-wrapper">
                     <input type="range" id="seVolumeSlider" min="0" max="100" value="70" oninput="onSeVolumeChange(this.value)">
                 </div>
+                <div style="margin-top: 0.6rem; display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                    <button class="btn-sound-test" onclick="SoundEngine.playSE('done')">🧹 家事完了♪</button>
+                    <button class="btn-sound-test" onclick="SoundEngine.playSE('karuta')">🥠 かるた音♪</button>
+                    <button class="btn-sound-test" onclick="SoundEngine.playSE('bounty')">⚔️ 討伐撃破♪</button>
+                    <button class="btn-sound-test" onclick="SoundEngine.playSE('levelup')">👑 勝利ファンファーレ♪</button>
+                </div>
             </div>
 
-            <div class="sound-test-btn-group" style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: center;">
-                <button class="btn-sound-test" onclick="SoundEngine.playSE('click')">SEテスト</button>
-                <button class="btn-sound-test" onclick="SoundEngine.toggleBGM()"><span id="bgm-toggle-btn-text">BGM 一時停止</span></button>
+            <div class="sound-test-btn-group" style="margin-top: 1.25rem; display: flex; gap: 0.5rem; justify-content: center;">
+                <button class="btn-sound-test" onclick="SoundEngine.toggleBGM()"><span id="bgm-toggle-btn-text">BGM 再生/一時停止</span></button>
             </div>
 
             <div class="spell-btn-group" style="margin-top: 1.5rem;">
@@ -444,9 +451,9 @@
         <div class="spell-content" style="max-width: 540px; max-height: 88vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0;">🔨 やった家事を記録する</h3>
-                <button onclick="closeChoreSelectModal()" style="background:none; border:none; color:var(--text-sub); font-size:20px; cursor:pointer;">✕</button>
+                <button onclick="closeChoreSelectModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
-            <p class="spell-desc">完了した家事をワンタップでチェックしよう！</p>
+            <p class="spell-desc">完了した家事をタップしよう！（何回でも記録できます）</p>
             
             <!-- Chore Addition Area (Dynamic) -->
             <div id="quick-add-container" style="margin: 1rem 0;">
@@ -560,15 +567,15 @@
     </div>
 
     <!-- JavaScript Data Files -->
-    <script src="js/data/bosses.js?v=2.5.2"></script>
-    <script src="js/data/karuta.js?v=2.5.2"></script>
-    <script src="js/data/furniture.js?v=2.5.2"></script>
-    <script src="js/data/spirit_profiles.js?v=2.5.2"></script>
-    <script src="js/data/dialogues.js?v=2.5.2"></script>
-    <script src="js/data/newspaper.js?v=2.5.2"></script>
+    <script src="js/data/bosses.js?v=2.5.3"></script>
+    <script src="js/data/karuta.js?v=2.5.3"></script>
+    <script src="js/data/furniture.js?v=2.5.3"></script>
+    <script src="js/data/spirit_profiles.js?v=2.5.3"></script>
+    <script src="js/data/dialogues.js?v=2.5.3"></script>
+    <script src="js/data/newspaper.js?v=2.5.3"></script>
 
     <!-- Main Application Logic -->
-    <script src="script.js?v=2.5.2"></script>
+    <script src="script.js?v=2.5.3"></script>
 </body>
 
 </html>
