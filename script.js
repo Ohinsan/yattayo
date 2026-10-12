@@ -60,7 +60,116 @@ let kajigonState = {
     endingSeen: false,
     lastLuckyDate: "",
     artifactCount: 0,
-    forceSpecial: null
+    forceSpecial: null,
+    environmentTheme: "classic" // 'volcano' | 'abyss' | 'sky' | 'earth' | 'classic' | 'gameboy'
+};
+
+// ==========================================================================
+// --- 🏛️ Environment Theme Definitions ---
+// ==========================================================================
+const ENVIRONMENT_THEMES = {
+    'volcano': {
+        id: 'volcano',
+        name: '灼熱の火山',
+        icon: '🌋',
+        boostAttr: 'fire',
+        boostLabel: '🔥火が育ちやすい (×1.3倍)',
+        accent: '#ff4d4d',
+        canvas: {
+            base: '#221114',
+            grain: '#2d161b',
+            borderOuter: '#14080a',
+            borderInner: '#e11d48',
+            accent: '#ff4d4d',
+            titleText: '#ff6b6b',
+            corner: '#f43f5e'
+        }
+    },
+    'abyss': {
+        id: 'abyss',
+        name: '深海の神殿',
+        icon: '🌊',
+        boostAttr: 'water',
+        boostLabel: '💧水が育ちやすい (×1.3倍)',
+        accent: '#38bdf8',
+        canvas: {
+            base: '#0c1626',
+            grain: '#112238',
+            borderOuter: '#060c17',
+            borderInner: '#0284c7',
+            accent: '#38bdf8',
+            titleText: '#7dd3fc',
+            corner: '#38bdf8'
+        }
+    },
+    'sky': {
+        id: 'sky',
+        name: '天空の樹海',
+        icon: '🍃',
+        boostAttr: 'wind',
+        boostLabel: '🍃風が育ちやすい (×1.3倍)',
+        accent: '#10b981',
+        canvas: {
+            base: '#0f2017',
+            grain: '#152d21',
+            borderOuter: '#08140e',
+            borderInner: '#059669',
+            accent: '#10b981',
+            titleText: '#6ee7b7',
+            corner: '#34d399'
+        }
+    },
+    'earth': {
+        id: 'earth',
+        name: '砂漠の巨石遺跡',
+        icon: '🏜️',
+        boostAttr: 'earth',
+        boostLabel: '🪵土が育ちやすい (×1.3倍)',
+        accent: '#f59e0b',
+        canvas: {
+            base: '#221811',
+            grain: '#2c2017',
+            borderOuter: '#140c08',
+            borderInner: '#d97706',
+            accent: '#f59e0b',
+            titleText: '#fcd34d',
+            corner: '#fbbf24'
+        }
+    },
+    'classic': {
+        id: 'classic',
+        name: '星降る神殿（通常）',
+        icon: '📜',
+        boostAttr: null,
+        boostLabel: '🌟全属性バランス育成',
+        accent: '#f4ede2',
+        canvas: {
+            base: '#1c1b26',
+            grain: '#232230',
+            borderOuter: '#0d0d13',
+            borderInner: '#8b5a2b',
+            accent: '#c8924b',
+            titleText: '#ffd700',
+            corner: '#c8924b'
+        }
+    },
+    'gameboy': {
+        id: 'gameboy',
+        name: '初代レトロ（GB調）',
+        icon: '📟',
+        boostAttr: null,
+        boostLabel: '🎮ノスタルジー4階調',
+        accent: '#9bbc0f',
+        canvas: {
+            base: '#1b2618',
+            grain: '#243320',
+            borderOuter: '#0d150c',
+            borderInner: '#8bac0f',
+            accent: '#9bbc0f',
+            titleText: '#9bbc0f',
+            corner: '#8bac0f'
+        }
+    }
 };
 
 // Lucky Chore
@@ -188,7 +297,10 @@ function submitSetup() {
 // ==========================================================================
 // --- Settings⚙️ Dialog (In-app Setup & Room Customization) ---
 // ==========================================================================
+let tempSettingsEnvTheme = 'classic';
+
 function openSettingsModal() {
+    SoundEngine.playSE('click');
     const modal = document.getElementById('settings-modal');
     modal.classList.remove('hidden');
     
@@ -196,7 +308,32 @@ function openSettingsModal() {
     document.getElementById('settings-floor-select').value = currentFloors;
     document.getElementById('settings-players-select').value = playerCount;
 
+    tempSettingsEnvTheme = kajigonState.environmentTheme || 'classic';
+    renderSettingsThemeCards();
     generateSettingsRoomFields();
+}
+
+function renderSettingsThemeCards() {
+    const container = document.getElementById('settings-theme-selector');
+    if (!container) return;
+
+    container.innerHTML = Object.keys(ENVIRONMENT_THEMES).map(key => {
+        const t = ENVIRONMENT_THEMES[key];
+        const isActive = tempSettingsEnvTheme === key;
+        return `
+            <div class="theme-card-btn ${isActive ? 'active' : ''}" onclick="selectSettingsTheme('${key}')">
+                <div class="theme-card-icon">${t.icon}</div>
+                <div class="theme-card-name">${t.name}</div>
+                <div class="theme-card-boost">${t.boostLabel}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function selectSettingsTheme(themeKey) {
+    SoundEngine.playSE('click');
+    tempSettingsEnvTheme = themeKey;
+    renderSettingsThemeCards();
 }
 
 function closeSettingsModal() {
@@ -253,15 +390,30 @@ function saveSettings() {
     currentFloors = newFloors;
     playerCount = newPlayers;
     customRoomNames = newNames;
+    kajigonState.environmentTheme = tempSettingsEnvTheme;
 
     saveToLocalStorage();
     closeSettingsModal();
+    applyTheme();
     initApp();
 }
 
 // ==========================================================================
 // --- Dynamic Buttons Rendering ---
 // ==========================================================================
+function getRoomIcon(roomId, roomName) {
+    if (roomId === 'kitchen' || roomName.includes('キッチン')) return '🍳';
+    if (roomId === 'bath' || roomName.includes('風呂')) return '🛁';
+    if (roomId === 'laundry' || roomName.includes('洗濯')) return '👕';
+    if (roomId === 'toilet' || roomName.includes('トイレ')) return '🚽';
+    if (roomId === 'living' || roomName.includes('リビング')) return '🧹';
+    if (roomId === 'washroom' || roomName.includes('洗面')) return '🪞';
+    if (roomId === 'trash' || roomName.includes('ごみ')) return '🗑️';
+    if (roomId === 'bedroom' || roomName.includes('寝室')) return '🛏️';
+    if (roomId === 'stairs' || roomName.includes('階段')) return '🪜';
+    return '🚪';
+}
+
 function renderQuickAddButtons() {
     const container = document.getElementById('quick-add-container');
     const base = BASE_TEMPLATES[currentLayout];
@@ -278,10 +430,11 @@ function renderQuickAddButtons() {
 
     let sectionsHtml = base.map(section => {
         const customName = customRoomNames[section.id] || section.defaultName;
+        const icon = getRoomIcon(section.id, customName);
         
         return `
             <div class="quick-add-section">
-                <span class="group-label">${customName}</span>
+                <span class="group-label"><span>${icon}</span> <span>${customName}</span></span>
                 <div class="quick-add-buttons">
                     ${section.chores.map(chore => {
                         const fullName = section.id === 'trash' ? chore : `${customName}：${chore}`;
@@ -289,8 +442,9 @@ function renderQuickAddButtons() {
                         const stats = getChoreStats(fullName);
                         const attrClass = stats.attr ? `attr-${stats.attr}` : '';
                         const attrName = stats.attr || '';
+                        const checkLabel = isDoneToday ? '<span class="done-check-badge">✔ 完了</span>' : '';
                         
-                        return `<button class="quick-add-btn ${attrClass} ${isDoneToday ? 'done' : ''}" ${isDoneToday ? 'disabled' : ''} onclick="addQuickChore('${fullName}', this)" onmouseenter="setTemporaryTheme('${attrName}')" onmouseleave="clearTemporaryTheme()">${chore}</button>`;
+                        return `<button class="quick-add-btn ${attrClass} ${isDoneToday ? 'done' : ''}" ${isDoneToday ? 'disabled' : ''} onclick="addQuickChore('${fullName}', this)" onmouseenter="setTemporaryTheme('${attrName}')" onmouseleave="clearTemporaryTheme()">${chore} ${checkLabel}</button>`;
                     }).join('')}
                 </div>
             </div>
@@ -301,7 +455,7 @@ function renderQuickAddButtons() {
     if (currentFloors >= 2) {
         let stairsHtml = `
             <div class="quick-add-section">
-                <span class="group-label">階段</span>
+                <span class="group-label"><span>🪜</span> <span>階段</span></span>
                 <div class="quick-add-buttons">
         `;
 
@@ -310,10 +464,12 @@ function renderQuickAddButtons() {
             const stair1Wipe = '1F〜2F階段：拭き掃除';
             const doneSweep = doneTodayNames.has(stair1Sweep);
             const doneWipe = doneTodayNames.has(stair1Wipe);
+            const checkSweep = doneSweep ? '<span class="done-check-badge">✔ 完了</span>' : '';
+            const checkWipe = doneWipe ? '<span class="done-check-badge">✔ 完了</span>' : '';
             
             stairsHtml += `
-                <button class="quick-add-btn attr-wind ${doneSweep ? 'done' : ''}" ${doneSweep ? 'disabled' : ''} onclick="addQuickChore('${stair1Sweep}', this)" onmouseenter="setTemporaryTheme('wind')" onmouseleave="clearTemporaryTheme()">1F〜2F階段 掃き</button>
-                <button class="quick-add-btn attr-earth ${doneWipe ? 'done' : ''}" ${doneWipe ? 'disabled' : ''} onclick="addQuickChore('${stair1Wipe}', this)" onmouseenter="setTemporaryTheme('earth')" onmouseleave="clearTemporaryTheme()">1F〜2F階段 拭き</button>
+                <button class="quick-add-btn attr-wind ${doneSweep ? 'done' : ''}" ${doneSweep ? 'disabled' : ''} onclick="addQuickChore('${stair1Sweep}', this)" onmouseenter="setTemporaryTheme('wind')" onmouseleave="clearTemporaryTheme()">1F〜2F階段 掃き ${checkSweep}</button>
+                <button class="quick-add-btn attr-earth ${doneWipe ? 'done' : ''}" ${doneWipe ? 'disabled' : ''} onclick="addQuickChore('${stair1Wipe}', this)" onmouseenter="setTemporaryTheme('earth')" onmouseleave="clearTemporaryTheme()">1F〜2F階段 拭き ${checkWipe}</button>
             `;
         }
         if (currentFloors === 3) {
@@ -321,10 +477,12 @@ function renderQuickAddButtons() {
             const stair2Wipe = '2F〜3F階段：拭き掃除';
             const doneSweep2 = doneTodayNames.has(stair2Sweep);
             const doneWipe2 = doneTodayNames.has(stair2Wipe);
+            const checkSweep2 = doneSweep2 ? '<span class="done-check-badge">✔ 完了</span>' : '';
+            const checkWipe2 = doneWipe2 ? '<span class="done-check-badge">✔ 完了</span>' : '';
             
             stairsHtml += `
-                <button class="quick-add-btn attr-wind ${doneSweep2 ? 'done' : ''}" ${doneSweep2 ? 'disabled' : ''} onclick="addQuickChore('${stair2Sweep}', this)" onmouseenter="setTemporaryTheme('wind')" onmouseleave="clearTemporaryTheme()">2F〜3F階段 掃き</button>
-                <button class="quick-add-btn attr-earth ${doneWipe2 ? 'done' : ''}" ${doneWipe2 ? 'disabled' : ''} onclick="addQuickChore('${stair2Wipe}', this)" onmouseenter="setTemporaryTheme('earth')" onmouseleave="clearTemporaryTheme()">2F〜3F階段 拭き</button>
+                <button class="quick-add-btn attr-wind ${doneSweep2 ? 'done' : ''}" ${doneSweep2 ? 'disabled' : ''} onclick="addQuickChore('${stair2Sweep}', this)" onmouseenter="setTemporaryTheme('wind')" onmouseleave="clearTemporaryTheme()">2F〜3F階段 掃き ${checkSweep2}</button>
+                <button class="quick-add-btn attr-earth ${doneWipe2 ? 'done' : ''}" ${doneWipe2 ? 'disabled' : ''} onclick="addQuickChore('${stair2Wipe}', this)" onmouseenter="setTemporaryTheme('earth')" onmouseleave="clearTemporaryTheme()">2F〜3F階段 拭き ${checkWipe2}</button>
             `;
         }
 
@@ -411,7 +569,8 @@ function loadFromLocalStorage() {
                 endingSeen: parsed.endingSeen !== undefined ? parsed.endingSeen : false,
                 lastLuckyDate: parsed.lastLuckyDate || "",
                 artifactCount: parsed.artifactCount !== undefined ? parsed.artifactCount : 0,
-                forceSpecial: parsed.forceSpecial !== undefined ? parsed.forceSpecial : null
+                forceSpecial: parsed.forceSpecial !== undefined ? parsed.forceSpecial : null,
+                environmentTheme: parsed.environmentTheme || "classic"
             };
         } catch (e) {
             console.error("Failed to parse status:", e);
@@ -424,7 +583,8 @@ function loadFromLocalStorage() {
                 endingSeen: false,
                 lastLuckyDate: "",
                 artifactCount: 0,
-                forceSpecial: null
+                forceSpecial: null,
+                environmentTheme: "classic"
             };
         }
     } else {
@@ -437,7 +597,8 @@ function loadFromLocalStorage() {
             endingSeen: false,
             lastLuckyDate: "",
             artifactCount: 0,
-            forceSpecial: null
+            forceSpecial: null,
+            environmentTheme: "classic"
         };
     }
 }
@@ -537,19 +698,26 @@ function addChoreExp(choreName) {
     const finalExp = Math.round(expToAdd);
     kajigonState.totalExp += finalExp;
     
+    const currentEnv = ENVIRONMENT_THEMES[kajigonState.environmentTheme || 'classic'];
+    const boostAttr = currentEnv ? currentEnv.boostAttr : null;
+
     if (stats.isOther) {
         kajigonState.firePoints += stats.pt;
         kajigonState.waterPoints += stats.pt;
         kajigonState.windPoints += stats.pt;
         kajigonState.earthPoints += stats.pt;
     } else if (stats.attr === 'fire') {
-        kajigonState.firePoints += stats.pt;
+        const bonus = (boostAttr === 'fire') ? Math.round(stats.pt * 1.3) : stats.pt;
+        kajigonState.firePoints += bonus;
     } else if (stats.attr === 'water') {
-        kajigonState.waterPoints += stats.pt;
+        const bonus = (boostAttr === 'water') ? Math.round(stats.pt * 1.3) : stats.pt;
+        kajigonState.waterPoints += bonus;
     } else if (stats.attr === 'wind') {
-        kajigonState.windPoints += stats.pt;
+        const bonus = (boostAttr === 'wind') ? Math.round(stats.pt * 1.3) : stats.pt;
+        kajigonState.windPoints += bonus;
     } else if (stats.attr === 'earth') {
-        kajigonState.earthPoints += stats.pt;
+        const bonus = (boostAttr === 'earth') ? Math.round(stats.pt * 1.3) : stats.pt;
+        kajigonState.earthPoints += bonus;
     }
 
     // 0.5% surprise chance to force light/dark evolution
@@ -1022,7 +1190,21 @@ function updateCompanionWidget() {
 
 // 🔄 卵からそだてなおす (Reset growth data only)
 function rebreedCompanion() {
+    SoundEngine.playSE('click');
     if (window.confirm('現在の守護精霊を「そだてなおす」しますか？\nこれまでの経験値や属性ポイントがリセットされ、新しく卵（🥚）から育て直すことができます。\n※今日の家事履歴やカスタム部屋名は消えません。')) {
+        const themeChoice = window.prompt(
+            '次の世代の育成環境テーマを選択してください：\n1: 🌋 灼熱の火山 (🔥火UP)\n2: 🌊 深海の神殿 (💧水UP)\n3: 🍃 天空の樹海 (🍃風UP)\n4: 🏜️ 砂漠の巨石遺跡 (🪵土UP)\n5: 📜 星降る神殿 (全属性バランス)\n6: 📟 初代レトロ (GB調)\n※半角数字 1〜6 を入力（キャンセルで現状維持）',
+            '1'
+        );
+
+        let newEnvTheme = kajigonState.environmentTheme || 'classic';
+        if (themeChoice === '1') newEnvTheme = 'volcano';
+        else if (themeChoice === '2') newEnvTheme = 'abyss';
+        else if (themeChoice === '3') newEnvTheme = 'sky';
+        else if (themeChoice === '4') newEnvTheme = 'earth';
+        else if (themeChoice === '5') newEnvTheme = 'classic';
+        else if (themeChoice === '6') newEnvTheme = 'gameboy';
+
         kajigonState = {
             totalExp: 0,
             firePoints: 0,
@@ -1032,7 +1214,8 @@ function rebreedCompanion() {
             endingSeen: false,
             lastLuckyDate: "",
             artifactCount: 0,
-            forceSpecial: null
+            forceSpecial: null,
+            environmentTheme: newEnvTheme
         };
         
         saveToLocalStorage();
@@ -1043,7 +1226,8 @@ function rebreedCompanion() {
 
         // 卵出現のカットイン演出
         triggerCutIn('🥚', () => {
-            alert('守護精霊は旅立ち、おうちへ新しく卵が届きました！');
+            const chosen = ENVIRONMENT_THEMES[newEnvTheme];
+            alert(`守護精霊は旅立ち、おうちへ新しく卵が届きました！\n新環境：${chosen.icon} ${chosen.name} (${chosen.boostLabel})`);
         });
     }
 }
@@ -1398,11 +1582,37 @@ function clearTemporaryTheme() {
 }
 
 function applyTheme() {
+    // Remove element theme classes
     document.body.classList.remove('theme-fire', 'theme-water', 'theme-wind', 'theme-earth', 'theme-light', 'theme-dark');
+    // Remove environment theme classes
+    document.body.classList.remove('env-volcano', 'env-abyss', 'env-sky', 'env-earth', 'env-classic', 'env-gameboy');
+
+    // Apply environment theme base
+    const envTheme = kajigonState.environmentTheme || 'classic';
+    document.body.classList.add(`env-${envTheme}`);
+
+    // Apply temporary/companion hover accent
     const activeTheme = tempTheme || getCurrentKajigonTheme();
     if (activeTheme) {
         document.body.classList.add(`theme-${activeTheme}`);
     }
+
+    updateEnvironmentBadge();
+}
+
+function updateEnvironmentBadge() {
+    const container = document.getElementById('env-badge-container');
+    if (!container) return;
+    const envKey = kajigonState.environmentTheme || 'classic';
+    const envData = ENVIRONMENT_THEMES[envKey] || ENVIRONMENT_THEMES['classic'];
+
+    container.innerHTML = `
+        <div class="env-badge" title="${envData.boostLabel}">
+            <span>${envData.icon}</span>
+            <span>環境: ${envData.name}</span>
+            <span style="font-size: 11px; opacity: 0.85; margin-left: 0.2rem;">[${envData.boostLabel}]</span>
+        </div>
+    `;
 }
 
 function updateArtifactIndicator() {
@@ -1977,16 +2187,20 @@ async function generateAncientCardCanvas() {
     calculatedHeight += 120; // Spell & footer area
     calculatedHeight = Math.max(760, calculatedHeight);
 
+    const envKey = kajigonState.environmentTheme || 'classic';
+    const envTheme = ENVIRONMENT_THEMES[envKey] || ENVIRONMENT_THEMES['classic'];
+    const cvColors = envTheme.canvas;
+
     canvas.width = width;
     canvas.height = calculatedHeight;
 
-    // 1. Draw Ancient Stone Slab Background
-    // Deep slate base
-    ctx.fillStyle = '#1c1b26';
+    // 1. Draw Ancient Stone Slab Background (Theme-Adaptive)
+    // Base slab
+    ctx.fillStyle = cvColors.base;
     ctx.fillRect(0, 0, width, calculatedHeight);
 
     // Stone texture grain & cracks
-    ctx.fillStyle = '#232230';
+    ctx.fillStyle = cvColors.grain;
     for (let i = 0; i < 400; i++) {
         const rx = (i * 97) % width;
         const ry = (i * 137) % calculatedHeight;
@@ -1996,31 +2210,32 @@ async function generateAncientCardCanvas() {
     }
 
     // Outer ancient carved border
-    ctx.strokeStyle = '#0d0d13';
+    ctx.strokeStyle = cvColors.borderOuter;
     ctx.lineWidth = 14;
     ctx.strokeRect(7, 7, width - 14, calculatedHeight - 14);
 
-    ctx.strokeStyle = '#8b5a2b'; // Ancient terracotta bronze trim
+    // Inner sacred trim
+    ctx.strokeStyle = cvColors.borderInner;
     ctx.lineWidth = 4;
     ctx.strokeRect(20, 20, width - 40, calculatedHeight - 40);
 
     // Decorative corner notches
     const cornerSize = 24;
-    ctx.fillStyle = '#c8924b';
+    ctx.fillStyle = cvColors.corner;
     ctx.fillRect(20, 20, cornerSize, cornerSize);
     ctx.fillRect(width - 20 - cornerSize, 20, cornerSize, cornerSize);
     ctx.fillRect(20, calculatedHeight - 20 - cornerSize, cornerSize, cornerSize);
     ctx.fillRect(width - 20 - cornerSize, calculatedHeight - 20 - cornerSize, cornerSize, cornerSize);
 
     // 2. Title & Ancient Header
-    ctx.fillStyle = '#ffd700';
+    ctx.fillStyle = cvColors.titleText;
     ctx.font = 'bold 30px "DotGothic16", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('◆ 古代の家事碑文 ◆', width / 2, 65);
+    ctx.fillText(`◆ 古代の家事碑文 [${envTheme.name}] ◆`, width / 2, 65);
 
     ctx.fillStyle = '#a0a0b0';
     ctx.font = '16px "DotGothic16", monospace';
-    ctx.fillText(`- KAJIGON CHRONICLE -  ${todayStr}`, width / 2, 95);
+    ctx.fillText(`- KAJIGON CHRONICLE -  ${todayStr}  (${envTheme.icon} ${envTheme.boostLabel})`, width / 2, 95);
 
     // Divider line
     ctx.strokeStyle = '#3a3a4c';

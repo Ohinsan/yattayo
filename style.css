@@ -1604,6 +1604,155 @@ select:focus {
     box-shadow: 1px 1px 0px #0d0d13;
 }
 
+/* ==========================================================================
+   Environment Themes (Color Palettes & Boost Visuals)
+   ========================================================================== */
+/* 🌋 灼熱の火山 (Volcano) */
+body.env-volcano {
+    --bg-gradient: #201214;
+    --card-bg: #261619;
+    --border: #14080a;
+    --text-main: #fde8e8;
+    --text-sub: #b88686;
+    --accent: #ff4d4d;
+}
+
+/* 🌊 深海の神殿 (Abyss) */
+body.env-abyss {
+    --bg-gradient: #0e1828;
+    --card-bg: #132035;
+    --border: #070e1a;
+    --text-main: #e0f2fe;
+    --text-sub: #7dd3fc;
+    --accent: #38bdf8;
+}
+
+/* 🍃 天空の樹海 (Sky Forest) */
+body.env-sky {
+    --bg-gradient: #102118;
+    --card-bg: #152b20;
+    --border: #09140e;
+    --text-main: #ecfdf5;
+    --text-sub: #6ee7b7;
+    --accent: #10b981;
+}
+
+/* 🏜️ 砂漠の巨石遺跡 (Earth Ruins) */
+body.env-earth {
+    --bg-gradient: #241b14;
+    --card-bg: #2d221a;
+    --border: #140d09;
+    --text-main: #fef3c7;
+    --text-sub: #d97706;
+    --accent: #f59e0b;
+}
+
+/* 📟 初代レトロGB (GameBoy 4-shade Green) */
+body.env-gameboy {
+    --bg-gradient: #1f2a1b;
+    --card-bg: #273623;
+    --border: #0f150d;
+    --text-main: #d1e2c4;
+    --text-sub: #8bac0f;
+    --accent: #9bbc0f;
+}
+
+/* 📜 星降る神殿（Classic） */
+body.env-classic {
+    --bg-gradient: #1a1a24;
+    --card-bg: #1a1a24;
+    --border: #0d0d13;
+    --text-main: #f4ede2;
+    --text-sub: #a0a0b0;
+    --accent: #f4ede2;
+}
+
+/* 🌿 Environment Badge in Header */
+.env-badge-container {
+    margin-top: 0.4rem;
+    display: flex;
+    justify-content: center;
+}
+.env-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.75rem;
+    background: #12121c;
+    border: 2px solid var(--border);
+    box-shadow: 2px 2px 0px var(--border);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+}
+
+/* 🏷️ Room Group Label enhancement (Room Icon & Color) */
+.group-label {
+    display: flex !important;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: var(--text-main) !important;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid #222230;
+    padding-bottom: 0.25rem;
+}
+
+/* ✔ Done button indicator enhancement */
+.quick-add-btn.done .done-check-badge {
+    margin-left: 0.3rem;
+    color: #10b981;
+    font-weight: 900;
+    text-decoration: none !important;
+    display: inline-block;
+}
+
+/* 🎴 Theme Selection Cards in Settings */
+.theme-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.theme-card-btn {
+    background: #12121c;
+    border: 3px solid #0d0d13;
+    box-shadow: 3px 3px 0px #0d0d13;
+    padding: 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text-main);
+    transition: transform 0.1s, border-color 0.1s;
+}
+.theme-card-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0px #0d0d13;
+}
+.theme-card-btn.active {
+    border-color: var(--accent) !important;
+    background: #1c1c28;
+    box-shadow: 3px 3px 0px var(--accent) !important;
+}
+.theme-card-icon {
+    font-size: 20px;
+    margin-bottom: 0.2rem;
+}
+.theme-card-name {
+    font-size: 12px;
+    font-weight: 700;
+}
+.theme-card-boost {
+    font-size: 10px;
+    color: var(--accent);
+    margin-top: 0.15rem;
+}
+
+
 
 
 
