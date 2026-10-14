@@ -150,7 +150,12 @@ function updateCompanionWidget() {
     const envTheme = kajigonState.environmentTheme || 'classic';
 
     if (stage === 'egg') {
-        companionImgHtml = `<div style="font-size:72px; animation:petFloat 2s ease-in-out infinite;">🥚</div>`;
+        companionImgHtml = `
+            <div style="position:relative; display:flex; flex-direction:column; align-items:center;">
+                <img class="companion-avatar-img" src="images/spirits/egg.png" alt="ドラゴンの卵" style="width:90px; height:90px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.6)); animation:petFloat 2s ease-in-out infinite;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="font-size:72px; display:none; animation:petFloat 2s ease-in-out infinite;">🥚</div>
+            </div>
+        `;
     } else if (stage === 'baby') {
         companionImgHtml = `
             <div style="position:relative; display:flex; flex-direction:column; align-items:center;">
