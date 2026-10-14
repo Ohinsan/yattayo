@@ -2471,3 +2471,142 @@ body.theme-earth .tamagotchi-room {
 
 
 
+
+/* ==========================================================================
+   ✨ v2.6.0 新機能スタイル（トースト、スマートUndo、窓、テーマ壁紙、工房）
+   ========================================================================== */
+
+/* 🍞 グローバルトースト通知 */
+.global-toast-container {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    width: 90%;
+    max-width: 420px;
+}
+.global-toast-item {
+    pointer-events: auto;
+    background: #181824;
+    color: #fff;
+    border: 2px solid var(--accent, #ffd700);
+    border-radius: 24px;
+    padding: 0.6rem 1.2rem;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+    animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    width: 100%;
+}
+.global-toast-item.toast-undo {
+    border-color: #f87171;
+    background: #201214;
+}
+.global-toast-item.toast-fading {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+.toast-undo-btn {
+    background: #f87171;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.25rem 0.65rem;
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.1s ease;
+}
+.toast-undo-btn:active {
+    transform: scale(0.95);
+}
+@keyframes toastSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ↩️ スマートUndoボタンのパルス発光 */
+.quick-add-btn.undo-ready {
+    border-color: #f87171 !important;
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.6) !important;
+    animation: undoPulse 1.2s infinite alternate;
+}
+@keyframes undoPulse {
+    from {
+        border-color: #f87171;
+    }
+    to {
+        border-color: #ffd700;
+    }
+}
+
+/* 🪟 窓の時間帯別（朝・昼・夕・夜）スタイル */
+.room-window.window-morning {
+    background: linear-gradient(180deg, #60a5fa 0%, #bae6fd 100%) !important;
+    border-color: #7dd3fc !important;
+}
+.room-window.window-day {
+    background: linear-gradient(180deg, #38bdf8 0%, #93c5fd 100%) !important;
+    border-color: #60a5fa !important;
+}
+.room-window.window-evening {
+    background: linear-gradient(180deg, #ea580c 0%, #fbbf24 100%) !important;
+    border-color: #f97316 !important;
+}
+.room-window.window-night {
+    background: #090914 !important;
+    border-color: #2e2e48 !important;
+}
+
+/* 🌋 6大テーマ背景（Lv.10解放壁紙パターン） */
+body.env-volcano .tamagotchi-room {
+    background: radial-gradient(circle at 50% 30%, #35151a 0%, #1c0a0d 100%) !important;
+    box-shadow: inset 0 0 50px rgba(225, 29, 72, 0.2);
+}
+body.env-abyss .tamagotchi-room {
+    background: radial-gradient(circle at 50% 30%, #0d2847 0%, #061324 100%) !important;
+    box-shadow: inset 0 0 50px rgba(56, 189, 248, 0.2);
+}
+body.env-sky .tamagotchi-room {
+    background: radial-gradient(circle at 50% 30%, #133824 0%, #07170e 100%) !important;
+    box-shadow: inset 0 0 50px rgba(16, 185, 129, 0.2);
+}
+body.env-earth .tamagotchi-room {
+    background: radial-gradient(circle at 50% 30%, #3b2816 0%, #1c1208 100%) !important;
+    box-shadow: inset 0 0 50px rgba(245, 158, 11, 0.2);
+}
+body.env-gameboy .tamagotchi-room {
+    background: #243320 !important;
+    border-color: #8bac0f !important;
+}
+
+/* 📜 古代の石板画像共有ボタン強調 */
+.btn-share-ancient {
+    background: linear-gradient(135deg, #8b5a2b 0%, #c8924b 100%) !important;
+    color: #fff !important;
+    border: 2px solid #ffd700 !important;
+    box-shadow: 0 4px 12px rgba(200, 146, 75, 0.4) !important;
+    font-weight: 900 !important;
+}
+.btn-share-ancient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(200, 146, 75, 0.6) !important;
+}

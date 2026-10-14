@@ -27,7 +27,7 @@
         if ('caches' in window) {
             caches.keys().then(function(names) {
                 for (var name of names) {
-                    if (name !== 'kajigon-cache-v2.5.5') {
+                    if (name !== 'kajigon-cache-v2.6.0') {
                         caches.delete(name);
                     }
                 }
@@ -37,12 +37,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.5.5">
+    <link rel="stylesheet" href="style.css?v=2.6.0">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a24">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="dragon_all.png">
+    <link rel="apple-touch-icon" href="images/spirits/dragon_all.png">
 </head>
 
 <body>
@@ -169,11 +169,15 @@
                         </div>
                     </div>
 
-                    <!-- 👉 右サイドのコンパクトUI（家事きろく・共有・図鑑・設定） -->
+                    <!-- 👉 右サイドのコンパクトUI（家事きろく・工房・共有・図鑑・設定） -->
                     <div class="room-side-col room-side-right">
                         <button class="side-action-btn side-add-btn" onclick="openChoreSelectModal()" title="家事を記録する">
                             <span class="side-btn-icon">🔨</span>
                             <span class="side-btn-label">家事きろく</span>
+                        </button>
+                        <button class="side-action-btn side-workshop-btn" onclick="openWorkshopModal()" title="おうち工房（家具クラフト＆週末行商人）">
+                            <span class="side-btn-icon">🪚</span>
+                            <span class="side-btn-label">工房</span>
                         </button>
                         <button class="side-action-btn side-share-btn" onclick="openShareActionModal()" title="家族に共有する">
                             <span class="side-btn-icon">📱</span>
@@ -406,22 +410,72 @@
         </div>
     </div>
 
-    <!-- 📖 守護精霊図鑑（ずかん）モーダル -->
+    <!-- 📖 守護精霊図鑑（ずかん）＆かるた＆殿堂 モーダル -->
     <div id="book-modal" class="spell-overlay hidden">
         <div class="spell-content" style="max-width: 540px; max-height: 85vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                <h3 class="spell-title" style="margin:0;">📖 守護精霊図鑑</h3>
+                <h3 class="spell-title" style="margin:0;">📖 我が家の冒険大図鑑</h3>
                 <button onclick="closeBookModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
-            <p class="spell-desc">過去にLv10まで成長した歴代の守護精霊たちと、これまでに発見した精霊の記録です。</p>
+
+            <!-- タブ切り替えボタン -->
+            <div style="display:flex; gap:0.4rem; margin-bottom:0.8rem;">
+                <button onclick="switchBookTab('spirits')" style="flex:1; padding:0.4rem; font-weight:bold; font-size:12px; border-radius:4px; border:1px solid var(--accent); background:#14141f; color:#fff; cursor:pointer;">🐉 守護精霊</button>
+                <button onclick="switchBookTab('karuta')" style="flex:1; padding:0.4rem; font-weight:bold; font-size:12px; border-radius:4px; border:1px solid #8b5cf6; background:#14141f; color:#fff; cursor:pointer;">🥠 デイリーかるた</button>
+                <button onclick="switchBookTab('hall_of_fame')" style="flex:1; padding:0.4rem; font-weight:bold; font-size:12px; border-radius:4px; border:1px solid #ffd700; background:#14141f; color:#fff; cursor:pointer;">🏛️ 歴代殿堂</button>
+            </div>
             
-            <div id="book-list-container" style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+            <div id="book-content-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
                 <!-- JSで動的生成 -->
             </div>
 
             <div class="spell-btn-group" style="margin-top: 1.5rem;">
                 <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeBookModal()">お部屋にもどる</button>
             </div>
+        </div>
+    </div>
+
+    <!-- 🪚 おうち工房（家具クラフト＆週末行商人）モーダル -->
+    <div id="workshop-modal" class="spell-overlay hidden">
+        <div class="spell-content" style="max-width: 520px; max-height: 85vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                <h3 class="spell-title" style="margin:0; color:#fbbf24;">🪚 カジゴンの模様替え工房</h3>
+                <button onclick="closeWorkshopModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
+            </div>
+            <p class="spell-desc">日々の家事で集めた素材（木材・布・レンガ・ネジ）で家具を作り、お部屋を快適にしよう！</p>
+            
+            <div id="workshop-content-container">
+                <!-- JSで動的生成 -->
+            </div>
+
+            <div class="spell-btn-group" style="margin-top: 1.5rem;">
+                <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeWorkshopModal()">お部屋にもどる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🍖 ベビー期のおやつ（大枠系統選択）モーダル -->
+    <div id="snack-modal" class="spell-overlay hidden">
+        <div class="spell-content" style="max-width: 440px; text-align: center;">
+            <h3 class="spell-title" style="margin-bottom:0.5rem; color:#ffd700;">🍖 おやつをあげよう！</h3>
+            <p class="spell-desc" style="margin-bottom:1rem;">ベビー期のカジゴンにおやつをあげると、将来の進化系統の兆候が現れます！</p>
+            
+            <div style="display:flex; flex-direction:column; gap:0.8rem; margin-bottom:1.2rem;">
+                <button onclick="feedBabySnack('golem')" style="background:#1e1b24; border:2px solid #a855f7; border-radius:8px; padding:0.8rem; text-align:left; cursor:pointer; color:#fff;">
+                    <div style="font-weight:bold; font-size:14px; color:#c084fc; margin-bottom:0.2rem;">⚙️ 古代のネジおやつ ➔ 【魔ゴーレム系統】</div>
+                    <div style="font-size:11px; color:#a1a1aa;">機械仕掛けの頑丈な躯体を持つ魔導ロボットを目指す！</div>
+                </button>
+                <button onclick="feedBabySnack('dragon')" style="background:#1e1b24; border:2px solid #ef4444; border-radius:8px; padding:0.8rem; text-align:left; cursor:pointer; color:#fff;">
+                    <div style="font-weight:bold; font-size:14px; color:#f87171; margin-bottom:0.2rem;">🍖 ドラゴン肉 ➔ 【王道ドラゴン系統】</div>
+                    <div style="font-size:11px; color:#a1a1aa;">大空を舞い、属性のブレスを吐く堂々たる伝説龍を目指す！</div>
+                </button>
+                <button onclick="feedBabySnack('fairy')" style="background:#1e1b24; border:2px solid #10b981; border-radius:8px; padding:0.8rem; text-align:left; cursor:pointer; color:#fff;">
+                    <div style="font-weight:bold; font-size:14px; color:#34d399; margin-bottom:0.2rem;">🍯 妖精のハチミツ ➔ 【妖精・レリック系統】</div>
+                    <div style="font-size:11px; color:#a1a1aa;">料理小人や魔導書など、生活に寄り添う愛らしい妖精を目指す！</div>
+                </button>
+            </div>
+
+            <button class="btn-spell-action btn-spell-cancel" style="width:100%;" onclick="closeBabySnackModal()">あとであげる</button>
         </div>
     </div>
 
@@ -577,16 +631,30 @@
         </div>
     </div>
 
-    <!-- JavaScript Data Files -->
-    <script src="js/data/bosses.js?v=2.5.5"></script>
-    <script src="js/data/karuta.js?v=2.5.5"></script>
-    <script src="js/data/furniture.js?v=2.5.5"></script>
-    <script src="js/data/spirit_profiles.js?v=2.5.5"></script>
-    <script src="js/data/dialogues.js?v=2.5.5"></script>
-    <script src="js/data/newspaper.js?v=2.5.5"></script>
+    <!-- JavaScript Modular Architecture (v2.6.0) -->
+    <!-- 1. Data Modules -->
+    <script src="js/data/bosses.js?v=2.6.0"></script>
+    <script src="js/data/karuta.js?v=2.6.0"></script>
+    <script src="js/data/spirit_profiles.js?v=2.6.0"></script>
+    <script src="js/data/dialogues.js?v=2.6.0"></script>
+    <script src="js/data/newspaper.js?v=2.6.0"></script>
 
-    <!-- Main Application Logic -->
-    <script src="script.js?v=2.5.5"></script>
+    <!-- 2. Core Modules -->
+    <script src="js/core/sound.js?v=2.6.0"></script>
+    <script src="js/core/state.js?v=2.6.0"></script>
+
+    <!-- 3. Components -->
+    <script src="js/components/toast.js?v=2.6.0"></script>
+    <script src="js/components/furniture.js?v=2.6.0"></script>
+    <script src="js/components/bosses.js?v=2.6.0"></script>
+    <script src="js/components/encyclopedia.js?v=2.6.0"></script>
+    <script src="js/components/stone_tablet.js?v=2.6.0"></script>
+    <script src="js/components/newspaper.js?v=2.6.0"></script>
+    <script src="js/components/companion.js?v=2.6.0"></script>
+    <script src="js/components/chores.js?v=2.6.0"></script>
+
+    <!-- 4. Main Entrypoint -->
+    <script src="script.js?v=2.6.0"></script>
 </body>
 
 </html>

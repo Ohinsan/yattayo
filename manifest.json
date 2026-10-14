@@ -8,7 +8,7 @@
   "theme_color": "#1a1a24",
   "icons": [
     {
-      "src": "dragon_all.png",
+      "src": "images/spirits/dragon_all.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
