@@ -137,7 +137,8 @@ function updateCompanionWidget() {
     const statusExpEl = document.getElementById('room-status-exp');
 
     if (statusNameEl) {
-        statusNameEl.innerHTML = `✅ ${dragonName} (LV.${lv}) <span onclick="openRenameCompanionModal()" style="font-size:11px; cursor:pointer; color:#fbbf24; text-decoration:underline;">[改名]</span>`;
+        const rebreedTag = lv >= 10 ? ` <span onclick="rebreedCompanion()" style="font-size:11px; cursor:pointer; color:#f97316; text-decoration:underline; font-weight:bold;">[🥚そだてなおす]</span>` : '';
+        statusNameEl.innerHTML = `✅ ${dragonName} (LV.${lv}) <span onclick="openRenameCompanionModal()" style="font-size:11px; cursor:pointer; color:#fbbf24; text-decoration:underline;">[改名]</span>${rebreedTag}`;
     }
     if (statusExpEl) {
         const nextLvExp = lv * 150;
@@ -181,8 +182,13 @@ function updateCompanionWidget() {
         const evolved = getEvolvedForm();
         recordToEncyclopedia(evolved);
         companionImgHtml = `
-            <img class="companion-avatar-img" src="${evolved.file}" alt="${evolved.name}" style="width:150px; height:150px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 6px 12px rgba(0,0,0,0.7)); animation:petFloat 2s ease-in-out infinite;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-            <div style="font-size:72px; display:none;">🐉</div>
+            <div style="position:relative; display:flex; flex-direction:column; align-items:center;">
+                <img class="companion-avatar-img" src="${evolved.file}" alt="${evolved.name}" style="width:150px; height:150px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 6px 12px rgba(0,0,0,0.7)); animation:petFloat 2s ease-in-out infinite;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="font-size:72px; display:none;">🐉</div>
+                <button onclick="event.stopPropagation(); rebreedCompanion();" style="margin-top:0.4rem; padding:0.3rem 0.8rem; background:linear-gradient(135deg, #f59e0b, #d97706); color:#0d0d13; font-weight:800; font-size:11px; border:2px solid #fbbf24; border-radius:12px; cursor:pointer; box-shadow:0 3px 8px rgba(0,0,0,0.5); animation:bounce 2s infinite;">
+                    🥚 そだてなおす (世代交代)
+                </button>
+            </div>
         `;
     }
 

@@ -461,6 +461,11 @@ function renderHallOfFameTab() {
                 `).join('')}
             </div>
         `}
+        <div style="margin-top: 1.2rem; text-align: center;">
+            <button onclick="closeBookModal(); rebreedCompanion();" style="background: rgba(234, 88, 12, 0.2); border: 2px solid #ea580c; color: #f97316; font-size: 13px; font-weight: bold; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; width: 100%;">
+                🥚 新しい相棒をそだてなおす（世代交代）
+            </button>
+        </div>
     `;
 
     container.innerHTML = html;

@@ -27,7 +27,7 @@
         if ('caches' in window) {
             caches.keys().then(function(names) {
                 for (var name of names) {
-                    if (name !== 'kajigon-cache-v2.6.2') {
+                    if (name !== 'kajigon-cache-v2.6.3') {
                         caches.delete(name);
                     }
                 }
@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.6.2">
+    <link rel="stylesheet" href="style.css?v=2.6.3">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a24">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -285,7 +285,10 @@
                 <button class="btn-spell-action btn-spell-cast" onclick="saveSettings()">保存して反映</button>
             </div>
 
-            <div style="margin-top: 1rem; border-top: 1px dashed var(--border-color); padding-top: 0.8rem; text-align: center;">
+            <div style="margin-top: 1rem; border-top: 1px dashed var(--border-color); padding-top: 0.8rem; text-align: center; display: flex; flex-direction: column; gap: 0.5rem;">
+                <button type="button" class="btn-settings-rebreed" onclick="closeSettingsModal(); rebreedCompanion();" style="background: rgba(234, 88, 12, 0.15); border: 1px solid #ea580c; color: #f97316; font-size: 12px; font-weight: bold; padding: 0.5rem 0.8rem; border-radius: 6px; cursor: pointer;">
+                    🥚 相棒をそだてなおす（世代交代・殿堂入り）
+                </button>
                 <button type="button" onclick="forceReloadApp()" style="background: none; border: 1px solid var(--border-color); color: var(--text-sub); font-size: 11px; padding: 0.35rem 0.7rem; border-radius: 4px; cursor: pointer;">
                     🔄 画面が変わらない時はここをタップ（最新版へ強制更新）
                 </button>
@@ -331,7 +334,12 @@
             <div class="ending-scroll-text" id="ending-scroll-content">
                 <!-- JSで動的にメッセージを生成 -->
             </div>
-            <button class="btn-ending-close" onclick="closeEndingModal()">記録に戻る</button>
+            <div style="display: flex; flex-direction: column; gap: 0.6rem; width: 100%; margin-top: 1rem;">
+                <button class="btn-ending-rebreed" onclick="closeEndingModal(); rebreedCompanion();" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #0d0d13; font-weight: 800; padding: 0.8rem; border-radius: 8px; border: 2px solid #fbbf24; cursor: pointer; font-size: 14px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+                    🥚 歴代殿堂入りして新しい卵から育てる！
+                </button>
+                <button class="btn-ending-close" onclick="closeEndingModal()">まだこの相棒とお部屋にいる</button>
+            </div>
         </div>
     </div>
 
@@ -390,7 +398,12 @@
     <!-- 📜 古代の石板画像プレビュー・シェアモーダル -->
     <div id="ancient-scroll-modal" class="spell-overlay hidden">
         <div class="spell-content" style="max-width: 520px; max-height: 90vh; overflow-y: auto;">
-            <h3 class="spell-title">📜 古代の家事碑文</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <h3 class="spell-title" style="margin: 0;">📜 古代の家事碑文</h3>
+                <button type="button" class="btn-ancient-close-header" onclick="closeAncientScrollModal()" style="background: none; border: 1px solid var(--border-color); color: var(--text-sub); font-size: 13px; font-weight: bold; padding: 0.35rem 0.7rem; border-radius: 6px; cursor: pointer;">
+                    ✕ お部屋へ
+                </button>
+            </div>
             <p class="spell-desc">本日の奉納（家事）が刻まれた石板画像です。長押しやボタンから保存・共有できます。</p>
             
             <div id="ancient-canvas-container" class="ancient-canvas-preview-wrapper" style="text-align: center; margin: 1rem 0;">
@@ -634,30 +647,30 @@
         </div>
     </div>
 
-    <!-- JavaScript Modular Architecture (v2.6.2) -->
+    <!-- JavaScript Modular Architecture (v2.6.3) -->
     <!-- 1. Data Modules -->
-    <script src="js/data/bosses.js?v=2.6.2"></script>
-    <script src="js/data/karuta.js?v=2.6.2"></script>
-    <script src="js/data/spirit_profiles.js?v=2.6.2"></script>
-    <script src="js/data/dialogues.js?v=2.6.2"></script>
-    <script src="js/data/newspaper.js?v=2.6.2"></script>
+    <script src="js/data/bosses.js?v=2.6.3"></script>
+    <script src="js/data/karuta.js?v=2.6.3"></script>
+    <script src="js/data/spirit_profiles.js?v=2.6.3"></script>
+    <script src="js/data/dialogues.js?v=2.6.3"></script>
+    <script src="js/data/newspaper.js?v=2.6.3"></script>
 
     <!-- 2. Core Modules -->
-    <script src="js/core/sound.js?v=2.6.2"></script>
-    <script src="js/core/state.js?v=2.6.2"></script>
+    <script src="js/core/sound.js?v=2.6.3"></script>
+    <script src="js/core/state.js?v=2.6.3"></script>
 
     <!-- 3. Components -->
-    <script src="js/components/toast.js?v=2.6.2"></script>
-    <script src="js/components/furniture.js?v=2.6.2"></script>
-    <script src="js/components/bosses.js?v=2.6.2"></script>
-    <script src="js/components/encyclopedia.js?v=2.6.2"></script>
-    <script src="js/components/stone_tablet.js?v=2.6.2"></script>
-    <script src="js/components/newspaper.js?v=2.6.2"></script>
-    <script src="js/components/companion.js?v=2.6.2"></script>
-    <script src="js/components/chores.js?v=2.6.2"></script>
+    <script src="js/components/toast.js?v=2.6.3"></script>
+    <script src="js/components/furniture.js?v=2.6.3"></script>
+    <script src="js/components/bosses.js?v=2.6.3"></script>
+    <script src="js/components/encyclopedia.js?v=2.6.3"></script>
+    <script src="js/components/stone_tablet.js?v=2.6.3"></script>
+    <script src="js/components/newspaper.js?v=2.6.3"></script>
+    <script src="js/components/companion.js?v=2.6.3"></script>
+    <script src="js/components/chores.js?v=2.6.3"></script>
 
     <!-- 4. Main Entrypoint -->
-    <script src="script.js?v=2.6.2"></script>
+    <script src="script.js?v=2.6.3"></script>
 </body>
 
 </html>
