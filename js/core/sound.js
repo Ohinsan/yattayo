@@ -1,4 +1,4 @@
-﻿// ==========================================================================
+// ==========================================================================
 // --- 🎵 8-bit Retro Sound Engine (Web Audio API Synthesizer) ---
 // ==========================================================================
 const SoundEngine = {
@@ -428,4 +428,15 @@ window.addEventListener('click', function() {
 window.addEventListener('touchstart', function() {
     SoundEngine.resume();
 }, { once: true });
+
+// Global helper functions
+function playSE(type) {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE(type);
+}
+function toggleBGM() {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.toggleBGM();
+}
+function setBGMTrack(track) {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.setBGMTrack(track);
+}
 

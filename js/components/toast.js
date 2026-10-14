@@ -74,3 +74,59 @@ function hideToast() {
         currentToastTimeout = null;
     }
 }
+
+// ==========================================================================
+// 🥠 かるた・おみくじ トースト通知
+// ==========================================================================
+let fortuneToastTimer = null;
+
+function triggerFortuneToast(force = false) {
+    if (!force && Math.random() > 0.4) return;
+
+    const toast = document.getElementById('fortune-toast');
+    const rankEl = document.getElementById('fortune-toast-rank');
+    const textEl = document.getElementById('fortune-toast-text');
+    if (!toast || !rankEl || !textEl) return;
+
+    const list = (typeof EXPANDED_KARUTA_LIST !== 'undefined') ? EXPANDED_KARUTA_LIST : [];
+    if (list.length === 0) return;
+
+    const chosen = list[Math.floor(Math.random() * list.length)];
+    
+    // かるた帳にコレクション保存
+    if (chosen.id && typeof saveUnlockedKaruta === 'function') {
+        saveUnlockedKaruta(chosen.id);
+    }
+
+    rankEl.textContent = chosen.rank;
+    textEl.textContent = chosen.text;
+
+    // 超レアかるたの虹色グロー演出
+    if (chosen.rarity === 'ultra') {
+        rankEl.style.background = 'linear-gradient(90deg, #ff007f, #7928ca, #0070f3, #00dfd8)';
+        rankEl.style.color = '#fff';
+        rankEl.style.boxShadow = '0 0 10px rgba(255, 0, 128, 0.8)';
+    } else {
+        rankEl.style.background = '';
+        rankEl.style.color = '';
+        rankEl.style.boxShadow = '';
+    }
+
+    toast.classList.remove('hidden');
+
+    if (fortuneToastTimer) clearTimeout(fortuneToastTimer);
+    fortuneToastTimer = setTimeout(() => {
+        hideFortuneToast();
+    }, 4200);
+}
+
+function hideFortuneToast() {
+    const toast = document.getElementById('fortune-toast');
+    if (toast) {
+        toast.classList.add('hidden');
+    }
+    if (fortuneToastTimer) {
+        clearTimeout(fortuneToastTimer);
+        fortuneToastTimer = null;
+    }
+}

@@ -192,13 +192,24 @@ function resetDayOnly() {
     }
 }
 
+function resetAppFully() {
+    if (window.confirm('本当にアプリのすべての設定とデータを完全初期化しますか？\n家事履歴、相棒の成長、集めた素材や家具などのすべてのデータがリセットされます。')) {
+        try {
+            localStorage.clear();
+        } catch (e) {
+            console.error(e);
+        }
+        window.location.reload();
+    }
+}
+
 /**
  * クイック追加ボタンのレンダリング
  */
 function renderQuickAddButtons() {
     const container = document.getElementById('quick-add-container');
     if (!container) return;
-    const base = BASE_TEMPLATES[currentLayout];
+    const base = BASE_TEMPLATES[currentLayout] || (currentLayout && BASE_TEMPLATES[currentLayout.toLowerCase()]) || BASE_TEMPLATES['2ldk'] || BASE_TEMPLATES['2LDK'];
     if (!base) return;
 
     const todayStr = getTodayDateString();

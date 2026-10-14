@@ -176,6 +176,10 @@ const BASE_TEMPLATES = {
         { id: 'trash', defaultName: 'ゴミ捨て', chores: ['ごみ捨て'] }
     ]
 };
+BASE_TEMPLATES['1LDK'] = BASE_TEMPLATES['1ldk'];
+BASE_TEMPLATES['2LDK'] = BASE_TEMPLATES['2ldk'];
+BASE_TEMPLATES['3LDK+'] = BASE_TEMPLATES['3ldk'];
+BASE_TEMPLATES['3LDK'] = BASE_TEMPLATES['3ldk'];
 
 function getRoomIcon(roomId, roomName) {
     if (roomId === 'kitchen' || roomName.includes('キッチン')) return '🍳';

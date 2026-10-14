@@ -1,8 +1,8 @@
 // ==========================================================================
-// 🐉 家事分担くん (v2.6.0) - メイン・エントリーポイント
+// 🐉 家事分担くん (v2.6.1) - メイン・エントリーポイント
 // ==========================================================================
 
-const APP_VERSION = '2.6.0';
+const APP_VERSION = '2.6.1';
 let tempSettingsLayout = '2ldk';
 let tempSettingsFloors = 1;
 let tempSettingsEnvTheme = null;
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         document.getElementById('setup-screen').classList.remove('hidden');
         document.getElementById('main-screen').classList.add('hidden');
-        generateSetupRoomFields();
+        updateSetupUI();
     }
 
     // 毎分、窓の時間帯チェック
@@ -46,48 +46,66 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================================================
-// 🛠️ 間取りセットアップ画面
+// 🛠️ 間取りセットアップ画面（3-Step ボタン選択UI）
 // ==========================================================================
-function onSetupLayoutChange() {
-    generateSetupRoomFields();
+let tempLayout = '2LDK';
+let tempFloors = 1;
+let tempPlayers = 1;
+
+function setSetupLayout(layout) {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
+    tempLayout = layout;
+    updateSetupUI();
 }
 
-function generateSetupRoomFields() {
-    const layout = document.getElementById('setupLayout').value;
-    const container = document.getElementById('setupRoomFields');
-    if (!container) return;
+function setSetupFloors(floors) {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
+    tempFloors = floors;
+    updateSetupUI();
+}
 
-    const base = BASE_TEMPLATES[layout] || [];
-    container.innerHTML = base.map(section => {
-        if (section.id === 'trash') return '';
-        const icon = getRoomIcon(section.id, section.defaultName);
-        return `
-            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
-                <span>${icon}</span>
-                <input type="text" id="setup_room_${section.id}" value="${section.defaultName}" placeholder="${section.defaultName}" style="flex:1; padding:0.4rem; background:#14141f; color:#fff; border:1px solid #444; border-radius:4px; font-size:12px;">
-            </div>
-        `;
-    }).join('');
+function setSetupPlayers(players) {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
+    tempPlayers = players;
+    updateSetupUI();
+}
+
+function updateSetupUI() {
+    ['1ldk', '2ldk', '3ldk'].forEach(lay => {
+        const btn = document.getElementById(`setup-${lay}`);
+        if (btn) {
+            if (lay === tempLayout.toLowerCase().replace('+', '')) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+    });
+
+    [1, 2, 3].forEach(fl => {
+        const btn = document.getElementById(`setup-floor${fl}`);
+        if (btn) {
+            if (fl === tempFloors) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+    });
+
+    [1, 2, 3].forEach(pl => {
+        const btn = document.getElementById(`setup-player${pl}`);
+        if (btn) {
+            if (pl === tempPlayers) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+    });
 }
 
 function submitSetup() {
     if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
-    const layout = document.getElementById('setupLayout').value;
-    const floors = parseInt(document.getElementById('setupFloors').value, 10) || 1;
-    const players = parseInt(document.getElementById('setupPlayers').value, 10) || 1;
+    currentLayout = tempLayout;
+    currentFloors = tempFloors;
+    playerCount = tempPlayers;
 
-    currentLayout = layout;
-    currentFloors = floors;
-    playerCount = players;
     customRoomNames = {};
-
-    const base = BASE_TEMPLATES[layout] || [];
-    base.forEach(section => {
-        if (section.id === 'trash') return;
-        const input = document.getElementById(`setup_room_${section.id}`);
-        if (input && input.value.trim()) {
-            customRoomNames[section.id] = input.value.trim();
-        }
+    const base = BASE_TEMPLATES[currentLayout] || BASE_TEMPLATES['2LDK'];
+    base.forEach(room => {
+        customRoomNames[room.id] = room.defaultName;
     });
 
     saveToLocalStorage();
@@ -116,9 +134,9 @@ function openSettingsModal() {
     tempSettingsFloors = currentFloors;
     tempSettingsEnvTheme = kajigonState.environmentTheme || 'classic';
 
-    const layoutSelect = document.getElementById('settingsLayout');
-    const floorsSelect = document.getElementById('settingsFloors');
-    const playersSelect = document.getElementById('settingsPlayers');
+    const layoutSelect = document.getElementById('settings-layout-select');
+    const floorsSelect = document.getElementById('settings-floor-select');
+    const playersSelect = document.getElementById('settings-players-select');
 
     if (layoutSelect) layoutSelect.value = currentLayout;
     if (floorsSelect) floorsSelect.value = currentFloors;
@@ -176,11 +194,12 @@ function selectSettingsTheme(key) {
 }
 
 function generateSettingsRoomFields() {
-    const layout = document.getElementById('settingsLayout') ? document.getElementById('settingsLayout').value : currentLayout;
+    const layoutSelect = document.getElementById('settings-layout-select');
+    const layout = layoutSelect ? layoutSelect.value : currentLayout;
     const container = document.getElementById('settings-room-names-container');
     if (!container) return;
 
-    const base = BASE_TEMPLATES[layout] || [];
+    const base = BASE_TEMPLATES[layout] || BASE_TEMPLATES['2LDK'];
     container.innerHTML = base.map(section => {
         if (section.id === 'trash') return '';
         const curName = customRoomNames[section.id] || section.defaultName;
@@ -200,15 +219,15 @@ function onSettingsLayoutChange() {
 
 function saveSettings() {
     if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
-    const layoutSelect = document.getElementById('settingsLayout');
-    const floorsSelect = document.getElementById('settingsFloors');
-    const playersSelect = document.getElementById('settingsPlayers');
+    const layoutSelect = document.getElementById('settings-layout-select');
+    const floorsSelect = document.getElementById('settings-floor-select');
+    const playersSelect = document.getElementById('settings-players-select');
 
     if (layoutSelect) currentLayout = layoutSelect.value;
     if (floorsSelect) currentFloors = parseInt(floorsSelect.value, 10) || 1;
     if (playersSelect) playerCount = parseInt(playersSelect.value, 10) || 1;
 
-    const base = BASE_TEMPLATES[currentLayout] || [];
+    const base = BASE_TEMPLATES[currentLayout] || BASE_TEMPLATES['2LDK'];
     base.forEach(section => {
         if (section.id === 'trash') return;
         const input = document.getElementById(`settings_room_${section.id}`);
@@ -406,9 +425,10 @@ function updateLuckyChore() {
     const todayStr = getTodayDateString();
     luckyChore = getLuckyChoreForDate(todayStr);
 
-    const badgeContainer = document.getElementById('lucky-chore-container');
+    const badgeContainer = document.getElementById('lucky-chore-widget') || document.getElementById('lucky-chore-container');
     if (badgeContainer) {
         const isDoneToday = kajigonState.lastLuckyDate === todayStr;
+        badgeContainer.style.display = 'block';
         badgeContainer.innerHTML = `
             <div class="lucky-chore-badge" style="${isDoneToday ? 'opacity:0.6; text-decoration:line-through;' : ''}">
                 ⭐ 今日のラッキー家事：${luckyChore} (EXP 1.2倍) ${isDoneToday ? '【達成済】' : ''}
@@ -435,13 +455,19 @@ function triggerEndingPresentation() {
 
     const modal = document.getElementById('ending-modal');
     const imgEl = document.getElementById('ending-dragon-image');
-    const nameEl = document.getElementById('ending-dragon-name');
-    const descEl = document.getElementById('ending-dragon-desc');
+    const titleEl = document.getElementById('ending-celebration-title');
+    const scrollEl = document.getElementById('ending-scroll-content');
 
     const evolved = getEvolvedForm();
     if (imgEl) imgEl.src = evolved.file;
-    if (nameEl) nameEl.textContent = `${evolved.name} （${kajigonState.companionName || 'カジゴン'}）`;
-    if (descEl) descEl.textContent = evolved.desc;
+    if (titleEl) titleEl.textContent = `祝！${evolved.name} に進化！`;
+    if (scrollEl) {
+        scrollEl.innerHTML = `
+            <p style="font-size:16px; font-weight:bold; color:var(--accent); margin-bottom:0.5rem;">相棒「${kajigonState.companionName || 'カジゴン'}」の姿が神々しく変化した！</p>
+            <p style="line-height:1.6; margin-bottom:0.8rem;">${evolved.desc}</p>
+            <p style="font-size:13px; color:#888;">今日までの家事への献身とおうちへの愛に、心からの感謝を！</p>
+        `;
+    }
 
     if (modal) modal.classList.remove('hidden');
     if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('level_up');

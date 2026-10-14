@@ -244,6 +244,24 @@ function getHallOfFameList() {
     }
 }
 
+function getUnlockedKarutaSet() {
+    try {
+        const raw = localStorage.getItem('kajigon_unlocked_karuta');
+        return new Set(raw ? JSON.parse(raw) : []);
+    } catch(e) {
+        return new Set();
+    }
+}
+
+function saveUnlockedKaruta(id) {
+    if (!id) return;
+    try {
+        const set = getUnlockedKarutaSet();
+        set.add(id);
+        localStorage.setItem('kajigon_unlocked_karuta', JSON.stringify(Array.from(set)));
+    } catch(e) {}
+}
+
 // 🥠 毎朝1回デイリーおみくじ
 function getTodayFortuneStatus() {
     const todayStr = getTodayDateString();
@@ -461,7 +479,7 @@ function openSpiritDetailModal(spiritId) {
     };
 
     const modal = document.getElementById('spirit-detail-modal');
-    const body = document.getElementById('spirit-detail-body');
+    const body = document.getElementById('spirit-detail-content') || document.getElementById('spirit-detail-body');
     if (!modal || !body) return;
 
     body.innerHTML = `
