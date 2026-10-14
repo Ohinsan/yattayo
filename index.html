@@ -27,7 +27,7 @@
         if ('caches' in window) {
             caches.keys().then(function(names) {
                 for (var name of names) {
-                    if (name !== 'kajigon-cache-v2.6.1') {
+                    if (name !== 'kajigon-cache-v2.6.2') {
                         caches.delete(name);
                     }
                 }
@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.6.1">
+    <link rel="stylesheet" href="style.css?v=2.6.2">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a24">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -114,9 +114,11 @@
                         <div class="room-status-title" id="room-status-name">✅ カジゴン (LV.1)</div>
                         <div class="room-status-sub" id="room-status-exp">NEXT: 0/10 EXP</div>
                     </div>
-                    <div class="room-lamp" title="あたたかいランプ">
+                    <div class="room-lamp" title="あたたかいランプ" onclick="onFurnitureItemClick('lamp')">
                         <div class="lamp-cord"></div>
-                        <div class="lamp-shade">💡</div>
+                        <div class="lamp-shade">
+                            <img src="images/furniture/lamp.png" alt="あたたかいランプ">
+                        </div>
                         <div class="lamp-glow"></div>
                     </div>
                 </div>
@@ -160,13 +162,13 @@
                         </div>
 
                         <!-- 足元のふかふか丸絨毯 -->
-                        <div class="room-rug"></div>
+                        <div class="room-rug" id="furniture-rug" title="ふかふか丸絨毯"></div>
 
-                        <!-- 部屋の床家具（観葉植物 ＆ シチュー鍋） -->
+                        <!-- 部屋の床家具（観葉植物 ＆ シチュー鍋 ＆ 飾り棚） -->
                         <div class="room-floor-furniture">
-                            <div class="furniture-item item-plant" id="furniture-plant" title="小さな観葉植物">🪴</div>
-                            <div class="furniture-item item-stew" id="furniture-stew" title="ほかほかシチュー鍋">🍲</div>
-                            <div class="furniture-item item-shelf" id="furniture-shelf" title="季節の飾り">🌸</div>
+                            <img class="furniture-item item-plant" id="furniture-plant" src="images/furniture/plant.png" alt="小さな観葉植物" title="小さな観葉植物">
+                            <img class="furniture-item item-stew" id="furniture-stew" src="images/furniture/stew.png" alt="ほかほかシチュー鍋" title="ほかほかシチュー鍋">
+                            <img class="furniture-item item-shelf" id="furniture-shelf" src="images/furniture/bookshelf.png" alt="暮らしの魔導書棚" title="暮らしの魔導書棚">
                         </div>
                     </div>
 
@@ -632,30 +634,30 @@
         </div>
     </div>
 
-    <!-- JavaScript Modular Architecture (v2.6.1) -->
+    <!-- JavaScript Modular Architecture (v2.6.2) -->
     <!-- 1. Data Modules -->
-    <script src="js/data/bosses.js?v=2.6.1"></script>
-    <script src="js/data/karuta.js?v=2.6.1"></script>
-    <script src="js/data/spirit_profiles.js?v=2.6.1"></script>
-    <script src="js/data/dialogues.js?v=2.6.1"></script>
-    <script src="js/data/newspaper.js?v=2.6.1"></script>
+    <script src="js/data/bosses.js?v=2.6.2"></script>
+    <script src="js/data/karuta.js?v=2.6.2"></script>
+    <script src="js/data/spirit_profiles.js?v=2.6.2"></script>
+    <script src="js/data/dialogues.js?v=2.6.2"></script>
+    <script src="js/data/newspaper.js?v=2.6.2"></script>
 
     <!-- 2. Core Modules -->
-    <script src="js/core/sound.js?v=2.6.1"></script>
-    <script src="js/core/state.js?v=2.6.1"></script>
+    <script src="js/core/sound.js?v=2.6.2"></script>
+    <script src="js/core/state.js?v=2.6.2"></script>
 
     <!-- 3. Components -->
-    <script src="js/components/toast.js?v=2.6.1"></script>
-    <script src="js/components/furniture.js?v=2.6.1"></script>
-    <script src="js/components/bosses.js?v=2.6.1"></script>
-    <script src="js/components/encyclopedia.js?v=2.6.1"></script>
-    <script src="js/components/stone_tablet.js?v=2.6.1"></script>
-    <script src="js/components/newspaper.js?v=2.6.1"></script>
-    <script src="js/components/companion.js?v=2.6.1"></script>
-    <script src="js/components/chores.js?v=2.6.1"></script>
+    <script src="js/components/toast.js?v=2.6.2"></script>
+    <script src="js/components/furniture.js?v=2.6.2"></script>
+    <script src="js/components/bosses.js?v=2.6.2"></script>
+    <script src="js/components/encyclopedia.js?v=2.6.2"></script>
+    <script src="js/components/stone_tablet.js?v=2.6.2"></script>
+    <script src="js/components/newspaper.js?v=2.6.2"></script>
+    <script src="js/components/companion.js?v=2.6.2"></script>
+    <script src="js/components/chores.js?v=2.6.2"></script>
 
     <!-- 4. Main Entrypoint -->
-    <script src="script.js?v=2.6.1"></script>
+    <script src="script.js?v=2.6.2"></script>
 </body>
 
 </html>

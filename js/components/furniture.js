@@ -2,12 +2,13 @@
 // 🏡 新・家具＆クラフト工房システム（『カジゴンの模様替え工房』）
 // ==========================================================================
 
-// クラフト可能な基本家具リスト
+// クラフト可能な基本家具リスト（ドット絵アセット連携）
 const CRAFTABLE_FURNITURE = [
     {
         id: 'plant',
         name: '小さな観葉植物',
         icon: '🪴',
+        image: 'images/furniture/plant.png',
         materials: { wood: 2, cloth: 1 },
         desc: '新芽がすくすく育つ癒やしのグリーン',
         buffLabel: '🍃風・🪵土家事 EXP +15%',
@@ -20,6 +21,7 @@ const CRAFTABLE_FURNITURE = [
         id: 'rug',
         name: 'ふかふか絨毯',
         icon: '🛋️',
+        image: 'images/furniture/rug.png',
         materials: { cloth: 3, wood: 1 },
         desc: 'カジゴンがゴロゴロ寝転がる心地よい敷物',
         buffLabel: '💬会話頻度UP ＆ ⚙️ネジ発見率UP',
@@ -32,6 +34,7 @@ const CRAFTABLE_FURNITURE = [
         id: 'lamp',
         name: 'あたたかいランプ',
         icon: '💡',
+        image: 'images/furniture/lamp.png',
         materials: { wood: 2, gear: 1 },
         desc: '夜のひとときをオレンジ色に照らす灯り',
         buffLabel: '🌙夜間家事 (18時以降) EXP +20%',
@@ -44,6 +47,7 @@ const CRAFTABLE_FURNITURE = [
         id: 'stew',
         name: 'ほかほかシチュー鍋',
         icon: '🍲',
+        image: 'images/furniture/stew.png',
         materials: { brick: 3, wood: 1 },
         desc: 'いい匂いが部屋中に漂う栄養満点の鍋',
         buffLabel: '🔥火属性家事 EXP +20%',
@@ -56,6 +60,7 @@ const CRAFTABLE_FURNITURE = [
         id: 'bookshelf',
         name: '暮らしの魔導書棚',
         icon: '📚',
+        image: 'images/furniture/bookshelf.png',
         materials: { wood: 4, brick: 2 },
         desc: 'おうちの知恵とレシピがぎっしり詰まった本棚',
         buffLabel: '⭐全家事の獲得EXP +10%',
@@ -68,6 +73,7 @@ const CRAFTABLE_FURNITURE = [
         id: 'castle',
         name: 'カジゴン神殿の模型',
         icon: '🏰',
+        image: 'images/furniture/castle.png',
         materials: { brick: 5, gear: 3 },
         desc: '家族の協力と毎日の継続を称える小さなお城',
         buffLabel: '👑全家事EXP +15% ＆ ラッキー強化',
@@ -250,12 +256,13 @@ function craftFurniture(furnId) {
 }
 
 /**
- * お部屋内の家具スロット描画
+ * お部屋内の家具スロット描画（ドット絵アセット連携）
  */
 function renderFurnitureInRoom() {
     const plantEl = document.getElementById('furniture-plant');
     const stewEl = document.getElementById('furniture-stew');
     const shelfEl = document.getElementById('furniture-shelf');
+    const rugEl = document.getElementById('furniture-rug');
     const lampEl = document.querySelector('.room-lamp');
 
     const unlocked = new Set(kajigonState.unlockedFurniture || []);
@@ -268,20 +275,24 @@ function renderFurnitureInRoom() {
         stewEl.style.display = unlocked.has('stew') ? 'block' : 'none';
         stewEl.onclick = () => onFurnitureItemClick('stew');
     }
+    if (rugEl) {
+        rugEl.style.display = unlocked.has('rug') ? 'block' : 'none';
+        rugEl.onclick = () => onFurnitureItemClick('rug');
+    }
     if (shelfEl) {
-        // 季節家具または本棚
-        if (unlocked.has('bookshelf')) {
-            shelfEl.textContent = '📚';
+        // 模型・本棚・季節家具の優先表示
+        if (unlocked.has('castle')) {
+            shelfEl.src = 'images/furniture/castle.png';
+            shelfEl.alt = 'カジゴン神殿の模型';
+            shelfEl.title = 'カジゴン神殿の模型';
+            shelfEl.style.display = 'block';
+            shelfEl.onclick = () => onFurnitureItemClick('castle');
+        } else if (unlocked.has('bookshelf')) {
+            shelfEl.src = 'images/furniture/bookshelf.png';
+            shelfEl.alt = '暮らしの魔導書棚';
             shelfEl.title = '暮らしの魔導書棚';
             shelfEl.style.display = 'block';
             shelfEl.onclick = () => onFurnitureItemClick('bookshelf');
-        } else if (unlocked.has('sakura') || unlocked.has('furin') || unlocked.has('pumpkin') || unlocked.has('kotatsu')) {
-            const season = getCurrentSeasonKey();
-            const sf = SEASONAL_MERCHANT_FURNITURE[season];
-            shelfEl.textContent = sf.icon;
-            shelfEl.title = sf.name;
-            shelfEl.style.display = 'block';
-            shelfEl.onclick = () => onFurnitureItemClick(sf.id);
         } else {
             shelfEl.style.display = 'none';
         }
@@ -349,7 +360,11 @@ function renderCraftWorkshopModal() {
                 return `
                     <div class="craft-card" style="background:${isCrafted ? '#0e1812' : '#1c1b26'}; border:2px solid ${isCrafted ? '#10b981' : (canCraft ? '#ffd700' : '#444')}; border-radius:8px; padding:0.6rem 0.8rem; display:flex; align-items:center; justify-content:space-between;">
                         <div style="display:flex; align-items:center; gap:0.6rem;">
-                            <span style="font-size:26px;">${furn.icon}</span>
+                            ${furn.image ? `
+                                <img src="${furn.image}" alt="${furn.name}" style="width:38px; height:38px; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                            ` : `
+                                <span style="font-size:26px;">${furn.icon}</span>
+                            `}
                             <div>
                                 <div style="font-weight:bold; font-size:13px; color:#fff;">${furn.name}</div>
                                 <div style="font-size:11px; color:#a1a1aa;">${furn.buffLabel}</div>

@@ -2096,7 +2096,11 @@ body.env-classic {
     max-width: 580px;
     min-height: 580px;
     margin: 0 auto;
-    background: linear-gradient(180deg, #1b2618 0%, #151e12 62%, #38281b 62%, #221810 100%);
+    background-color: #1c1b26;
+    background-image: linear-gradient(rgba(10, 10, 15, 0.25), rgba(10, 10, 15, 0.45)), url('images/backgrounds/bg_temple.png');
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
     border: 5px solid #2f4327;
     border-radius: 28px;
     box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.85), 0 12px 28px rgba(0, 0, 0, 0.6);
@@ -2106,21 +2110,21 @@ body.env-classic {
     justify-content: space-between;
 }
 
-/* 環境テーマに応じた部屋の壁紙・床カラー変化 */
+/* 属性テーマに応じたドット絵部屋の壁紙・床変化 */
 body.theme-fire .tamagotchi-room {
-    background: linear-gradient(180deg, #2b1414 0%, #1f0c0c 62%, #421c15 62%, #29100a 100%);
+    background-image: linear-gradient(rgba(25, 8, 8, 0.2), rgba(25, 8, 8, 0.4)), url('images/backgrounds/bg_volcano.png');
     border-color: #5c2020;
 }
 body.theme-water .tamagotchi-room {
-    background: linear-gradient(180deg, #0e1e2d 0%, #08121c 62%, #1b2a3d 62%, #0e1620 100%);
+    background-image: linear-gradient(rgba(8, 18, 30, 0.2), rgba(8, 18, 30, 0.4)), url('images/backgrounds/bg_abyss.png');
     border-color: #1e3a5f;
 }
 body.theme-wind .tamagotchi-room {
-    background: linear-gradient(180deg, #14281f 0%, #0c1a14 62%, #2d3824 62%, #1b2216 100%);
+    background-image: linear-gradient(rgba(12, 28, 16, 0.2), rgba(12, 28, 16, 0.4)), url('images/backgrounds/bg_sky.png');
     border-color: #244f3b;
 }
 body.theme-earth .tamagotchi-room {
-    background: linear-gradient(180deg, #261f17 0%, #19140e 62%, #3d2f21 62%, #261d14 100%);
+    background-image: linear-gradient(rgba(30, 20, 12, 0.2), rgba(30, 20, 12, 0.4)), url('images/backgrounds/bg_earth.png');
     border-color: #4f3b27;
 }
 
@@ -2216,13 +2220,26 @@ body.theme-earth .tamagotchi-room {
     background: #ffd700;
 }
 .lamp-shade {
-    font-size: 24px;
-    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.85));
     animation: lampFlicker 3s infinite ease-in-out;
+    cursor: pointer;
+}
+.lamp-shade img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    transition: transform 0.2s;
+}
+.lamp-shade:hover img {
+    transform: scale(1.15);
 }
 @keyframes lampFlicker {
     0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.85; transform: scale(1.05); }
+    50% { opacity: 0.85; transform: scale(1.04); }
 }
 
 /* 🏡 部屋の中央ステージ */
@@ -2378,38 +2395,52 @@ body.theme-earth .tamagotchi-room {
 }
 
 .room-rug {
-    width: 170px;
-    height: 48px;
-    background: radial-gradient(ellipse at center, rgba(139, 172, 15, 0.35) 0%, rgba(139, 172, 15, 0.1) 70%, transparent 100%);
-    border: 2px dashed rgba(139, 172, 15, 0.5);
-    border-radius: 50%;
-    margin-top: -24px;
+    width: 200px;
+    height: 64px;
+    background-image: url('images/furniture/rug.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    margin-top: -30px;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.room-rug:hover {
+    transform: scale(1.05);
 }
 
 /* 部屋の床家具 */
 .room-floor-furniture {
     position: absolute;
-    bottom: 10px;
-    width: 90%;
+    bottom: 12px;
+    width: 92%;
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
     pointer-events: none;
+    z-index: 15;
 }
 .furniture-item {
-    font-size: 28px;
-    filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.6));
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.7));
     pointer-events: auto;
-    transition: transform 0.2s;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
 }
 .furniture-item:hover {
-    transform: scale(1.2) translateY(-4px);
+    transform: scale(1.2) translateY(-6px);
 }
 .item-stew {
-    animation: stewBoil 2s infinite ease-in-out;
+    animation: stewBoil 2.5s infinite ease-in-out;
 }
 @keyframes stewBoil {
     0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-3px) rotate(2deg); }
+    50% { transform: translateY(-4px) rotate(2deg); }
 }
 
 /* 🔻 部屋の最下部：折りたたみ式の「最近やったこと」引き出し */
@@ -2578,23 +2609,32 @@ body.theme-earth .tamagotchi-room {
 
 /* 🌋 6大テーマ背景（Lv.10解放壁紙パターン） */
 body.env-volcano .tamagotchi-room {
-    background: radial-gradient(circle at 50% 30%, #35151a 0%, #1c0a0d 100%) !important;
-    box-shadow: inset 0 0 50px rgba(225, 29, 72, 0.2);
+    background-image: linear-gradient(rgba(25, 8, 8, 0.2), rgba(25, 8, 8, 0.4)), url('images/backgrounds/bg_volcano.png') !important;
+    border-color: #e11d48 !important;
+    box-shadow: inset 0 0 50px rgba(225, 29, 72, 0.3);
 }
 body.env-abyss .tamagotchi-room {
-    background: radial-gradient(circle at 50% 30%, #0d2847 0%, #061324 100%) !important;
-    box-shadow: inset 0 0 50px rgba(56, 189, 248, 0.2);
+    background-image: linear-gradient(rgba(8, 18, 30, 0.2), rgba(8, 18, 30, 0.4)), url('images/backgrounds/bg_abyss.png') !important;
+    border-color: #0284c7 !important;
+    box-shadow: inset 0 0 50px rgba(56, 189, 248, 0.3);
 }
 body.env-sky .tamagotchi-room {
-    background: radial-gradient(circle at 50% 30%, #133824 0%, #07170e 100%) !important;
-    box-shadow: inset 0 0 50px rgba(16, 185, 129, 0.2);
+    background-image: linear-gradient(rgba(12, 28, 16, 0.2), rgba(12, 28, 16, 0.4)), url('images/backgrounds/bg_sky.png') !important;
+    border-color: #059669 !important;
+    box-shadow: inset 0 0 50px rgba(16, 185, 129, 0.3);
 }
 body.env-earth .tamagotchi-room {
-    background: radial-gradient(circle at 50% 30%, #3b2816 0%, #1c1208 100%) !important;
-    box-shadow: inset 0 0 50px rgba(245, 158, 11, 0.2);
+    background-image: linear-gradient(rgba(30, 20, 12, 0.2), rgba(30, 20, 12, 0.4)), url('images/backgrounds/bg_earth.png') !important;
+    border-color: #d97706 !important;
+    box-shadow: inset 0 0 50px rgba(245, 158, 11, 0.3);
+}
+body.env-classic .tamagotchi-room {
+    background-image: linear-gradient(rgba(10, 10, 15, 0.25), rgba(10, 10, 15, 0.45)), url('images/backgrounds/bg_temple.png') !important;
+    border-color: #8b5a2b !important;
 }
 body.env-gameboy .tamagotchi-room {
-    background: #243320 !important;
+    background-image: url('images/backgrounds/bg_gameboy.png') !important;
+    background-size: cover !important;
     border-color: #8bac0f !important;
 }
 
