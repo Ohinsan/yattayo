@@ -39,7 +39,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=2.9.0">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1f1d2b">
+    <meta name="theme-color" content="#1a1a24">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" type="image/png" href="images/spirits/kajigon_baby.png">
@@ -62,7 +62,7 @@
                 <h1 class="title">🏠 家事記録の設定</h1>
                 <p class="subtitle">おうちのタイプを選択してください</p>
             </div>
-
+            
             <div class="setup-card">
                 <!-- STEP 1: 間取りの選択 -->
                 <h3 class="setup-section-title">間取りを選択してください</h3>
@@ -93,14 +93,14 @@
         </div>
     </div>
 
-    <!-- Main Screen (Full-Screen Cozy Dragon Room with Cozy Bottom Navigation) -->
+    <!-- Main Screen (Full-Screen Cozy Dragon Room with Side Buttons) -->
     <div id="main-screen" class="container hidden">
         <div class="app-wrapper">
-
-            <!-- 🏡 全体がカジゴンの暮らす部屋（温かみのある絵本・ファンタジー風ルーム） -->
+            
+            <!-- 🏡 全体がカジゴンの暮らす部屋（たまごっち・ポケスリ風フルスクリーンルーム） -->
             <div id="tamagotchi-room-container" class="tamagotchi-room">
-
-                <!-- 部屋の上部インテリア（星空の窓 & ステータス & あたたかいランプ） -->
+                
+                <!-- 部屋の上部インテリア（星空の窓 & あたたかいランプ） -->
                 <div class="room-decor-top">
                     <div class="room-window" title="星空の見える窓">
                         <div class="window-glass">
@@ -123,42 +123,35 @@
                     </div>
                 </div>
 
-                <!-- 🪆 お部屋のインテリアバッジ棚（控えめなクイックアイコン群） -->
-                <div class="room-interior-badges">
-                    <button class="interior-badge-btn badge-boss" onclick="openBountyModal()" title="突発討伐ボス（名もなき家事）">
-                        <span class="badge-icon">⚔️</span>
-                        <span class="badge-label">ボス</span>
-                        <span id="side-quest-badge" class="side-btn-badge hidden">!</span>
-                    </button>
-                    <button class="interior-badge-btn badge-news" onclick="openWeeklyNewsModal()" title="週刊カジゴン号外通信">
-                        <span class="badge-icon">📰</span>
-                        <span class="badge-label">号外</span>
-                    </button>
-                    <button class="interior-badge-btn badge-karuta" onclick="openKarutaAlbumModal()" title="家事かるた帳（全52種）">
-                        <span class="badge-icon">🥠</span>
-                        <span class="badge-label">かるた</span>
-                    </button>
-                    <button class="interior-badge-btn badge-share" onclick="openShareActionModal()" title="家族に共有する">
-                        <span class="badge-icon">📱</span>
-                        <span class="badge-label">共有</span>
-                    </button>
-                    <button class="interior-badge-btn badge-sound" onclick="openSoundModal()" title="BGM・サウンド設定">
-                        <span class="badge-icon">🎵</span>
-                        <span class="badge-label">サウンド</span>
-                    </button>
-                    <button class="interior-badge-btn badge-settings" onclick="openSettingsModal()" title="お部屋・設定">
-                        <span class="badge-icon">⚙️</span>
-                        <span class="badge-label">設定</span>
-                    </button>
-                </div>
-
-                <!-- 🏡 部屋の中央ステージ（広々としたくつろぎスペース） -->
+                <!-- 🏡 部屋の中央ステージ（サイドUI ＆ カジゴン） -->
                 <div class="room-stage">
-                    <!-- 🏛️ 【フェーズ6】先輩カジゴンのひょっこり里帰り訪問スロット -->
-                    <div id="room-visitor-slot" class="room-visitor-slot hidden" onclick="onVisitorClick(event)" title="先輩カジゴンが遊びに来たぞ！タップでお話ししよう"></div>
+                    
+                    <!-- 👈 左サイドのコンパクトUI（クエスト・かるた・新聞） -->
+                    <div class="room-side-col room-side-left">
+                        <button class="side-action-btn side-quest-btn" onclick="openBountyModal()" title="突発討伐ボス（名もなき家事）">
+                            <span class="side-btn-icon">⚔️</span>
+                            <span class="side-btn-label">討伐ボス</span>
+                            <span id="side-quest-badge" class="side-btn-badge hidden">!</span>
+                        </button>
+                        <button class="side-action-btn side-karuta-btn" onclick="openKarutaAlbumModal()" title="家事かるた帳（全52種）">
+                            <span class="side-btn-icon">🥠</span>
+                            <span class="side-btn-label">かるた</span>
+                        </button>
+                        <button class="side-action-btn side-news-btn" onclick="openWeeklyNewsModal()" title="週刊カジゴン号外通信">
+                            <span class="side-btn-icon">📰</span>
+                            <span class="side-btn-label">号外新聞</span>
+                        </button>
+                        <button class="side-action-btn side-sound-btn" onclick="openSoundModal()" title="BGM・サウンド設定">
+                            <span class="side-btn-icon">🎵</span>
+                            <span class="side-btn-label">サウンド</span>
+                        </button>
+                    </div>
 
                     <!-- 🐉 カジゴン＆中央インテリア（くつろぎスペース） -->
-                    <div class="room-center-pet-area" onclick="onCompanionClick(event)">
+                    <div class="room-center-pet-area" onclick="onCompanionClick()">
+                        <!-- 🏛️ 殿堂入り先輩カジゴンのひょっこり里帰りスロット -->
+                        <div id="room-visitor-slot" class="room-visitor-slot hidden" onclick="event.stopPropagation(); onVisitorClick();"></div>
+
                         <!-- 吹き出しセリフ -->
                         <div id="companion-speech-bubble" class="speech-bubble-pet hidden">
                             <p id="speech-text">シチューのいい匂い！おうち快適だぞ〜！</p>
@@ -166,12 +159,6 @@
 
                         <!-- カジゴン本体スプライト -->
                         <div class="pet-sprite-wrapper" id="room-pet-wrapper">
-                            <!-- 🎁 おみやげ吹き出し（一定時間経過で出現） -->
-                            <div id="companion-gift-bubble" class="companion-gift-bubble hidden" onclick="event.stopPropagation(); claimCompanionGift();" title="おみやげを受け取る！">
-                                <span class="gift-icon">🎁</span>
-                                <span class="gift-sparkle">✨</span>
-                            </div>
-
                             <div id="companion-status-widget">
                                 <!-- JSでスプライト動的配置 -->
                             </div>
@@ -188,14 +175,30 @@
                         </div>
                     </div>
 
-                </div>
+                    <!-- 👉 右サイドのコンパクトUI（家事きろく・工房・共有・図鑑・設定） -->
+                    <div class="room-side-col room-side-right">
+                        <button class="side-action-btn side-add-btn" onclick="openChoreSelectModal()" title="家事を記録する">
+                            <span class="side-btn-icon">🔨</span>
+                            <span class="side-btn-label">家事きろく</span>
+                        </button>
+                        <button class="side-action-btn side-workshop-btn" onclick="openWorkshopModal()" title="おうち工房（家具クラフト＆週末行商人）">
+                            <span class="side-btn-icon">🪚</span>
+                            <span class="side-btn-label">工房</span>
+                        </button>
+                        <button class="side-action-btn side-share-btn" onclick="openShareActionModal()" title="家族に共有する">
+                            <span class="side-btn-icon">📱</span>
+                            <span class="side-btn-label">共有する</span>
+                        </button>
+                        <button class="side-action-btn side-book-btn" onclick="openBookModal()" title="守護精霊図鑑">
+                            <span class="side-btn-icon">📖</span>
+                            <span class="side-btn-label">図鑑</span>
+                        </button>
+                        <button class="side-action-btn side-settings-btn" onclick="openSettingsModal()" title="お部屋・サウンド設定">
+                            <span class="side-btn-icon">⚙️</span>
+                            <span class="side-btn-label">設定</span>
+                        </button>
+                    </div>
 
-                <!-- 📖 カジゴン日記（不在時のつぶやき）エリア -->
-                <div class="companion-diary-card" id="companion-diary-banner" onclick="onDiaryClick()" title="タップで次のつぶやきへ">
-                    <span class="diary-icon">💭</span>
-                    <span class="diary-label">カジゴン日記:</span>
-                    <span id="diary-text" class="diary-text">おうちでいい子に待ってたぞ！</span>
-                    <span class="diary-refresh">🔄</span>
                 </div>
 
                 <!-- 🔻 部屋の最下部：折りたたみ式の「最近やったこと（CHORE LOG）」引き出し -->
@@ -229,45 +232,15 @@
         </div>
     </div>
 
-    <!-- 🏡 固定コージー風ボトムナビゲーションバー（4項目: 🏡 お部屋、🧹 家事きろく、🪚 工房、📖 図鑑） -->
-    <nav id="cozy-bottom-nav" class="cozy-bottom-nav hidden">
-        <div class="bottom-nav-inner">
-            <button class="nav-tab active" onclick="scrollToRoomTop()" id="nav-btn-room" title="お部屋">
-                <span class="nav-icon">🏡</span>
-                <span class="nav-label">お部屋</span>
-            </button>
-
-            <button class="nav-tab" onclick="openWorkshopModal()" id="nav-btn-workshop" title="工房">
-                <span class="nav-icon">🪚</span>
-                <span class="nav-label">工房</span>
-            </button>
-
-            <!-- 中央突出：家事きろく（最優先アクション） -->
-            <div class="nav-main-slot">
-                <button class="nav-main-btn" onclick="openChoreSelectModal()" id="nav-btn-chore" title="家事きろく">
-                    <div class="nav-main-circle">
-                        <span class="nav-main-icon">🧹</span>
-                    </div>
-                    <span class="nav-main-label">家事きろく</span>
-                </button>
-            </div>
-
-            <button class="nav-tab" onclick="openBookModal()" id="nav-btn-book" title="図鑑">
-                <span class="nav-icon">📖</span>
-                <span class="nav-label">図鑑</span>
-            </button>
-        </div>
-    </nav>
-
     <!-- 🔒 ギア設定モーダル (In-app Setup & Room Customization) -->
     <div id="settings-modal" class="spell-overlay hidden">
         <div class="spell-content" style="max-width: 500px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0;">⚙️ 家事記録の設定</h3>
-                <button class="btn-modal-close-header" onclick="closeSettingsModal()">✕ お部屋へ</button>
+                <button onclick="closeSettingsModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
             <p class="spell-desc">間取りやフロア数、各部屋の呼び名をカスタマイズできます。</p>
-
+            
             <!-- Settings Form -->
             <div class="settings-input-group">
                 <label>おうちの間取り</label>
@@ -355,7 +328,7 @@
             <div>
                 <h2 class="ending-title" id="ending-celebration-title">よく頑張りました！</h2>
             </div>
-
+            
             <!-- 表彰時にドン！と表示されるドラゴンの画像 -->
             <div class="ending-image-container">
                 <img id="ending-dragon-image" src="" alt="おうちの守護精霊">
@@ -378,7 +351,7 @@
         <div class="spell-content" style="max-width: 440px;">
             <h3 class="spell-title">🔊 サウンド設定</h3>
             <p class="spell-desc">レトロゲーム風のBGMと効果音の音量を調節できます。</p>
-
+            
             <div class="sound-setting-row">
                 <div class="sound-setting-label">
                     <span>🎵 8-bit BGM 音量</span>
@@ -390,15 +363,16 @@
                 <div style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
                     <span style="font-weight: bold; color: var(--text-sub);">曲の選択:</span>
                     <select id="bgmTrackSelect" onchange="SoundEngine.setBGMTrack(this.value)" style="padding: 0.35rem 0.6rem; background: #0d0d13; color: var(--accent); border: 2px solid var(--border); font-family: inherit; border-radius: 4px;">
-                        <option value="kokoto_auto">⏰ ココット村・時間連動（朝・昼・夕・夜 自動）</option>
-                        <option value="kokoto_morning">🌅 ココット村・朝（爽やかな目覚め）</option>
-                        <option value="village">☀️ ココット村・昼（陽だまりの広場）</option>
-                        <option value="kokoto_evening">🌇 ココット村・夕（茜色の家路）</option>
-                        <option value="kokoto_night">🌙 ココット村・夜（静寂の星空オルゴール）</option>
-                        <option value="pop">🌞 日常ポップ（軽快アコースティック）</option>
-                        <option value="tavern">🍻 にぎやか酒場（愉快なフォーク民謡）</option>
-                        <option value="ruins">📜 古代遺跡（神秘のハープ調べ）</option>
-                        <option value="battle">⚔️ ボス討伐バトル（熱血ケルトRPG）</option>
+                        <option value="kokoto_auto">🍃 ココット村・時間連動（朝・昼・夕・夜）</option>
+                        <option value="kokoto_morning">🌅 ココット村の朝（爽快フルート）</option>
+                        <option value="kokoto_noon">☀️ ココット村の昼（陽だまりリュート）</option>
+                        <option value="kokoto_evening">🌆 ココット村の夕（茜色の家路）</option>
+                        <option value="kokoto_night">🌙 ココット村の夜（静寂オルゴール）</option>
+                        <option value="village">🏡 我が家チル（ポケスリ風Lo-Fi）</option>
+                        <option value="pop">🌞 日常ポップ（明るいテンポ）</option>
+                        <option value="tavern">🍻 にぎやか酒場（愉快な民謡）</option>
+                        <option value="ruins">📜 古代遺跡（神秘の調べ）</option>
+                        <option value="battle">⚔️ ボス討伐バトル（熱血RPG）</option>
                     </select>
                 </div>
             </div>
@@ -439,7 +413,7 @@
                 </button>
             </div>
             <p class="spell-desc">本日の奉納（家事）が刻まれた石板画像です。長押しやボタンから保存・共有できます。</p>
-
+            
             <div id="ancient-canvas-container" class="ancient-canvas-preview-wrapper" style="text-align: center; margin: 1rem 0;">
                 <!-- 生成された画像 (img要素) がここに配置されます -->
                 <div id="ancient-loading" style="padding: 2rem; color: var(--text-sub);">石板を彫刻中...⏳</div>
@@ -465,17 +439,17 @@
         <div class="spell-content" style="max-width: 540px; max-height: 85vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0;">📖 我が家の冒険大図鑑</h3>
-                <button class="btn-modal-close-header" onclick="closeBookModal()">✕ お部屋へ</button>
+                <button onclick="closeBookModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
 
             <!-- タブ切り替えボタン -->
-            <div style="display:flex; gap:0.35rem; margin-bottom:0.8rem; overflow-x: auto; padding-bottom: 2px;">
-                <button class="modal-tab-btn active" id="book-tab-spirits" onclick="switchBookTab('spirits')">🐉 精霊</button>
-                <button class="modal-tab-btn" id="book-tab-karuta" onclick="switchBookTab('karuta')">🥠 かるた</button>
-                <button class="modal-tab-btn" id="book-tab-hall_of_fame" onclick="switchBookTab('hall_of_fame')">🏛️ 殿堂</button>
-                <button class="modal-tab-btn" id="book-tab-achievements" onclick="switchBookTab('achievements')">🏆 実績・称号</button>
+            <div style="display:flex; gap:0.4rem; margin-bottom:0.8rem; flex-wrap: wrap;">
+                <button onclick="switchBookTab('spirits')" style="flex:1; min-width:75px; padding:0.4rem; font-weight:bold; font-size:12px; border-radius:4px; border:1px solid var(--accent); background:#14141f; color:#fff; cursor:pointer;">🐉 守護精霊</button>
+                <button onclick="switchBookTab('karuta')" style="flex:1; min-width:75px; padding:0.4rem; font-weight:bold; font-size:12px; border-radius:4px; border:1px solid #8b5cf6; background:#14141f; color:#fff; cursor:pointer;">🥠 かるた</button>
+                <button onclick="switchBookTab('hall_of_fame')" style="flex:1; min-width:75px; padding:0.4rem; font-weight:bold; font-size:12px; border-radius:4px; border:1px solid #ffd700; background:#14141f; color:#fff; cursor:pointer;">🏛️ 殿堂</button>
+                <button onclick="switchBookTab('achievements')" style="flex:1; min-width:75px; padding:0.4rem; font-weight:bold; font-size:12px; border-radius:4px; border:1px solid #f59e0b; background:#14141f; color:#fbbf24; cursor:pointer;">🏆 実績・称号</button>
             </div>
-
+            
             <div id="book-content-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
                 <!-- JSで動的生成 -->
             </div>
@@ -491,10 +465,10 @@
         <div class="spell-content" style="max-width: 520px; max-height: 85vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0; color:#fbbf24;">🪚 カジゴンの模様替え工房</h3>
-                <button class="btn-modal-close-header" onclick="closeWorkshopModal()">✕ お部屋へ</button>
+                <button onclick="closeWorkshopModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
             <p class="spell-desc">日々の家事で集めた素材（木材・布・レンガ・ネジ）で家具を作り、お部屋を快適にしよう！</p>
-
+            
             <div id="workshop-content-container">
                 <!-- JSで動的生成 -->
             </div>
@@ -510,7 +484,7 @@
         <div class="spell-content" style="max-width: 440px; text-align: center;">
             <h3 class="spell-title" style="margin-bottom:0.5rem; color:#ffd700;">🍖 おやつをあげよう！</h3>
             <p class="spell-desc" style="margin-bottom:1rem;">ベビー期のカジゴンにおやつをあげると、将来の進化系統の兆候が現れます！</p>
-
+            
             <div style="display:flex; flex-direction:column; gap:0.8rem; margin-bottom:1.2rem;">
                 <button onclick="feedBabySnack('golem')" style="background:#1e1b24; border:2px solid #a855f7; border-radius:8px; padding:0.8rem; text-align:left; cursor:pointer; color:#fff;">
                     <div style="font-weight:bold; font-size:14px; color:#c084fc; margin-bottom:0.2rem;">⚙️ 古代のネジおやつ ➔ 【魔ゴーレム系統】</div>
@@ -535,10 +509,10 @@
         <div class="spell-content" style="max-width: 540px; max-height: 85vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0;">📰 週刊カジゴン号外通信</h3>
-                <button class="btn-modal-close-header" onclick="closeWeeklyNewsModal()">✕ お部屋へ</button>
+                <button onclick="closeWeeklyNewsModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
             <p class="spell-desc">直近7日間の家庭内での家事大功績を称える特報ニュースです！</p>
-
+            
             <div id="weekly-news-content" style="margin-top: 1rem;">
                 <!-- JSで動的生成 -->
             </div>
@@ -567,10 +541,10 @@
         <div class="spell-content" style="max-width: 540px; max-height: 88vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0;">🔨 やった家事を記録する</h3>
-                <button class="btn-modal-close-header" onclick="closeChoreSelectModal()">✕ お部屋へ</button>
+                <button onclick="closeChoreSelectModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
             <p class="spell-desc">完了した家事をタップしよう！（何回でも記録できます）</p>
-
+            
             <!-- Chore Addition Area (Dynamic) -->
             <div id="quick-add-container" style="margin: 1rem 0;">
                 <!-- Buttons will be generated here -->
@@ -610,11 +584,11 @@
         <div class="spell-content" style="max-width: 520px; max-height: 88vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0;">📱 パートナー・家族にシェア</h3>
-                <button class="btn-modal-close-header" onclick="closeShareActionModal()">✕ お部屋へ</button>
+                <button onclick="closeShareActionModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
             <p class="spell-desc">今日完了した家事や伝言をLINEなどで報告します。</p>
 
-            <div class="card share-card" style="background: linear-gradient(160deg, #2d2420 0%, #201a17 100%); border-radius: 16px; padding: 1rem; margin-top: 1rem;">
+            <div class="card share-card" style="background:#13131c; border-radius:12px; padding:1rem; margin-top:1rem;">
                 <div class="share-input-group">
                     <label for="shareMessage" class="group-label">家族への伝言・お願い（任意）</label>
                     <textarea id="shareMessage" placeholder="例：お風呂掃除ありがとう！トイレットペーパー買ってきたよ。" rows="2"></textarea>
@@ -634,18 +608,11 @@
                     <input type="checkbox" id="shareIncludeThanks" checked style="width: auto; height: auto; cursor: pointer; margin: 0;">
                     <label for="shareIncludeThanks" style="font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; user-select: none; margin: 0;">LINE返信用の感謝スタンプ枠をつける</label>
                 </div>
-                <div class="share-btn-group" style="display:flex; flex-direction:column; gap:0.6rem;">
-                    <!-- 🌟 ワンタップ同期リンク（最優先アクション） -->
-                    <button class="btn-share btn-share-sync-link" onclick="copySyncUrl()" style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%); border: 2px solid #fef3c7; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4); font-weight: bold; font-size: 14px; padding: 0.8rem 1rem;">
-                        <span>🔗 ワンタップ同期リンクをコピー</span>
+                <div class="share-btn-group" style="display:flex; flex-direction:column; gap:0.5rem;">
+                    <button class="btn-share" onclick="shareReport()">
+                        <span>📱 テキストでコピー</span>
                     </button>
-                    <button class="btn-share btn-share-direct" onclick="shareSyncUrlDirect()" style="background: #2563eb; font-size: 13px; padding: 0.65rem 1rem;">
-                        <span>📱 リンクを直接シェア（LINE・メッセージ）</span>
-                    </button>
-                    <button class="btn-share" onclick="shareReport()" style="background: #3a322d; font-size: 13px; padding: 0.65rem 1rem;">
-                        <span>📋 テキストでコピー</span>
-                    </button>
-                    <button class="btn-share btn-share-ancient" onclick="openAncientScrollModal()" style="font-size: 13px; padding: 0.65rem 1rem;">
+                    <button class="btn-share btn-share-ancient" onclick="openAncientScrollModal()">
                         <span>📜 古代の石板画像で共有</span>
                     </button>
                 </div>
@@ -662,44 +629,15 @@
         </div>
     </div>
 
-    <!-- 💌 パートナーからのワンタップ同期お手紙モーダル -->
-    <div id="sync-confirm-modal" class="spell-overlay hidden">
-        <div class="spell-content sync-letter-card" style="max-width: 480px; text-align: center;">
-            <div class="sync-letter-stamp" style="font-size: 38px; margin-bottom: 0.2rem; animation: floatStamp 2.5s ease-in-out infinite;">💌</div>
-            <h3 class="spell-title" style="margin: 0.2rem 0; font-size: 20px; color: #ffd700;">パートナーからのお手紙</h3>
-            <p class="spell-desc" style="margin-bottom: 1rem; color: #e2d9d2; line-height: 1.6;">パートナーから最新のおうち記録が届きました！<br>相棒のカジゴンデータとおうち記録を同期しますか？</p>
-
-            <!-- 届いたデータのプレビューカード -->
-            <div class="sync-preview-box" style="background: rgba(0,0,0,0.3); border: 2px dashed #8b6b55; border-radius: 12px; padding: 0.85rem; margin-bottom: 1rem;">
-                <div class="sync-preview-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <span style="font-size: 12px; color: #aaa;">届いた相棒データ</span>
-                    <span id="sync-preview-level" style="font-size: 14px; font-weight: bold; color: #ffd700; background: #261e1b; border: 1px solid #d97706; padding: 2px 8px; border-radius: 12px;">Lv.1</span>
-                </div>
-                <div class="sync-preview-attributes" id="sync-preview-attrs" style="display: flex; justify-content: space-around; gap: 0.4rem; font-size: 13px; font-weight: bold;">
-                    <span style="color: #ff6b6b;">🔥 <span id="sync-val-f">0</span></span>
-                    <span style="color: #60a5fa;">💧 <span id="sync-val-w">0</span></span>
-                    <span style="color: #34d399;">🍃 <span id="sync-val-a">0</span></span>
-                    <span style="color: #fbbf24;">🪨 <span id="sync-val-e">0</span></span>
-                </div>
-                <p style="font-size: 11px; color: #9ca3af; margin-top: 0.5rem; margin-bottom: 0; line-height: 1.4;">※両者の高い方のレベルや属性値をマージし、お互いの家事実績を合算します。</p>
-            </div>
-
-            <div class="spell-btn-group" style="display: flex; flex-direction: column; gap: 0.6rem;">
-                <button class="btn-spell-action btn-spell-cast" style="width: 100%; font-size: 15px; font-weight: bold; padding: 0.8rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 2px solid #a7f3d0;" onclick="confirmAndApplySync()">✨ ワンタップで同期する</button>
-                <button class="btn-spell-action btn-spell-cancel" style="width: 100%;" onclick="dismissSyncConfirmModal()">あとで（スキップ）</button>
-            </div>
-        </div>
-    </div>
-
     <!-- ⚔️ 突発討伐ボス（名もなき家事）モーダル -->
     <div id="bounty-modal" class="spell-overlay hidden">
         <div class="spell-content" style="max-width: 480px; max-height: 85vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0; color:#ff4b4b;">⚔️ 突発討伐クエスト</h3>
-                <button class="btn-modal-close-header" onclick="closeBountyModal()">✕ お部屋へ</button>
+                <button onclick="closeBountyModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
             <p class="spell-desc">今日のおうちに潜む名もなき家事ボスを討伐せよ！</p>
-
+            
             <div id="bounty-quest-modal-container" style="margin-top: 1rem;">
                 <!-- JSで動的生成 -->
             </div>
