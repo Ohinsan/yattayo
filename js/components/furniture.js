@@ -301,17 +301,138 @@ function renderFurnitureInRoom() {
         // ランプの明るさ切り替え
         lampEl.onclick = () => onFurnitureItemClick('lamp');
     }
+
+    // ランプの明暗状態をお部屋に反映
+    const room = document.getElementById('tamagotchi-room-container');
+    if (room) {
+        if (kajigonState.lampOff) {
+            room.classList.add('lamp-off');
+        } else {
+            room.classList.remove('lamp-off');
+        }
+    }
+}
+
+/**
+ * 🍲 湯気パーティクル生成ヘルパー
+ */
+function createSteamParticles(targetEl) {
+    if (!targetEl) return;
+    const rect = targetEl.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 3;
+
+    for (let i = 0; i < 4; i++) {
+        setTimeout(() => {
+            const steam = document.createElement('div');
+            steam.className = 'steam-particle';
+            steam.textContent = '♨️';
+            steam.style.left = `${x + (Math.random() * 20 - 10)}px`;
+            steam.style.top = `${y}px`;
+            steam.style.setProperty('--dx', `${(Math.random() - 0.5) * 35}px`);
+            document.body.appendChild(steam);
+
+            setTimeout(() => {
+                if (steam.parentNode) steam.parentNode.removeChild(steam);
+            }, 1400);
+        }, i * 180);
+    }
+}
+
+/**
+ * 🪴 水やりマーク＆ハート舞い上がりヘルパー
+ */
+function createWateringEffect(targetEl) {
+    if (!targetEl) return;
+    const rect = targetEl.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 3;
+
+    // 💧 水滴エフェクト
+    const drop = document.createElement('div');
+    drop.className = 'water-drop-effect';
+    drop.textContent = '💧';
+    drop.style.left = `${x}px`;
+    drop.style.top = `${y}px`;
+    document.body.appendChild(drop);
+
+    setTimeout(() => {
+        if (drop.parentNode) drop.parentNode.removeChild(drop);
+    }, 850);
+
+    // 小さなハート＆きらめきが舞う
+    setTimeout(() => {
+        if (typeof createFloatingHearts === 'function') {
+            createFloatingHearts(targetEl);
+        }
+    }, 350);
 }
 
 /**
  * 家具をタップした際のアクション
  */
 function onFurnitureItemClick(furnId) {
-    if (typeof SoundEngine !== 'undefined') {
-        SoundEngine.playSE('click');
-    }
-    const furn = CRAFTABLE_FURNITURE.find(f => f.id === furnId);
     const dragonName = kajigonState.companionName || 'カジゴン';
+
+    // 1. 💡 ランプの明暗切り替え（部屋全体の暗さをトグル）
+    if (furnId === 'lamp') {
+        if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
+        const room = document.getElementById('tamagotchi-room-container');
+        kajigonState.lampOff = !kajigonState.lampOff;
+        if (room) {
+            room.classList.toggle('lamp-off', kajigonState.lampOff);
+        }
+        saveToLocalStorage();
+
+        const speech = kajigonState.lampOff
+            ? `「カチッ！お部屋を暗くして、のんびりチルタイムだな〜🌙」`
+            : `「パチッ！あたたかい光がついたぞ！お部屋が明るくてポカポカだぞ〜💡」`;
+        if (typeof showCompanionDialogue === 'function') {
+            showCompanionDialogue(speech);
+        }
+        return;
+    }
+
+    // 2. 🍲 シチュー鍋のタップ（湯気パーティクル＆美味しそうだぞ！）
+    if (furnId === 'stew') {
+        if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
+        const stewEl = document.getElementById('furniture-stew');
+        if (stewEl) {
+            stewEl.classList.remove('pot-bounce');
+            void stewEl.offsetWidth;
+            stewEl.classList.add('pot-bounce');
+            createSteamParticles(stewEl);
+        }
+        if (typeof showCompanionDialogue === 'function') {
+            showCompanionDialogue(`「美味しそうだぞ！野菜とお肉がとろとろに煮込んであるぞ〜！じゅるり…🤤」`);
+        }
+        return;
+    }
+
+    // 3. 🪴 観葉植物のタップ（水やりマーク💧＆ハート舞い上がり）
+    if (furnId === 'plant') {
+        if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('karuta');
+        const plantEl = document.getElementById('furniture-plant');
+        if (plantEl) {
+            plantEl.classList.remove('plant-bounce');
+            void plantEl.offsetWidth;
+            plantEl.classList.add('plant-bounce');
+            createWateringEffect(plantEl);
+        }
+        if (typeof showCompanionDialogue === 'function') {
+            showCompanionDialogue(`「お水やりありがとう！葉っぱがツヤツヤ生き生きしてるぞ〜！🌱」`);
+        }
+        return;
+    }
+
+    // 4. その他の家具（絨毯・本棚・模型）
+    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
+    const furn = CRAFTABLE_FURNITURE.find(f => f.id === furnId);
+
+    if (furnId === 'rug') {
+        const rugEl = document.getElementById('furniture-rug');
+        if (typeof createFloatingHearts === 'function') createFloatingHearts(rugEl);
+    }
 
     if (furn && furn.tapAction) {
         const speech = furn.tapAction(dragonName);

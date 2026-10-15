@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    Core Variables & Reset
    ========================================================================== */
 * {
@@ -12,15 +12,21 @@
     --primary-hover: var(--accent);
     --secondary: var(--accent);
     --secondary-hover: var(--accent);
-    --bg-gradient: #1a1a24;
-    --card-bg: #1a1a24;
-    --text-main: #f4ede2;
-    --text-sub: #a0a0b0;
-    --border: #0d0d13;
+    --bg-base: #1f1d2b;
+    --bg-darkwood: #261e1b;
+    --bg-gradient: linear-gradient(180deg, #261e1b 0%, #1f1d2b 100%);
+    --card-bg: #27201d;
+    --wood-border: #5a3e2b;
+    --wood-border-dark: #3e2a1d;
+    --brass-gold: #c8924b;
+    --brass-shine: #ffd700;
+    --text-main: #fbf5e8;
+    --text-sub: #bbaea0;
+    --border: #5a3e2b;
     --neon-gold: #ffd700;
-    
-    /* Default accent color (cream white) */
-    --accent: #f4ede2;
+
+    /* Default accent color (warm golden cream) */
+    --accent: #ffd700;
 }
 
 /* Dynamic theme overrides applied to body */
@@ -32,12 +38,13 @@ body.theme-light { --accent: #ffd700; }
 body.theme-dark { --accent: #9d4edd; }
 
 body {
-    font-family: 'DotGothic16', 'Outfit', 'Noto Sans JP', sans-serif;
+    font-family: 'Noto Sans JP', 'Outfit', sans-serif;
     background: var(--bg-gradient);
+    background-attachment: fixed;
     min-height: 100vh;
-    padding: 1rem;
+    padding: 1rem 1rem 95px 1rem;
     color: var(--text-main);
-    line-height: 1.5;
+    line-height: 1.6;
     overflow-x: hidden;
 }
 
@@ -72,16 +79,20 @@ body {
 }
 
 .title {
+    font-family: 'DotGothic16', monospace;
     font-size: 32px;
     font-weight: 700;
-    color: var(--text-main);
-    letter-spacing: -0.5px;
+    color: var(--neon-gold);
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 3px 6px rgba(0,0,0,0.7);
 }
 
 .subtitle {
     color: var(--text-sub);
     font-size: 14px;
     margin-top: 0.25rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    line-height: 1.6;
 }
 
 .btn-settings {
@@ -108,13 +119,13 @@ body {
 }
 
 /* ==========================================================================
-   👾 常時表示：相棒バッジ（絵文字2つを並べて属性を視覚化！文字は完全排除）
+   太 蟶ｸ譎り｡ｨ遉ｺ・夂嶌譽偵ヰ繝・ず・育ｵｵ譁・ｭ・縺､繧剃ｸｦ縺ｹ縺ｦ螻樊ｧ繧定ｦ冶ｦ壼喧・∵枚蟄励・螳悟・謗帝勁・・
    ========================================================================== */
 .companion-status-card {
     background: rgba(255, 255, 255, 0.75);
     border: 1.5px solid rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    border-radius: 30px; /* 横長のカプセルデザイン */
+    border-radius: 30px; /* 讓ｪ髟ｷ縺ｮ繧ｫ繝励そ繝ｫ繝・じ繧､繝ｳ */
     padding: 0.4rem 1.25rem;
     margin: 1.25rem auto 0;
     display: inline-flex;
@@ -136,7 +147,7 @@ body {
     justify-content: center;
     animation: floatMiniStatus 2.5s ease-in-out infinite;
     user-select: none;
-    gap: 0.25rem; /* 2つの絵文字の隙間 */
+    gap: 0.25rem; /* 2縺､縺ｮ邨ｵ譁・ｭ励・髫咎俣 */
 }
 
 @keyframes floatMiniStatus {
@@ -144,7 +155,7 @@ body {
     50% { transform: translateY(-4px) rotate(4deg); }
 }
 
-/* 🏆 レベルMAX専用アクションボタン */
+/* 醇 繝ｬ繝吶ΝMAX蟆ら畑繧｢繧ｯ繧ｷ繝ｧ繝ｳ繝懊ち繝ｳ */
 .companion-widget-container {
     display: flex;
     flex-direction: column;
@@ -155,7 +166,7 @@ body {
 }
 
 .companion-status-card {
-    margin: 0 auto !important; /* Flexレイアウト用にマージン調整 */
+    margin: 0 auto !important; /* Flex繝ｬ繧､繧｢繧ｦ繝育畑縺ｫ繝槭・繧ｸ繝ｳ隱ｿ謨ｴ */
 }
 
 .legendary-action-buttons {
@@ -204,7 +215,7 @@ body {
     box-shadow: 0 6px 14px rgba(239, 68, 68, 0.15);
 }
 
-/* 🏆 最終進化専用：メイン画面常時表示カード */
+/* 醇 譛邨るｲ蛹門ｰら畑・壹Γ繧､繝ｳ逕ｻ髱｢蟶ｸ譎り｡ｨ遉ｺ繧ｫ繝ｼ繝・*/
 .legendary-companion-card {
     background: rgba(255, 255, 255, 0.95);
     border: 2px solid var(--neon-gold);
@@ -447,7 +458,7 @@ body {
     box-shadow: none !important;
 }
 
-/* 🎨 属性ごとの美しいパステルカラー分け */
+/* 耳 螻樊ｧ縺斐→縺ｮ鄒弱＠縺・ヱ繧ｹ繝・Ν繧ｫ繝ｩ繝ｼ蛻・￠ */
 .quick-add-btn.attr-fire {
     background: rgba(254, 242, 242, 0.95);
     color: #be123c;
@@ -822,14 +833,14 @@ body {
     .quick-add-buttons {
         grid-template-columns: 1fr 1fr;
     }
-    
+
     .free-input-group {
         flex-direction: column;
     }
 }
 
 /* ==========================================================================
-   🔒 共通モーダルスタイル (全画面暗幕オーバーレイ)
+   白 蜈ｱ騾壹Δ繝ｼ繝繝ｫ繧ｹ繧ｿ繧､繝ｫ (蜈ｨ逕ｻ髱｢證怜ｹ輔が繝ｼ繝舌・繝ｬ繧､)
    ========================================================================== */
 .spell-overlay {
     position: fixed;
@@ -934,7 +945,7 @@ body {
 }
 
 /* ==========================================================================
-   💫 召喚成功カットイン演出
+   牒 蜿ｬ蝟壽・蜉溘き繝・ヨ繧､繝ｳ貍泌・
    ========================================================================== */
 .cutin-container {
     position: fixed;
@@ -990,7 +1001,7 @@ body {
 }
 
 /* ==========================================================================
-   🏆 感動の表彰エンディング画面 (高精細ドラゴン画像ドン！出現)
+   醇 諢溷虚縺ｮ陦ｨ蠖ｰ繧ｨ繝ｳ繝・ぅ繝ｳ繧ｰ逕ｻ髱｢ (鬮倡ｲｾ邏ｰ繝峨Λ繧ｴ繝ｳ逕ｻ蜒上ラ繝ｳ・∝・迴ｾ)
    ========================================================================== */
 .ending-overlay {
     position: fixed;
@@ -1004,10 +1015,10 @@ body {
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    overflow: hidden; /* きらめきの画面外はみ出し防止 */
+    overflow: hidden; /* 縺阪ｉ繧√″縺ｮ逕ｻ髱｢螟悶・縺ｿ蜃ｺ縺鈴亟豁｢ */
 }
 
-/* ✨ 画面レイアウトを崩さない絶対配置のきらめきパーティクル */
+/* 笨ｨ 逕ｻ髱｢繝ｬ繧､繧｢繧ｦ繝医ｒ蟠ｩ縺輔↑縺・ｵｶ蟇ｾ驟咲ｽｮ縺ｮ縺阪ｉ繧√″繝代・繝・ぅ繧ｯ繝ｫ */
 .sparkle {
     position: absolute;
     border-radius: 50%;
@@ -1146,7 +1157,7 @@ body {
 }
 
 /* ==========================================================================
-   ⭐ 今日のラッキー家事バッジスタイル
+   箝・莉頑律縺ｮ繝ｩ繝・く繝ｼ螳ｶ莠九ヰ繝・ず繧ｹ繧ｿ繧､繝ｫ
    ========================================================================== */
 .lucky-chore-badge {
     background: rgba(254, 243, 199, 0.9);
@@ -1165,300 +1176,314 @@ body {
 }
 
 /* ==========================================================================
-   Kajigon Retro Game Styles (Step 2, 3, 4, 5)
+   Cozy Fantasy Design System (Warm Western Fantasy ﾃ・Picture Book & Pokemon)
    ========================================================================== */
 
-/* Global Retro Reset: Straight borders, no rounded corners, retro shadows */
-button, input, select, textarea, .card, .chore-addition-card, .completed-card, .share-card, .setup-card, .spell-content, .ending-content, .companion-status-card, .quick-add-btn, .quick-add-section, .settings-scroll-area, .ending-image-container, .companion-avatar-box, .dialogue-box, .speech-bubble {
-    border-radius: 0 !important;
-    border: 4px solid #0d0d13 !important;
-    box-shadow: 4px 4px 0px #0d0d13 !important;
-    background-color: #1a1a24 !important;
-    color: #f4ede2 !important;
+/* 1. 蜈ｨ繧ｫ繝ｼ繝峨・繝｢繝ｼ繝繝ｫ繝ｻ譫邱夲ｼ夊ｧ剃ｸｸ・・6px縲・8px・峨∵ｸｩ縺九∩縺ｮ縺ゅｋ譛ｨ譫繝ｻ逵滄紺螟夐㍾繝吶・繝ｫ */
+.card,
+.chore-addition-card,
+.completed-card,
+.share-card,
+.setup-card,
+.spell-content,
+.ending-content,
+.companion-status-card,
+.legendary-companion-card,
+.quick-add-section,
+.settings-scroll-area,
+.ending-image-container,
+.dialogue-box,
+.speech-bubble,
+.chore-log-details {
+    border-radius: 18px !important;
+    border: 3px solid #5a3e2b !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -2px 0 rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+    background: linear-gradient(160deg, #2c231f 0%, #201a17 100%) !important;
+    color: #fbf5e8 !important;
 }
 
-/* Specific interactive offsets */
-button:hover, .btn:hover, .quick-add-btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px #0d0d13 !important;
-}
-button:active, .btn:active, .quick-add-btn:active {
-    transform: translate(2px, 2px);
-    box-shadow: 0px 0px 0px #0d0d13 !important;
+/* 2. 繝懊ち繝ｳ蜈ｨ闊ｬ・夊ｧ剃ｸｸ・・4px・峨∵惠譫繝ｻ逵滄紺繝懊ち繝ｳ・・ち繝・・貍泌・ */
+button,
+.btn,
+.btn-spell-action,
+.setup-btn-select,
+.setup-btn-submit,
+.btn-share,
+.quick-add-btn,
+.btn-sound-test,
+.btn-ending-close,
+.btn-ending-rebreed,
+.btn-reset-light,
+.btn-reset-full {
+    border-radius: 14px !important;
+    border: 2px solid #5a3e2b !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 0 rgba(0, 0, 0, 0.35), 0 3px 8px rgba(0, 0, 0, 0.35) !important;
+    background: linear-gradient(160deg, #382c26 0%, #29201c 100%);
+    color: #fbf5e8;
+    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background-color 0.15s !important;
+    cursor: pointer;
 }
 
-/* Free input & select styles */
+button:hover, .btn:hover, .quick-add-btn:hover, .setup-btn-select:hover {
+    transform: translateY(-2px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -2px 0 rgba(0, 0, 0, 0.4), 0 6px 14px rgba(0, 0, 0, 0.45) !important;
+    filter: brightness(1.1);
+}
+
+button:active, .btn:active, .quick-add-btn:active, .setup-btn-select:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 3. 繝輔か繝ｼ繝蜈･蜉帙・繧ｻ繝ｬ繧ｯ繝医・繝・く繧ｹ繝医お繝ｪ繧｢ */
 input, select, textarea {
-    background-color: #0d0d13 !important;
-    color: #f4ede2 !important;
+    border-radius: 12px !important;
+    border: 2px solid #5a3e2b !important;
+    background-color: #1a1513 !important;
+    color: #fbf5e8 !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+    padding: 0.6rem 0.8rem;
+    font-family: 'Noto Sans JP', sans-serif !important;
 }
+
 input:focus, select:focus, textarea:focus {
-    border-color: var(--accent) !important;
+    border-color: #c8924b !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 8px rgba(200, 146, 75, 0.45) !important;
+    outline: none;
 }
 
-/* Quick add buttons attribute-specific borders/highlights on active/hover */
-.quick-add-btn.attr-fire { border-color: #ff4b4b !important; color: #ff4b4b !important; }
-.quick-add-btn.attr-water { border-color: #3b82f6 !important; color: #3b82f6 !important; }
-.quick-add-btn.attr-wind { border-color: #00e676 !important; color: #00e676 !important; }
-.quick-add-btn.attr-earth { border-color: #8b5a2b !important; color: #8b5a2b !important; }
+/* 繧ｯ繧､繝・け螳ｶ莠玖ｿｽ蜉繝懊ち繝ｳ縺ｮ螻樊ｧ繧ｫ繝ｩ繝ｼ・域ｸｩ縺九∩縺ｮ縺ゅｋ繝輔ぃ繝ｳ繧ｿ繧ｸ繝ｼ繧ｸ繝･繧ｨ繝ｫ隱ｿ・・*/
+.quick-add-btn.attr-fire {
+    border-color: #c2410c !important;
+    color: #fdba74 !important;
+    background: linear-gradient(160deg, #3d1f1a 0%, #281411 100%) !important;
+}
+.quick-add-btn.attr-water {
+    border-color: #1d4ed8 !important;
+    color: #93c5fd !important;
+    background: linear-gradient(160deg, #18283f 0%, #111a29 100%) !important;
+}
+.quick-add-btn.attr-wind {
+    border-color: #047857 !important;
+    color: #6ee7b7 !important;
+    background: linear-gradient(160deg, #133324 0%, #0d2117 100%) !important;
+}
+.quick-add-btn.attr-earth {
+    border-color: #92400e !important;
+    color: #fcd34d !important;
+    background: linear-gradient(160deg, #382819 0%, #241a10 100%) !important;
+}
 
-.quick-add-btn.attr-fire:hover { background-color: rgba(255, 75, 75, 0.1) !important; }
-.quick-add-btn.attr-water:hover { background-color: rgba(59, 130, 246, 0.1) !important; }
-.quick-add-btn.attr-wind:hover { background-color: rgba(0, 230, 118, 0.1) !important; }
-.quick-add-btn.attr-earth:hover { background-color: rgba(139, 90, 43, 0.1) !important; }
+.quick-add-btn.attr-fire:hover { background: linear-gradient(160deg, #4d2620 0%, #351a16 100%) !important; }
+.quick-add-btn.attr-water:hover { background: linear-gradient(160deg, #1f3352 0%, #162236 100%) !important; }
+.quick-add-btn.attr-wind:hover { background: linear-gradient(160deg, #1a422f 0%, #112a1f 100%) !important; }
+.quick-add-btn.attr-earth:hover { background: linear-gradient(160deg, #483420 0%, #2f2215 100%) !important; }
 
-/* Active button state */
+/* 螳御ｺ・＠縺溷ｮｶ莠九・繧ｿ繝ｳ・域ｸｩ縺九∩縺ｮ縺ゅｋ關ｽ縺｡逹縺・◆譛ｨ逶ｮ・・*/
+.quick-add-btn.done,
+.quick-add-btn:disabled {
+    background: #1e1916 !important;
+    color: #7d6f63 !important;
+    border-color: #3e2e24 !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+    text-decoration: line-through !important;
+    opacity: 0.65 !important;
+    transform: none !important;
+    cursor: not-allowed !important;
+}
+
+/* 繧ｻ繝・ヨ繧｢繝・・繝懊ち繝ｳ・医い繧ｯ繝・ぅ繝也憾諷具ｼ・*/
 .setup-btn-select.active {
-    background-color: var(--accent) !important;
-    color: #1a1a24 !important;
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+    border-color: #ffd700 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
 }
 
-/* Highlight / title colors */
-.title, .card-title, .setup-section-title, .spell-title, .ending-title {
-    color: var(--accent) !important;
+.setup-btn-submit {
+    background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%) !important;
+    border-color: #fff8e7 !important;
+    color: #261e1b !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
 }
 
-/* Artifact Indicator */
+/* 繧ｿ繧､繝医Ν繝ｻ隕句・縺苓｢区枚蟄鈴｢ｨ繝峨Ο繝・・繧ｷ繝｣繝峨え */
+.title,
+.card-title,
+.setup-section-title,
+.spell-title,
+.ending-title,
+.room-status-title,
+.ending-celebration-title {
+    color: #ffd700 !important;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 3px 6px rgba(0,0,0,0.7) !important;
+}
+
+/* 逕ｻ髱｢遶ｯ縺ｮ繧､繝ｳ繧ｸ繧ｱ繝ｼ繧ｿ繝ｼ & 譖ｴ譁ｰ繝懊ち繝ｳ */
 .artifact-indicator {
     position: fixed;
-    top: 1rem;
-    left: 1rem;
+    top: 0.8rem;
+    left: 0.8rem;
     z-index: 1000;
-    padding: 0.4rem 0.8rem;
-    font-size: 14px;
+    padding: 0.35rem 0.75rem;
+    font-size: 13px;
     font-weight: bold;
     display: flex;
     align-items: center;
     gap: 4px;
+    background: rgba(38, 30, 27, 0.88);
+    border: 2px solid #5a3e2b;
+    border-radius: 16px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 3px 8px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    color: #fbf5e8;
 }
 
-/* 🔄 最新版へ強制更新ボタン（PWAキャッシュ強制クリア） */
 .btn-force-refresh {
     position: fixed;
     top: 0.8rem;
     right: 0.8rem;
     z-index: 1000;
-    background: rgba(13, 13, 19, 0.85);
-    color: #ffd700;
-    border: 2px solid #ffd700;
-    border-radius: 20px;
-    padding: 0.35rem 0.75rem;
+    background: rgba(38, 30, 27, 0.9) !important;
+    color: #ffd700 !important;
+    border: 2px solid #c8924b !important;
+    border-radius: 16px !important;
+    padding: 0.35rem 0.75rem !important;
     font-size: 11px;
     font-weight: 800;
-    font-family: inherit;
+    font-family: 'Noto Sans JP', sans-serif !important;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 8px rgba(0, 0, 0, 0.4) !important;
     backdrop-filter: blur(4px);
     transition: transform 0.15s, background 0.15s;
     user-select: none;
 }
 .btn-force-refresh:hover {
-    background: #ffd700;
-    color: #0d0d13;
+    background: linear-gradient(135deg, #c8924b 0%, #b45309 100%) !important;
+    color: #fff !important;
+    border-color: #ffd700 !important;
     transform: scale(1.05);
 }
-.btn-force-refresh:active {
-    transform: scale(0.95);
+
+/* 蜷ｹ縺榊・縺暦ｼ医そ繝ｪ繝包ｼ・*/
+.speech-bubble, .speech-bubble-pet {
+    background: linear-gradient(160deg, #322822 0%, #241d1a 100%) !important;
+    border: 2.5px solid #6b4b35 !important;
+    border-radius: 16px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.45) !important;
+    padding: 0.75rem 1rem !important;
+    color: #fbf5e8 !important;
+    font-size: 13.5px !important;
+    line-height: 1.6 !important;
+    font-family: 'Noto Sans JP', sans-serif !important;
 }
 
-/* Stepped Ring flash keyframes */
-@keyframes stepped-flash {
-    0%, 100% {
-        box-shadow: 4px 4px 0px #0d0d13 !important;
-    }
-    50% {
-        box-shadow: 
-            0 0 0 4px #ffd700,
-            0 0 0 8px #d4af37,
-            0 0 0 12px #aa8c2c,
-            0 0 0 16px #806921 !important;
-    }
+/* 繧ｨ繝ｳ繝・ぅ繝ｳ繧ｰ逕ｻ髱｢ & 繝｢繝ｼ繝繝ｫ */
+.ending-overlay, .spell-overlay {
+    background: radial-gradient(circle at center, rgba(38, 30, 27, 0.85) 0%, rgba(15, 12, 11, 0.92) 100%) !important;
+    backdrop-filter: blur(8px);
 }
-.flash-effect {
-    animation: stepped-flash 0.8s steps(4) 3;
+.ending-content, .spell-content {
+    border: 3px solid #5a3e2b !important;
+    border-radius: 20px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+    background: linear-gradient(160deg, #2c231f 0%, #1f1916 100%) !important;
+    color: #fbf5e8 !important;
 }
 
-/* Speech bubble pointer & placement */
-.speech-bubble {
-    background: #1a1a24;
-    border: 4px solid #0d0d13;
-    padding: 0.75rem 1rem;
-    margin: 0.75rem auto;
-    max-width: 320px;
-    color: #f4ede2;
-    font-size: 13px;
-    text-align: left;
-    position: relative;
-    cursor: pointer;
-    box-shadow: 4px 4px 0px #0d0d13;
-}
-
-/* Companion widget card grid row styling */
-.companion-display-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    width: 100%;
-}
-.companion-avatar-box {
-    width: 64px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.25) !important;
-    border-radius: 4px;
-    image-rendering: pixelated;
-    flex-shrink: 0;
-}
-.companion-avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));
-}
-.companion-avatar-emoji {
-    font-size: 36px;
-    animation: floatMiniStatus 2.5s ease-in-out infinite;
-}
-.companion-info-box {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-}
-.companion-level {
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--accent);
-}
-
-/* Dark Halo effect overrides */
-body.theme-dark .ending-overlay {
-    background: radial-gradient(circle at center, #0d0d13 0%, #05050a 100%) !important;
-}
-body.theme-dark .ending-content {
-    border: 4px solid #0d0d13 !important;
-    box-shadow: 
-        0 0 0 1px #05050a,
-        0 20px 25px -5px rgba(0, 0, 0, 0.7) !important;
-}
-body.theme-dark .ending-title {
-    color: #9d4edd !important;
-}
-body.theme-dark .btn-ending-close {
-    background: linear-gradient(90deg, #5b21b6 0%, #9d4edd 50%, #5b21b6 100%) !important;
-    color: #f4ede2 !important;
-    box-shadow: 4px 4px 0px #0d0d13 !important;
-}
-
-/* Setup buttons overrides */
-.setup-btn-select {
-    border: 4px solid #0d0d13 !important;
-}
-.setup-btn-select:hover {
-    background-color: var(--accent) !important;
-    color: #0d0d13 !important;
-}
-.setup-btn-submit {
-    background: var(--accent) !important;
-    color: #0d0d13 !important;
-}
-
-/* Ending modal overrides */
-.ending-overlay {
-    background: radial-gradient(circle at center, #1a1a24 0%, #0d0d13 100%) !important;
-}
-.ending-content {
-    border: 4px solid var(--accent) !important;
-}
 .btn-ending-close {
-    background: var(--accent) !important;
-    color: #0d0d13 !important;
+    background: linear-gradient(135deg, #4b382d 0%, #362820 100%) !important;
+    color: #e5d7c7 !important;
+    border: 2px solid #6b4b35 !important;
+    border-radius: 14px !important;
 }
 
-/* Completed items styles */
+/* 螳御ｺ・＠縺溷ｮｶ莠九い繧､繝・Β */
 .chore-item-completed {
-    border: 4px solid #0d0d13 !important;
-    border-left: 12px solid #555568 !important; /* Thick retro left border */
-    background-color: #0d0d13 !important;
-    color: #f4ede2 !important;
-    box-shadow: 4px 4px 0px #0d0d13 !important;
+    border: 2.5px solid #5a3e2b !important;
+    border-left: 8px solid #8b6b55 !important;
+    background: linear-gradient(160deg, #261f1c 0%, #1c1614 100%) !important;
+    color: #fbf5e8 !important;
+    border-radius: 14px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 3px 8px rgba(0, 0, 0, 0.35) !important;
 }
-.chore-item-completed.attr-fire { border-left-color: #ff4b4b !important; }
+.chore-item-completed.attr-fire { border-left-color: #ef4444 !important; }
 .chore-item-completed.attr-water { border-left-color: #3b82f6 !important; }
-.chore-item-completed.attr-wind { border-left-color: #00e676 !important; }
-.chore-item-completed.attr-earth { border-left-color: #8b5a2b !important; }
+.chore-item-completed.attr-wind { border-left-color: #10b981 !important; }
+.chore-item-completed.attr-earth { border-left-color: #d97706 !important; }
 
-/* Custom Retro Checkbox styling */
+/* 繝√ぉ繝・け繝懊ャ繧ｯ繧ｹ・域惠譫逵滄紺鬚ｨ繧ｫ繧ｹ繧ｿ繝・・*/
 .share-checkbox-group input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
-    width: 20px !important;
-    height: 20px !important;
-    border: 2px solid #0d0d13 !important;
-    background-color: #1a1a24 !important;
-    box-shadow: 2px 2px 0px #0d0d13 !important;
+    width: 22px !important;
+    height: 22px !important;
+    border: 2px solid #6b4b35 !important;
+    border-radius: 6px !important;
+    background: #1a1513 !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5) !important;
     cursor: pointer;
     position: relative;
     outline: none;
     margin: 0;
+    transition: all 0.15s ease;
 }
 .share-checkbox-group input[type="checkbox"]:checked {
-    background-color: var(--accent) !important;
+    background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%) !important;
+    border-color: #fff8e7 !important;
 }
 .share-checkbox-group input[type="checkbox"]:checked::after {
-    content: "✔";
+    content: "笨・;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #0d0d13;
-    font-size: 12px;
-    font-weight: bold;
-}
-.share-checkbox-group label {
-    cursor: pointer;
+    color: #261e1b;
+    font-size: 13px;
+    font-weight: 900;
 }
 
-/* completed tag overrides */
+/* 螳御ｺ・ち繧ｰ */
 .chore-item-completed-tag {
     display: inline-block;
-    padding: 0.1rem 0.4rem;
+    padding: 0.15rem 0.5rem;
     background-color: #7c3aed !important;
     color: #ffffff !important;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    border-radius: 0 !important;
-    border: 2px solid #0d0d13 !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
     margin-right: 0.5rem;
 }
 .tag-other {
     background-color: #065f46 !important;
 }
 
-/* Scroll text area inside ending modal overrides */
+/* 繧ｨ繝ｳ繝・ぅ繝ｳ繧ｰ縺ｮ繧ｹ繧ｯ繝ｭ繝ｼ繝ｫ繝・く繧ｹ繝・*/
 .ending-scroll-text {
-    font-size: 13.5px !important;
-    color: #f4ede2 !important; /* Cream text */
+    font-family: 'Noto Sans JP', sans-serif !important;
+    font-size: 14px !important;
+    color: #fbf5e8 !important;
     line-height: 1.8 !important;
     margin-bottom: 1.5rem !important;
     text-align: left !important;
-    background-color: #0d0d13 !important; /* Dark background */
-    border: 4px solid #0d0d13 !important; /* Solid dark border */
-    border-radius: 0 !important;
-    max-height: 160px !important;
+    background: #1e1815 !important;
+    border: 2px solid #5a3e2b !important;
+    border-radius: 14px !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+    padding: 1rem !important;
+    max-height: 180px !important;
     overflow-y: auto !important;
 }
 
-/* Lucky Chore Badge default retro dark style */
+/* 莉頑律縺ｮ繝ｩ繝・く繝ｼ螳ｶ莠九ヰ繝・ず */
 .lucky-chore-badge {
-    background-color: #1a1a24 !important;
-    color: var(--accent) !important;
-    border: 4px solid #0d0d13 !important;
-    box-shadow: 4px 4px 0px #0d0d13 !important;
-    border-radius: 0 !important;
+    background: linear-gradient(145deg, #382c26 0%, #251d19 100%) !important;
+    color: #ffd700 !important;
+    border: 2px solid #6b4b35 !important;
+    border-radius: 20px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 8px rgba(0, 0, 0, 0.4) !important;
     padding: 0.4rem 1.25rem !important;
     margin: 0.5rem auto 0 !important;
     display: inline-flex !important;
@@ -1466,41 +1491,15 @@ body.theme-dark .btn-ending-close {
     justify-content: center !important;
     font-size: 13px !important;
     font-weight: 700 !important;
-    animation: fadeInStatus 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* Focus state overrides to prevent white-on-white text */
-.settings-input-group input:focus, 
-.settings-input-group select:focus, 
-.spell-input:focus, 
-textarea:focus,
-input:focus,
-select:focus {
-    border-color: var(--accent) !important;
-    background-color: #0d0d13 !important;
-    color: #f4ede2 !important;
-}
-
-/* Cut-in popup box overrides */
+/* 繧ｫ繝・ヨ繧､繝ｳ繝昴ャ繝励い繝・・ */
 .cutin-box {
-    border-radius: 0 !important;
-    border: 4px solid #0d0d13 !important;
-    box-shadow: 4px 4px 0px #0d0d13 !important;
-    background-color: #1a1a24 !important;
-    color: #f4ede2 !important;
-}
-
-/* Completed/Disabled quick add buttons (1-press-per-day) */
-.quick-add-btn.done, 
-.quick-add-btn:disabled {
-    background-color: #0d0d13 !important;
-    color: #555568 !important;
-    border-color: #555568 !important;
-    text-decoration: line-through !important;
-    opacity: 0.6 !important;
-    transform: none !important;
-    box-shadow: 0px 0px 0px #0d0d13 !important;
-    cursor: not-allowed !important;
+    border-radius: 24px !important;
+    border: 4px solid #c8924b !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.3) !important;
+    background: linear-gradient(160deg, #322822 0%, #1f1815 100%) !important;
+    color: #fbf5e8 !important;
 }
 
 /* ==========================================================================
@@ -1525,10 +1524,10 @@ select:focus {
 }
 
 .btn-sound-toggle {
-    background: #1a1a24;
-    border: 3px solid #0d0d13;
-    box-shadow: 3px 3px 0px #0d0d13;
-    border-radius: 0;
+    background: linear-gradient(145deg, #382c26 0%, #251d19 100%);
+    border: 2px solid #5a3e2b;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 6px rgba(0, 0, 0, 0.35);
+    border-radius: 14px;
     width: 38px;
     height: 38px;
     display: flex;
@@ -1536,16 +1535,18 @@ select:focus {
     justify-content: center;
     cursor: pointer;
     font-size: 18px;
-    transition: transform 0.1s, box-shadow 0.1s;
+    transition: transform 0.15s, box-shadow 0.15s;
     user-select: none;
+    color: #ffd700;
 }
 .btn-sound-toggle:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0px #0d0d13;
+    transform: translateY(-2px);
+    border-color: #c8924b;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 5px 10px rgba(0, 0, 0, 0.45);
 }
 .btn-sound-toggle:active {
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0px #0d0d13;
+    transform: translateY(1px);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Share button group */
@@ -1640,7 +1641,7 @@ select:focus {
 /* ==========================================================================
    Environment Themes (Color Palettes & Boost Visuals)
    ========================================================================== */
-/* 🌋 灼熱の火山 (Volcano) */
+/* 結 轣ｼ辭ｱ縺ｮ轣ｫ螻ｱ (Volcano) */
 body.env-volcano {
     --bg-gradient: #201214;
     --card-bg: #261619;
@@ -1650,7 +1651,7 @@ body.env-volcano {
     --accent: #ff4d4d;
 }
 
-/* 🌊 深海の神殿 (Abyss) */
+/* 穴 豺ｱ豬ｷ縺ｮ逾樊ｮｿ (Abyss) */
 body.env-abyss {
     --bg-gradient: #0e1828;
     --card-bg: #132035;
@@ -1660,7 +1661,7 @@ body.env-abyss {
     --accent: #38bdf8;
 }
 
-/* 🍃 天空の樹海 (Sky Forest) */
+/* 鴻 螟ｩ遨ｺ縺ｮ讓ｹ豬ｷ (Sky Forest) */
 body.env-sky {
     --bg-gradient: #102118;
     --card-bg: #152b20;
@@ -1670,7 +1671,7 @@ body.env-sky {
     --accent: #10b981;
 }
 
-/* 🏜️ 砂漠の巨石遺跡 (Earth Ruins) */
+/* 除・・遐よｼ縺ｮ蟾ｨ遏ｳ驕ｺ霍｡ (Earth Ruins) */
 body.env-earth {
     --bg-gradient: #241b14;
     --card-bg: #2d221a;
@@ -1680,7 +1681,7 @@ body.env-earth {
     --accent: #f59e0b;
 }
 
-/* 📟 初代レトロGB (GameBoy 4-shade Green) */
+/* 董 蛻昜ｻ｣繝ｬ繝医ΟGB (GameBoy 4-shade Green) */
 body.env-gameboy {
     --bg-gradient: #1f2a1b;
     --card-bg: #273623;
@@ -1690,7 +1691,7 @@ body.env-gameboy {
     --accent: #9bbc0f;
 }
 
-/* 📜 星降る神殿（Classic） */
+/* 糖 譏滄剄繧狗･樊ｮｿ・・lassic・・*/
 body.env-classic {
     --bg-gradient: #1a1a24;
     --card-bg: #1a1a24;
@@ -1700,7 +1701,7 @@ body.env-classic {
     --accent: #f4ede2;
 }
 
-/* 🌿 Environment Badge in Header */
+/* 諺 Environment Badge in Header */
 .env-badge-container {
     margin-top: 0.4rem;
     display: flex;
@@ -1720,7 +1721,7 @@ body.env-classic {
     letter-spacing: 0.5px;
 }
 
-/* 🏷️ Room Group Label enhancement (Room Icon & Color) */
+/* 捷・・Room Group Label enhancement (Room Icon & Color) */
 .group-label {
     display: flex !important;
     align-items: center;
@@ -1733,7 +1734,7 @@ body.env-classic {
     padding-bottom: 0.25rem;
 }
 
-/* ✔ Done button indicator enhancement */
+/* 笨・Done button indicator enhancement */
 .quick-add-btn.done .done-check-badge {
     margin-left: 0.3rem;
     color: #10b981;
@@ -1742,7 +1743,7 @@ body.env-classic {
     display: inline-block;
 }
 
-/* 🎴 Theme Selection Cards in Settings */
+/* 雫 Theme Selection Cards in Settings */
 .theme-selector-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -1785,7 +1786,7 @@ body.env-classic {
     margin-top: 0.15rem;
 }
 
-/* 📖 Book / Encyclopedia Cards */
+/* 当 Book / Encyclopedia Cards */
 .book-card {
     background: #12121c;
     border: 3px solid #0d0d13;
@@ -1831,7 +1832,7 @@ body.env-classic {
     margin-top: 0.2rem;
 }
 
-/* 👑 MVP Badge in History */
+/* 荘 MVP Badge in History */
 .mvp-badge {
     display: inline-flex;
     align-items: center;
@@ -1845,7 +1846,7 @@ body.env-classic {
     box-shadow: 1px 1px 0px #0d0d13;
 }
 
-/* 🗑️ Trash Day Assist Notice */
+/* 卵・・Trash Day Assist Notice */
 .trash-day-notice {
     font-size: 11px;
     color: var(--accent);
@@ -1853,7 +1854,7 @@ body.env-classic {
     margin-left: 0.4rem;
 }
 
-/* ⭐ Favorites Quick Area */
+/* 箝・Favorites Quick Area */
 .favorites-section {
     background: rgba(255, 215, 0, 0.04);
     border: 2px dashed #ffd70044;
@@ -1870,7 +1871,7 @@ body.env-classic {
     gap: 0.3rem;
 }
 
-/* ⚔️ 突発ボス・名もなき家事討伐クエスト */
+/* 笞費ｸ・遯∫匱繝懊せ繝ｻ蜷阪ｂ縺ｪ縺榊ｮｶ莠玖ｨ惹ｼ舌け繧ｨ繧ｹ繝・*/
 .bounty-card {
     background: #151320 !important;
     border: 3px solid #f59e0b !important;
@@ -1938,7 +1939,7 @@ body.env-classic {
     padding: 0.2rem 0;
 }
 
-/* 🏡 我が家のカジゴン部屋・インテリア飾り */
+/* 升 謌代′螳ｶ縺ｮ繧ｫ繧ｸ繧ｴ繝ｳ驛ｨ螻九・繧､繝ｳ繝・Μ繧｢鬟ｾ繧・*/
 .companion-room-shelf {
     display: flex;
     align-items: center;
@@ -1960,7 +1961,7 @@ body.env-classic {
     white-space: nowrap;
 }
 
-/* 🥠 家事かるた・おみくじ トースト通知 */
+/* ･ 螳ｶ莠九°繧九◆繝ｻ縺翫∩縺上§ 繝医・繧ｹ繝磯夂衍 */
 .fortune-toast {
     position: fixed;
     bottom: 24px;
@@ -2011,7 +2012,7 @@ body.env-classic {
     font-weight: bold;
 }
 
-/* 📰 週刊カジゴン号外ニュース */
+/* 堂 騾ｱ蛻翫き繧ｸ繧ｴ繝ｳ蜿ｷ螟悶ル繝･繝ｼ繧ｹ */
 .weekly-news-paper {
     background: #fdf6e2;
     color: #2b2b2b;
@@ -2088,64 +2089,64 @@ body.env-classic {
 }
 
 /* ==========================================================================
-   🏡 全画面カジゴンの部屋（フルスクリーンたまごっち・ポケスリ風UI）
+   升 蜈ｨ逕ｻ髱｢繧ｫ繧ｸ繧ｴ繝ｳ縺ｮ驛ｨ螻具ｼ域ｸｩ縺九∩縺ｮ縺ゅｋ邨ｵ譛ｬ繝ｻ繝輔ぃ繝ｳ繧ｿ繧ｸ繝ｼ鬚ｨUI・・
    ========================================================================== */
 .tamagotchi-room {
     position: relative;
     width: 100%;
     max-width: 580px;
-    min-height: 580px;
+    min-height: 520px;
     margin: 0 auto;
-    background-color: #1c1b26;
-    background-image: linear-gradient(rgba(10, 10, 15, 0.25), rgba(10, 10, 15, 0.45)), url('images/backgrounds/bg_temple.png');
+    background-color: #241c18;
+    background-image: linear-gradient(rgba(20, 15, 12, 0.25), rgba(20, 15, 12, 0.45)), url('images/backgrounds/bg_temple.png');
     background-size: cover;
     background-position: center bottom;
     background-repeat: no-repeat;
-    border: 5px solid #2f4327;
-    border-radius: 28px;
-    box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.85), 0 12px 28px rgba(0, 0, 0, 0.6);
+    border: 4px solid #5a3e2b;
+    border-radius: 24px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 0 35px rgba(0, 0, 0, 0.75), 0 8px 24px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
-/* 属性テーマに応じたドット絵部屋の壁紙・床変化 */
+/* 螻樊ｧ繝・・繝槭↓蠢懊§縺溘ラ繝・ヨ邨ｵ驛ｨ螻九・螢∫ｴ吶・蠎雁､牙喧 */
 body.theme-fire .tamagotchi-room {
     background-image: linear-gradient(rgba(25, 8, 8, 0.2), rgba(25, 8, 8, 0.4)), url('images/backgrounds/bg_volcano.png');
-    border-color: #5c2020;
+    border-color: #6b2d2d;
 }
 body.theme-water .tamagotchi-room {
     background-image: linear-gradient(rgba(8, 18, 30, 0.2), rgba(8, 18, 30, 0.4)), url('images/backgrounds/bg_abyss.png');
-    border-color: #1e3a5f;
+    border-color: #264368;
 }
 body.theme-wind .tamagotchi-room {
     background-image: linear-gradient(rgba(12, 28, 16, 0.2), rgba(12, 28, 16, 0.4)), url('images/backgrounds/bg_sky.png');
-    border-color: #244f3b;
+    border-color: #2a5a44;
 }
 body.theme-earth .tamagotchi-room {
     background-image: linear-gradient(rgba(30, 20, 12, 0.2), rgba(30, 20, 12, 0.4)), url('images/backgrounds/bg_earth.png');
-    border-color: #4f3b27;
+    border-color: #61462d;
 }
 
-/* 部屋の上部インテリア */
+/* 驛ｨ螻九・荳企Κ繧､繝ｳ繝・Μ繧｢ */
 .room-decor-top {
     position: relative;
     z-index: 10;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 1rem 1rem 0;
+    padding: 0.9rem 1rem 0;
 }
 .room-window {
-    width: 60px;
-    height: 60px;
-    background: #090e1a;
+    width: 58px;
+    height: 58px;
+    background: #0d1322;
     border: 3px solid #785a36;
-    box-shadow: 2px 2px 0 #000;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 3px 8px rgba(0, 0, 0, 0.4);
     position: relative;
     overflow: hidden;
-    border-radius: 2px;
+    border-radius: 12px;
 }
 .window-glass {
     position: relative;
@@ -2173,8 +2174,8 @@ body.theme-earth .tamagotchi-room {
 }
 .window-moon {
     position: absolute;
-    top: 6px;
-    right: 8px;
+    top: 5px;
+    right: 7px;
     font-size: 16px;
 }
 .window-star {
@@ -2183,36 +2184,41 @@ body.theme-earth .tamagotchi-room {
     font-size: 8px;
     opacity: 0.8;
 }
-.window-star.s1 { top: 10px; left: 10px; }
-.window-star.s2 { bottom: 12px; right: 14px; }
+.window-star.s1 { top: 9px; left: 9px; }
+.window-star.s2 { bottom: 10px; right: 12px; }
 
-/* 中央の相棒ステータスバッジ */
+/* 荳ｭ螟ｮ縺ｮ逶ｸ譽偵せ繝・・繧ｿ繧ｹ繝舌ャ繧ｸ・域惠譫繝ｻ逵滄紺隱ｿ・・*/
 .room-status-badge {
-    background: rgba(22, 33, 19, 0.92);
-    border: 2px solid #5a7d4d;
+    background: linear-gradient(160deg, #32261e 0%, #201813 100%);
+    border: 2px solid #c8924b;
     border-radius: 20px;
-    padding: 0.35rem 1rem;
+    padding: 0.35rem 1.1rem;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 .room-status-title {
     font-size: 13px;
     font-weight: 900;
-    color: #9bbc0f;
+    color: #ffd700;
     letter-spacing: 0.5px;
+    font-family: 'DotGothic16', monospace;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 2px 4px rgba(0,0,0,0.6);
 }
 .room-status-sub {
-    font-size: 10px;
-    color: #a0a0b0;
-    font-family: monospace;
+    font-size: 10.5px;
+    color: #d4c5b5;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500;
+    margin-top: 1px;
 }
 
-/* ランプ */
+/* 繝ｩ繝ｳ繝・*/
 .room-lamp {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
+    cursor: pointer;
 }
 .lamp-cord {
     width: 2px;
@@ -2225,7 +2231,6 @@ body.theme-earth .tamagotchi-room {
     justify-content: center;
     filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.85));
     animation: lampFlicker 3s infinite ease-in-out;
-    cursor: pointer;
 }
 .lamp-shade img {
     width: 44px;
@@ -2242,73 +2247,58 @@ body.theme-earth .tamagotchi-room {
     50% { opacity: 0.85; transform: scale(1.04); }
 }
 
-/* 🏡 部屋の中央ステージ */
-.room-stage {
+/* ｪ・縺企Κ螻九・繧､繝ｳ繝・Μ繧｢繝舌ャ繧ｸ譽夲ｼ域而縺医ａ縺ｪ繧ｯ繧､繝・け繧｢繧､繧ｳ繝ｳ鄒､・・*/
+.room-interior-badges {
     position: relative;
     z-index: 10;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    padding: 0.5rem 0.6rem;
-    flex: 1;
+    gap: 0.45rem;
+    padding: 0.4rem 1rem 0.2rem;
+    flex-wrap: wrap;
 }
-
-/* 👈 👉 左右サイドのコンパクトボタン群 */
-.room-side-col {
-    position: relative;
-    z-index: 999;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    pointer-events: auto;
-    flex-shrink: 0;
+.interior-badge-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    background: linear-gradient(145deg, #362a24 0%, #221a16 100%) !important;
+    border: 2px solid #6b4b35 !important;
+    border-radius: 14px !important;
+    padding: 0.25rem 0.6rem !important;
+    cursor: pointer !important;
+    color: #fbf5e8 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+    position: relative !important;
+    user-select: none !important;
+    transition: all 0.15s ease-out !important;
 }
-.side-action-btn {
-    width: 58px;
-    height: 62px;
-    background: rgba(18, 24, 20, 0.92);
-    border: 2.5px solid #4a6741;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 2px 2px 0px #0d0d13;
-    transition: all 0.15s ease-out;
-    position: relative;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-    pointer-events: auto;
-    -webkit-tap-highlight-color: transparent;
+.interior-badge-btn:hover {
+    transform: translateY(-1px) scale(1.04) !important;
+    border-color: #c8924b !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 4px 10px rgba(0, 0, 0, 0.4) !important;
 }
-.side-action-btn:hover {
-    transform: scale(1.06);
-    filter: brightness(1.15);
+.interior-badge-btn:active {
+    transform: translateY(1px) scale(0.98) !important;
 }
-.side-action-btn:active {
-    transform: scale(0.95);
-    box-shadow: 0 0 0;
-}
-.side-btn-icon {
-    font-size: 22px;
+.interior-badge-btn .badge-icon {
+    font-size: 14px;
     line-height: 1;
 }
-.side-btn-label {
-    font-size: 9px;
-    font-weight: 800;
-    margin-top: 3px;
-    color: #f4ede2;
-    letter-spacing: -0.5px;
+.interior-badge-btn .badge-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: #e8dccb;
+    letter-spacing: -0.2px;
 }
-.side-btn-badge {
+.interior-badge-btn .side-btn-badge {
     position: absolute;
     top: -4px;
     right: -4px;
     width: 14px;
     height: 14px;
-    background: #ff4b4b;
+    background: #ef4444;
     color: white;
     font-size: 10px;
     font-weight: bold;
@@ -2324,30 +2314,130 @@ body.theme-earth .tamagotchi-room {
     50% { transform: scale(1.2); }
 }
 
-/* 各ボタンのアクセント色 */
-.side-quest-btn { border-color: #ff4b4b; }
-.side-quest-btn .side-btn-label { color: #f87171; }
-.side-karuta-btn { border-color: #8b5cf6; }
-.side-karuta-btn .side-btn-label { color: #a78bfa; }
-.side-news-btn { border-color: #f59e0b; }
-.side-news-btn .side-btn-label { color: #fbbf24; }
-.side-sound-btn { border-color: #ec4899; }
-.side-sound-btn .side-btn-label { color: #f472b6; }
-
-.side-add-btn { 
-    background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
-    border-color: #ffffff;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+/* 升 驛ｨ螻九・荳ｭ螟ｮ繧ｹ繝・・繧ｸ・亥ｺ・・→縺励◆縺上▽繧阪℃繧ｹ繝壹・繧ｹ・・*/
+.room-stage {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    flex: 1;
 }
-.side-add-btn .side-btn-label { color: #0d0d13; font-weight: 900; }
-.side-share-btn { border-color: #38bdf8; }
-.side-share-btn .side-btn-label { color: #38bdf8; }
-.side-book-btn { border-color: #34d399; }
-.side-book-btn .side-btn-label { color: #34d399; }
-.side-settings-btn { border-color: #94a3b8; }
-.side-settings-btn .side-btn-label { color: #cbd5e1; }
 
-/* 🐉 部屋の中央ペットエリア */
+/* 蟒・ｭ｢縺輔ｌ縺溷ｷｦ蜿ｳ繧ｵ繧､繝峨・繧ｿ繝ｳ縺ｯ髱櫁｡ｨ遉ｺ */
+.room-side-col, .side-action-btn {
+    display: none !important;
+}
+
+/* 升 蝗ｺ螳壹さ繝ｼ繧ｸ繝ｼ鬚ｨ繝懊ヨ繝繝翫ン繧ｲ繝ｼ繧ｷ繝ｧ繝ｳ繝舌・ */
+.cozy-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9990;
+    background: linear-gradient(180deg, #2c231e 0%, #1c1613 100%);
+    border-top: 3px solid #5a3e2b;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    padding: 0.35rem 0.5rem;
+    padding-bottom: calc(0.35rem + env(safe-area-inset-bottom, 0px));
+}
+.bottom-nav-inner {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+}
+.nav-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    color: #bbaea0;
+    padding: 0.3rem 0;
+    transition: all 0.15s ease-out !important;
+}
+.nav-tab:hover, .nav-tab.active {
+    transform: translateY(-2px);
+    color: #ffd700;
+}
+.nav-tab:active {
+    transform: translateY(1px);
+}
+.nav-tab .nav-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+.nav-tab .nav-label {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+/* 荳ｭ螟ｮ迚ｹ螟ｧ荳ｸ繝懊ち繝ｳ・亥ｮｶ莠九″繧阪￥・・*/
+.nav-main-slot {
+    flex: 1.1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.nav-main-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    margin-top: -24px;
+    padding: 0;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+.nav-main-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%) !important;
+    border: 3px solid #fff5dd !important;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.55), inset 0 2px 2px rgba(255, 255, 255, 0.7), 0 2px 5px rgba(0, 0, 0, 0.4) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.nav-main-icon {
+    font-size: 28px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+.nav-main-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd700;
+    margin-top: 4px;
+    font-family: 'Noto Sans JP', sans-serif;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+}
+.nav-main-btn:hover .nav-main-circle {
+    transform: scale(1.08) translateY(-3px);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.7), inset 0 2px 2px rgba(255, 255, 255, 0.9) !important;
+}
+.nav-main-btn:active .nav-main-circle {
+    transform: scale(0.95) translateY(1px);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4) !important;
+}
+
+/* 翠 驛ｨ螻九・荳ｭ螟ｮ繝壹ャ繝医お繝ｪ繧｢ */
 .room-center-pet-area {
     flex: 1;
     display: flex;
@@ -2411,7 +2501,7 @@ body.theme-earth .tamagotchi-room {
     transform: scale(1.05);
 }
 
-/* 部屋の床家具 */
+/* 驛ｨ螻九・蠎雁ｮｶ蜈ｷ */
 .room-floor-furniture {
     position: absolute;
     bottom: 12px;
@@ -2443,7 +2533,7 @@ body.theme-earth .tamagotchi-room {
     50% { transform: translateY(-4px) rotate(2deg); }
 }
 
-/* 🔻 部屋の最下部：折りたたみ式の「最近やったこと」引き出し */
+/* 判 驛ｨ螻九・譛荳矩Κ・壽釜繧翫◆縺溘∩蠑上・縲梧怙霑代ｄ縺｣縺溘％縺ｨ縲榊ｼ輔″蜃ｺ縺・*/
 .room-bottom-drawer {
     position: relative;
     z-index: 20;
@@ -2482,7 +2572,7 @@ body.theme-earth .tamagotchi-room {
     border: 1px solid #3b5033;
 }
 .chore-log-details[open] .chore-log-toggle-icon {
-    content: "▼ 閉じる";
+    content: "笆ｼ 髢峨§繧・;
 }
 .chore-log-list {
     margin-top: 0.6rem;
@@ -2504,10 +2594,10 @@ body.theme-earth .tamagotchi-room {
 
 
 /* ==========================================================================
-   ✨ v2.6.0 新機能スタイル（トースト、スマートUndo、窓、テーマ壁紙、工房）
+   笨ｨ v2.6.0 譁ｰ讖溯・繧ｹ繧ｿ繧､繝ｫ・医ヨ繝ｼ繧ｹ繝医√せ繝槭・繝・ndo縲∫ｪ薙√ユ繝ｼ繝槫｣∫ｴ吶∝ｷ･謌ｿ・・
    ========================================================================== */
 
-/* 🍞 グローバルトースト通知 */
+/* 込 繧ｰ繝ｭ繝ｼ繝舌Ν繝医・繧ｹ繝磯夂衍 */
 .global-toast-container {
     position: fixed;
     bottom: 24px;
@@ -2574,7 +2664,7 @@ body.theme-earth .tamagotchi-room {
     }
 }
 
-/* ↩️ スマートUndoボタンのパルス発光 */
+/* 竊ｩ・・繧ｹ繝槭・繝・ndo繝懊ち繝ｳ縺ｮ繝代Ν繧ｹ逋ｺ蜈・*/
 .quick-add-btn.undo-ready {
     border-color: #f87171 !important;
     box-shadow: 0 0 10px rgba(248, 113, 113, 0.6) !important;
@@ -2589,7 +2679,7 @@ body.theme-earth .tamagotchi-room {
     }
 }
 
-/* 🪟 窓の時間帯別（朝・昼・夕・夜）スタイル */
+/* ｪ・遯薙・譎る俣蟶ｯ蛻･・域悃繝ｻ譏ｼ繝ｻ螟輔・螟懶ｼ峨せ繧ｿ繧､繝ｫ */
 .room-window.window-morning {
     background: linear-gradient(180deg, #60a5fa 0%, #bae6fd 100%) !important;
     border-color: #7dd3fc !important;
@@ -2607,7 +2697,7 @@ body.theme-earth .tamagotchi-room {
     border-color: #2e2e48 !important;
 }
 
-/* 🌋 6大テーマ背景（Lv.10解放壁紙パターン） */
+/* 結 6螟ｧ繝・・繝櫁レ譎ｯ・・v.10隗｣謾ｾ螢∫ｴ吶ヱ繧ｿ繝ｼ繝ｳ・・*/
 body.env-volcano .tamagotchi-room {
     background-image: linear-gradient(rgba(25, 8, 8, 0.2), rgba(25, 8, 8, 0.4)), url('images/backgrounds/bg_volcano.png') !important;
     border-color: #e11d48 !important;
@@ -2638,7 +2728,7 @@ body.env-gameboy .tamagotchi-room {
     border-color: #8bac0f !important;
 }
 
-/* 📜 古代の石板画像共有ボタン強調 */
+/* 糖 蜿､莉｣縺ｮ遏ｳ譚ｿ逕ｻ蜒丞・譛峨・繧ｿ繝ｳ蠑ｷ隱ｿ */
 .btn-share-ancient {
     background: linear-gradient(135deg, #8b5a2b 0%, #c8924b 100%) !important;
     color: #fff !important;
@@ -2649,4 +2739,582 @@ body.env-gameboy .tamagotchi-room {
 .btn-share-ancient:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(200, 146, 75, 0.6) !important;
+}
+
+/* 坎 繧ｳ繝ｼ繧ｸ繝ｼ鬚ｨ繝｢繝ｼ繝繝ｫ繝倥ャ繝繝ｼ髢峨§繧九・繧ｿ繝ｳ */
+.btn-modal-close-header {
+    background: linear-gradient(135deg, #44342b 0%, #2e231c 100%) !important;
+    color: #ffd700 !important;
+    border: 1.5px solid #6b4b35 !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    padding: 0.35rem 0.75rem !important;
+    cursor: pointer !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.15s ease-out !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+.btn-modal-close-header:hover {
+    border-color: #ffd700 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+}
+.btn-modal-close-header:active {
+    transform: translateY(1px) !important;
+}
+
+/* 捷・・繧ｳ繝ｼ繧ｸ繝ｼ鬚ｨ繝｢繝ｼ繝繝ｫ繧ｿ繝悶・繧ｿ繝ｳ */
+.modal-tab-btn {
+    flex: 1;
+    padding: 0.45rem 0.5rem !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    border-radius: 12px !important;
+    border: 1.5px solid #5a3e2b !important;
+    background: linear-gradient(145deg, #2e241f 0%, #201815 100%) !important;
+    color: #d4c5b5 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+.modal-tab-btn:hover, .modal-tab-btn.active {
+    border-color: #ffd700 !important;
+    color: #ffd700 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ==========================================================================
+   笨ｨ 縺贋ｸ冶ｩｱ繝ｻ諢帷捩繝ｻ螳ｶ蜈ｷ繧ｮ繝溘ャ繧ｯ ・・謇玖ｧｦ繧奇ｼ・uice・峨い繝九Γ繝ｼ繧ｷ繝ｧ繝ｳ
+   ========================================================================== */
+
+/* 翠 繧ｫ繧ｸ繧ｴ繝ｳ縺ｮ繧ｹ繝励Μ繝ｳ繧ｰ繝ｻ繧ｿ繝・・貍泌・ */
+@keyframes petSpringBounce {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.15, 0.85); }
+    60% { transform: scale(0.9, 1.1); }
+    80% { transform: scale(1.05, 0.95); }
+    100% { transform: scale(1); }
+}
+.pet-spring-bounce {
+    animation: petSpringBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+/* 猪 闊槭＞荳翫′繧九ワ繝ｼ繝医ヱ繝ｼ繝・ぅ繧ｯ繝ｫ */
+.floating-heart {
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    user-select: none;
+    font-size: 24px;
+    animation: floatHeartUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+@keyframes floatHeartUp {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+    }
+    50% {
+        transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 40px)) scale(1.2) rotate(var(--rot, 10deg));
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 85px)) scale(1.4) rotate(var(--rot, 20deg));
+    }
+}
+
+/* 氏 繧ｫ繧ｸ繧ｴ繝ｳ縺ｮ鬆ｭ荳翫♀縺ｿ繧・￡蜷ｹ縺榊・縺・*/
+.companion-gift-bubble {
+    position: absolute;
+    top: -38px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
+    border: 2.5px solid #fff;
+    border-radius: 20px;
+    padding: 0.25rem 0.65rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    animation: floatGift 2s ease-in-out infinite;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    user-select: none;
+}
+.companion-gift-bubble:hover {
+    transform: translateX(-50%) scale(1.18);
+}
+.companion-gift-bubble:active {
+    transform: translateX(-50%) scale(0.95);
+}
+@keyframes floatGift {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-7px); }
+}
+.gift-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+.gift-sparkle {
+    font-size: 11px;
+    animation: spinGlow 2s linear infinite;
+}
+@keyframes spinGlow {
+    0% { transform: rotate(0deg) scale(0.8); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(0.8); }
+}
+
+/* 当 繧ｫ繧ｸ繧ｴ繝ｳ譌･險假ｼ井ｸ榊惠譎ゅ・縺､縺ｶ繧・″・峨お繝ｪ繧｢ */
+.companion-diary-card {
+    margin: 0.35rem 1rem 0.5rem;
+    background: linear-gradient(160deg, #2e241f 0%, #201815 100%);
+    border: 2px solid #5a3e2b;
+    border-radius: 14px;
+    padding: 0.45rem 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 3px 8px rgba(0, 0, 0, 0.35);
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    user-select: none;
+    z-index: 10;
+    position: relative;
+}
+.companion-diary-card:hover {
+    transform: translateY(-1px);
+    border-color: #c8924b;
+    background: linear-gradient(160deg, #362a24 0%, #261d19 100%);
+}
+.companion-diary-card:active {
+    transform: translateY(1px);
+}
+.diary-icon {
+    font-size: 15px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.diary-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd700;
+    white-space: nowrap;
+    font-family: 'DotGothic16', monospace;
+    letter-spacing: 0.5px;
+}
+.diary-text {
+    font-size: 12px;
+    color: #fbf5e8;
+    line-height: 1.4;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+.diary-refresh {
+    font-size: 11px;
+    opacity: 0.6;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+.companion-diary-card:hover .diary-refresh {
+    opacity: 1;
+    transform: rotate(180deg);
+}
+
+/* 庁 繝ｩ繝ｳ繝励・譏取囓蛻・ｊ譖ｿ縺・*/
+.tamagotchi-room.lamp-off {
+    filter: brightness(0.65) contrast(1.1);
+    transition: filter 0.35s ease;
+}
+.tamagotchi-room:not(.lamp-off) {
+    transition: filter 0.35s ease;
+}
+.tamagotchi-room.lamp-off .lamp-glow {
+    display: none !important;
+}
+.tamagotchi-room.lamp-off .lamp-shade {
+    filter: none !important;
+    animation: none !important;
+    opacity: 0.6;
+}
+
+/* 佐 貉ｯ豌励ヱ繝ｼ繝・ぅ繧ｯ繝ｫ・医す繝√Η繝ｼ骰具ｼ・*/
+.steam-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    user-select: none;
+    font-size: 20px;
+    opacity: 0.9;
+    animation: floatSteamUp 1.4s ease-out forwards;
+    filter: blur(0.5px);
+}
+@keyframes floatSteamUp {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.6);
+    }
+    25% {
+        opacity: 0.9;
+        transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 25px)) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 70px)) scale(1.5);
+    }
+}
+.pot-bounce {
+    animation: potWiggle 0.4s ease-in-out !important;
+}
+@keyframes potWiggle {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.15, 0.85) rotate(-3deg); }
+    50% { transform: scale(0.9, 1.1) rotate(3deg); }
+    75% { transform: scale(1.05, 0.95) rotate(-1deg); }
+}
+
+/* ｪｴ 隕ｳ闡画､咲黄縺ｮ豌ｴ繧・ｊ繧ｨ繝輔ぉ繧ｯ繝・*/
+.water-drop-effect {
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    font-size: 22px;
+    animation: waterDropFall 0.8s ease-in forwards;
+}
+@keyframes waterDropFall {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -70px) scale(0.6);
+    }
+    40% {
+        opacity: 1;
+        transform: translate(-50%, -30px) scale(1.1);
+    }
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -10px) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, 0px) scale(1.4);
+    }
+}
+.plant-bounce {
+    animation: plantHappyBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+@keyframes plantHappyBounce {
+    0%, 100% { transform: scale(1); }
+    40% { transform: scale(1.12, 0.9) rotate(-4deg); }
+    70% { transform: scale(0.95, 1.08) rotate(3deg); }
+}
+
+/* 検 繧ｭ繝ｩ繧ｭ繝ｩEXP繧ｪ繝ｼ繝匁ｼ泌・・域叛迚ｩ邱夐｣帷ｿ・Juice・・*/
+.exp-orb {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff9e6 0%, #ffd700 45%, #f59e0b 100%);
+    box-shadow: 0 0 12px #ffd700, 0 0 24px rgba(245, 158, 11, 0.85);
+    pointer-events: none;
+    z-index: 999999;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s;
+}
+.exp-orb-trail {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ffd700;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 999998;
+    animation: trailFade 0.4s ease-out forwards;
+}
+@keyframes trailFade {
+    0% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+}
+.orb-impact-flash {
+    animation: orbImpact 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+@keyframes orbImpact {
+    0% { filter: drop-shadow(0 0 0px #ffd700); }
+    40% { filter: drop-shadow(0 0 30px #ffd700) brightness(1.35); transform: scale(1.14); }
+    100% { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)); transform: scale(1); }
+}
+
+/* 柱 繝代・繝医リ繝ｼ縺九ｉ縺ｮ蜷梧悄縺頑焔邏吶Δ繝ｼ繝繝ｫ 繧ｹ繧ｿ繧､繝ｫ */
+.sync-letter-card {
+    background: linear-gradient(160deg, #2c211b 0%, #1c1613 100%) !important;
+    border: 3px solid #b45309 !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 32px rgba(0,0,0,0.7) !important;
+    border-radius: 20px !important;
+    padding: 1.5rem !important;
+}
+@keyframes floatStamp {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-6px) rotate(4deg);
+    }
+}
+.btn-share-sync-link:hover {
+    filter: brightness(1.12);
+    transform: translateY(-2px);
+}
+.btn-share-sync-link:active {
+    transform: translateY(1px);
+}
+
+/* ==========================================================================
+   桁 縲舌ヵ繧ｧ繝ｼ繧ｺ4縲第凾髢灘ｸｯ蛻･繧｢繝ｳ繝薙お繝ｳ繝育・譏趣ｼ域悃繝ｻ譏ｼ繝ｻ螟輔・螟懶ｼ・
+   ========================================================================== */
+.tamagotchi-room {
+    transition: box-shadow 0.6s ease, filter 0.5s ease;
+}
+
+/* 桁 譛晢ｼ・:00 - 10:59・・ 辷ｽ繧・°縺ｪ鮟・≡縺ｮ譛晏・繝ｻ繧ｽ繝輔ヨ縺ｪ譛ｨ貍上ｌ譌･ */
+.tamagotchi-room.ambient-morning {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 0 70px rgba(253, 230, 138, 0.22), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+.tamagotchi-room.ambient-morning::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(254, 243, 199, 0.16) 0%, rgba(253, 230, 138, 0.06) 45%, transparent 80%);
+    pointer-events: none;
+    z-index: 5;
+    mix-blend-mode: screen;
+}
+
+/* 笘・・譏ｼ・・1:00 - 16:59・・ 髯ｽ縺縺ｾ繧翫・繧ｯ繝ｪ繧｢縺ｪ閾ｪ辟ｶ蜈・*/
+.tamagotchi-room.ambient-noon {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), inset 0 0 50px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 欠 螟墓婿・・7:00 - 19:59・・ 闌懆牡縺ｮ隘ｿ譌･繝ｻ貂ｩ縺九＞繧｢繝ｳ繝舌・ */
+.tamagotchi-room.ambient-evening {
+    box-shadow: inset 0 1px 0 rgba(255, 200, 150, 0.35), inset 0 0 90px rgba(251, 146, 60, 0.25), 0 8px 24px rgba(0, 0, 0, 0.55) !important;
+}
+.tamagotchi-room.ambient-evening::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(160deg, rgba(251, 146, 60, 0.18) 0%, rgba(244, 63, 94, 0.08) 55%, rgba(30, 20, 15, 0.2) 100%);
+    pointer-events: none;
+    z-index: 5;
+    mix-blend-mode: soft-light;
+}
+
+/* 嫌 螟懶ｼ・0:00 - 4:59・・ 繝・ぅ繝ｼ繝励ヶ繝ｫ繝ｼ貂帛・ ・・繝ｩ繝ｳ繝礼匱蜈牙ｼｷ隱ｿ */
+.tamagotchi-room.ambient-night {
+    box-shadow: inset 0 1px 0 rgba(147, 197, 253, 0.2), inset 0 0 110px rgba(15, 23, 42, 0.65), 0 8px 28px rgba(0, 0, 0, 0.7) !important;
+}
+.tamagotchi-room.ambient-night::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.35) 0%, rgba(30, 27, 75, 0.25) 60%, rgba(10, 10, 18, 0.45) 100%);
+    pointer-events: none;
+    z-index: 5;
+}
+.tamagotchi-room.ambient-night:not(.lamp-off) .lamp-shade {
+    filter: drop-shadow(0 0 18px rgba(251, 191, 36, 1)) drop-shadow(0 0 40px rgba(245, 158, 11, 0.85)) !important;
+}
+.tamagotchi-room.ambient-night:not(.lamp-off) .lamp-glow {
+    opacity: 0.95 !important;
+    transform: translate(-50%, -50%) scale(1.3) !important;
+}
+
+/* ==========================================================================
+   彫 縲舌ヵ繧ｧ繝ｼ繧ｺ5縲代き繧ｸ繧ｴ繝ｳ縺ｮ迥ｶ諷句､牙喧・医☆繧・☆繧・ｱ・悛繧・・・縺斐″縺偵ｓ謨｣豁ｩ・・
+   ========================================================================== */
+.companion-sleeping {
+    animation: petSleepBreathing 3.6s ease-in-out infinite !important;
+}
+@keyframes petSleepBreathing {
+    0%, 100% { transform: scale(1, 0.96) translateY(2px); }
+    50% { transform: scale(1.03, 1) translateY(0px); }
+}
+
+.sleep-bubble {
+    position: absolute;
+    top: -24px;
+    right: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #93c5fd;
+    animation: floatZzz 2.8s ease-in-out infinite;
+    pointer-events: none;
+    user-select: none;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+@keyframes floatZzz {
+    0% { opacity: 0; transform: translate(0, 6px) scale(0.6); }
+    30% { opacity: 1; transform: translate(4px, 0px) scale(1); }
+    80% { opacity: 0.9; transform: translate(12px, -14px) scale(1.2); }
+    100% { opacity: 0; transform: translate(18px, -24px) scale(1.3); }
+}
+
+.companion-walking {
+    animation: petHappyWalk 1.8s ease-in-out infinite !important;
+}
+@keyframes petHappyWalk {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-4px) rotate(-2deg); }
+    50% { transform: translateY(0) rotate(0deg); }
+    75% { transform: translateY(-4px) rotate(2deg); }
+}
+
+/* ==========================================================================
+   鋤・・縲舌ヵ繧ｧ繝ｼ繧ｺ6縲大・霈ｩ繧ｫ繧ｸ繧ｴ繝ｳ縺ｮ驥悟ｸｰ繧願ｨｪ蝠・・・谿ｿ蝣ょ刈隴ｷ繝舌リ繝ｼ
+   ========================================================================== */
+.hall-blessing-banner {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.25) 100%);
+    border: 2px solid #ffd700;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+}
+.hall-blessing-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffd700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+.hall-blessing-desc {
+    font-size: 11px;
+    color: #fde68a;
+    margin-top: 0.2rem;
+}
+
+/* 縺企Κ螻九・驥悟ｸｰ繧翫せ繝ｭ繝・ヨ */
+.room-visitor-slot {
+    position: absolute;
+    top: 70px;
+    left: 20px;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.room-visitor-slot:hover {
+    transform: scale(1.08);
+}
+.visitor-avatar-img {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.75)) drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+    animation: visitorFloat 2.6s ease-in-out infinite;
+}
+@keyframes visitorFloat {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-6px) rotate(2deg); }
+}
+.visitor-speech-bubble {
+    background: rgba(30, 25, 22, 0.92);
+    border: 1.5px solid #ffd700;
+    border-radius: 12px;
+    padding: 0.35rem 0.6rem;
+    font-size: 10px;
+    color: #fef08a;
+    white-space: nowrap;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+    margin-top: -6px;
+    animation: pulse 2s infinite;
+}
+
+/* ==========================================================================
+   醇 縲舌ヵ繧ｧ繝ｼ繧ｺ7縲台ｺ後▽蜷咲ｧｰ蜿ｷ繧ｷ繧ｹ繝・Β ・・縺翫≧縺｡縺ｮ螳溽ｸｾ繝懊・繝・
+   ========================================================================== */
+.title-tag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(180, 83, 9, 0.3) 100%);
+    border: 1px solid #d97706;
+    border-radius: 14px;
+    padding: 0.15rem 0.6rem;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fbbf24;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.title-tag-badge:hover {
+    background: rgba(245, 158, 11, 0.35);
+    transform: scale(1.04);
+}
+
+.achievement-card {
+    background: #1c1815;
+    border: 2px solid #5a3e2b;
+    border-radius: 12px;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s;
+}
+.achievement-card.completed {
+    border-color: #d97706;
+    background: linear-gradient(135deg, #241c16 0%, #1c1613 100%);
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.2);
+}
+.achievement-card.locked {
+    opacity: 0.6;
+    filter: grayscale(0.5);
+}
+.achievement-icon {
+    font-size: 26px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #14100d;
+    border-radius: 10px;
+    border: 1px solid #443226;
+}
+.achievement-card.completed .achievement-icon {
+    border-color: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+}
+.achievement-info {
+    flex: 1;
+}
+.achievement-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+}
+.achievement-desc {
+    font-size: 11px;
+    color: #a8a29e;
+    margin-top: 0.15rem;
+}
+.achievement-reward {
+    font-size: 10px;
+    color: #fbbf24;
+    font-weight: 600;
+    margin-top: 0.2rem;
 }

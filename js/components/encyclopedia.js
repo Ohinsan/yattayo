@@ -294,7 +294,7 @@ function drawDailyKarutaFortune() {
     const chosen = list[Math.floor(Math.random() * list.length)];
     const isUltra = (chosen.rarity === 'ultra');
     const isRare = (chosen.rarity === 'rare');
-    
+
     // ボーナス倍率の決定
     let multiplier = 1.0;
     if (isUltra) {
@@ -378,10 +378,21 @@ function renderKarutaTab() {
     container.innerHTML = html;
 }
 
-// 図鑑モーダル（精霊／かるた／殿堂 タブ）
+// 図鑑モーダル（精霊／かるた／殿堂／実績 タブ）
 let currentBookTab = 'spirits';
 function switchBookTab(tab) {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
     currentBookTab = tab;
+
+    // タブボタンのアクティブクラス更新
+    ['spirits', 'karuta', 'hall_of_fame', 'achievements'].forEach(t => {
+        const btn = document.getElementById(`book-tab-${t}`);
+        if (btn) {
+            if (t === tab) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+    });
+
     renderBookModal();
 }
 
@@ -395,6 +406,143 @@ function renderBookModal() {
         renderKarutaTab();
     } else if (currentBookTab === 'hall_of_fame') {
         renderHallOfFameTab();
+    } else if (currentBookTab === 'achievements') {
+        renderAchievementsTab();
+    }
+}
+
+function renderHallOfFameTab() {
+    const container = document.getElementById('book-content-container');
+    if (!container) return;
+
+    const list = getHallOfFameList();
+    const blessingBonus = (typeof getHallOfFameBlessingBonus === 'function') ? getHallOfFameBlessingBonus() : Math.min(50, list.length * 5);
+
+    let html = `
+        <!-- 🏛️ 【フェーズ6】パッシブ加護ボーナス表示バナー -->
+        <div class="hall-blessing-banner">
+            <div class="hall-blessing-title">
+                <span>🏛️ 歴代の守護加護:</span>
+                <span style="font-size: 16px; color: #ffd700;">家事獲得EXP +${blessingBonus}%</span>
+            </div>
+            <div class="hall-blessing-desc">
+                殿堂入りした精霊1体ごとに永続+5%加算（現在: ${list.length}体 / 最大+50%）
+            </div>
+        </div>
+
+        <div style="font-size: 13px; font-weight: bold; color: var(--accent); margin-bottom: 0.6rem; text-align: center;">
+            📜 歴代カジゴン殿堂入りアルバム
+        </div>
+        ${list.length === 0 ? `
+            <div style="background:#14141f; border:2px dashed #444; border-radius:8px; padding:1.5rem; text-align:center; color:#888; font-size:12px;">
+                まだ巣立ったカジゴンはいません。<br>Lv.10まで育てて「そだてなおす」と、ここに殿堂入りして永久におうちを加護します！
+            </div>
+        ` : `
+            <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                ${list.map(item => `
+                    <div style="background:#14141f; border:2px solid #ffd700; border-radius:8px; padding:0.6rem 0.8rem; display:flex; align-items:center; gap:0.8rem;">
+                        <img src="${item.spiritFile}" style="width:50px; height:50px; object-fit:contain; image-rendering:pixelated; background:#07070a; border-radius:6px;">
+                        <div style="flex:1;">
+                            <div style="font-size:11px; color:#ffd700; font-weight:bold;">第${item.generation}世代 相棒：【${item.name}】</div>
+                            <div style="font-size:13px; font-weight:bold; color:#fff;">${item.spiritName}</div>
+                            <div style="font-size:10px; color:#a1a1aa;">達成日: ${item.date} | 累計EXP: ${item.totalExp}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `}
+        <div style="margin-top: 1.2rem; text-align: center;">
+            <button onclick="closeBookModal(); rebreedCompanion();" style="background: rgba(234, 88, 12, 0.2); border: 2px solid #ea580c; color: #f97316; font-size: 13px; font-weight: bold; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; width: 100%;">
+                🥚 新しい相棒をそだてなおす（世代交代）
+            </button>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+/**
+ * 🏆 【フェーズ7】二つ名称号 ＆ 特別実績ボード描画
+ */
+function renderAchievementsTab() {
+    const container = document.getElementById('book-content-container');
+    if (!container) return;
+
+    if (typeof checkAchievementsAndTitles === 'function') {
+        checkAchievementsAndTitles();
+    }
+
+    const unlockedTitles = kajigonState.unlockedTitles || [];
+    const currentTitleId = kajigonState.selectedTitle;
+    const currentTitle = (typeof TITLES_DATA !== 'undefined') ? TITLES_DATA.find(t => t.id === currentTitleId) : null;
+
+    const achievements = kajigonState.achievements || {};
+    const achieveList = (typeof ACHIEVEMENTS_DATA !== 'undefined') ? ACHIEVEMENTS_DATA : [];
+    const completedCount = achieveList.filter(a => !!achievements[a.id]).length;
+    const totalCount = achieveList.length;
+
+    let html = `
+        <!-- 🎖️ 二つ名称号セレクター -->
+        <div style="background: #1c1815; border: 2px solid #d97706; border-radius: 12px; padding: 0.9rem; margin-bottom: 1rem;">
+            <div style="font-size: 13px; font-weight: 800; color: #fbbf24; margin-bottom: 0.3rem;">
+                🎖️ セット中の二つ名: <span style="color: #fff; font-size: 14px;">${currentTitle ? `${currentTitle.icon} ${currentTitle.name}` : '（なし）'}</span>
+            </div>
+            <p style="font-size: 11px; color: #a8a29e; margin-bottom: 0.6rem;">獲得した二つ名はプロフィールやお部屋、古代石板シェア画像に誇らしく刻まれます。</p>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                ${(typeof TITLES_DATA !== 'undefined' ? TITLES_DATA : []).map(t => {
+                    const isUnlocked = unlockedTitles.includes(t.id);
+                    const isSelected = currentTitleId === t.id;
+                    return `
+                        <button class="title-tag-badge ${isSelected ? 'active' : ''}"
+                                onclick="${isUnlocked ? `selectTitle('${t.id}')` : `alert('🔒 未獲得の称号\\n${t.desc}')`}"
+                                style="${!isUnlocked ? 'opacity: 0.45; filter: grayscale(0.8); cursor: not-allowed; border-color: #555;' : ''} ${isSelected ? 'background: #b45309; color: #fff; border-color: #fef08a;' : ''}">
+                            <span>${isUnlocked ? t.icon : '🔒'}</span>
+                            <span>${t.name}</span>
+                            ${isSelected ? '<span style="font-size:10px;">✔</span>' : ''}
+                        </button>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+
+        <!-- 🏆 おうち特別実績ボード -->
+        <div style="margin-bottom: 0.6rem; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 13px; font-weight: 800; color: #ffd700;">🏆 おうち特別実績ボード</div>
+            <div style="font-size: 11px; color: #f59e0b; font-weight: bold;">達成度: ${completedCount} / ${totalCount} (${Math.round((completedCount / totalCount) * 100)}%)</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+            ${achieveList.map(a => {
+                const isDone = !!achievements[a.id];
+                const dateStr = isDone && typeof achievements[a.id] === 'number' ? new Date(achievements[a.id]).toLocaleDateString() : '';
+                return `
+                    <div class="achievement-card ${isDone ? 'completed' : 'locked'}">
+                        <div class="achievement-icon">${isDone ? a.icon : '🔒'}</div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">${a.name} ${isDone ? '<span style="color:#10b981; font-size:10px;">【達成】</span>' : ''}</div>
+                            <div class="achievement-desc">${a.desc}</div>
+                            <div class="achievement-reward">🎁 報酬: ${a.reward} ${dateStr ? `(${dateStr})` : ''}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+function selectTitle(titleId) {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
+    kajigonState.selectedTitle = titleId;
+    saveToLocalStorage();
+    if (typeof updateCompanionWidget === 'function') updateCompanionWidget();
+    renderAchievementsTab();
+
+    const title = (typeof TITLES_DATA !== 'undefined') ? TITLES_DATA.find(t => t.id === titleId) : null;
+    if (title && typeof showToast === 'function') {
+        showToast(`🎖️ 二つ名称号を【${title.name}】にセットしました！`);
     }
 }
 

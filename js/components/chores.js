@@ -24,8 +24,9 @@ function addQuickChore(choreName, buttonElement) {
         return;
     }
 
+    let comboInfo = null;
     if (typeof SoundEngine !== 'undefined') {
-        SoundEngine.playSE('done');
+        comboInfo = SoundEngine.playChoreCombo();
     }
 
     const id = now;
@@ -46,8 +47,20 @@ function addQuickChore(choreName, buttonElement) {
     renderCompleted();
     renderQuickAddButtons();
 
-    // トースト通知（取り消すボタン付き）
+    // 🌟 キラキラEXPオーブ演出（ボタンからカジゴンへ放物線飛翔）
+    if (typeof spawnExpOrbs === 'function') {
+        spawnExpOrbs(buttonElement, () => {
+            if (typeof updateCompanionWidget === 'function') {
+                updateCompanionWidget();
+            }
+        });
+    }
+
+    // トースト通知（コンボ表示＆取り消すボタン付き）
     let toastMsg = `🧹「${choreName}」を記録！（+${finalExp} EXP）`;
+    if (comboInfo && comboInfo.combo > 1) {
+        toastMsg += ` 🎵 ${comboInfo.combo}連続コンボ（♪${comboInfo.noteName}）${comboInfo.isMax ? '🎉MAX!!' : ''}`;
+    }
     if (droppedMaterials.length > 0) {
         const matText = droppedMaterials.map(m => `${m.name}×${m.count}`).join(' ');
         toastMsg += ` 📦 素材GET: ${matText}`;
@@ -108,11 +121,30 @@ function addFreeSupply() {
             dropChoreMaterials(choreName, stats);
         }
 
+        // 🌟 EXPオーブ演出
+        if (typeof spawnExpOrbs === 'function') {
+            const btn = document.querySelector('.btn-add-supply') || input;
+            spawnExpOrbs(btn, () => {
+                if (typeof updateCompanionWidget === 'function') {
+                    updateCompanionWidget();
+                }
+            });
+        }
+
+        let comboInfo = null;
+        if (typeof SoundEngine !== 'undefined') {
+            comboInfo = SoundEngine.playChoreCombo();
+        }
+
         input.value = '';
         saveToLocalStorage();
         renderCompleted();
+        let toastMsg = `📦「${choreName}」を補充記録しました！（+${finalExp} EXP）`;
+        if (comboInfo && comboInfo.combo > 1) {
+            toastMsg += ` 🎵 ${comboInfo.combo}連続コンボ（♪${comboInfo.noteName}）${comboInfo.isMax ? '🎉MAX!!' : ''}`;
+        }
         if (typeof showToast === 'function') {
-            showToast(`📦「${choreName}」を補充記録しました！（+${finalExp} EXP）`, {
+            showToast(toastMsg, {
                 undoCallback: () => undoDone(id)
             });
         }
@@ -133,11 +165,30 @@ function addOtherChore() {
             dropChoreMaterials(choreName, stats);
         }
 
+        // 🌟 EXPオーブ演出
+        if (typeof spawnExpOrbs === 'function') {
+            const btn = document.querySelector('.btn-add-other') || input;
+            spawnExpOrbs(btn, () => {
+                if (typeof updateCompanionWidget === 'function') {
+                    updateCompanionWidget();
+                }
+            });
+        }
+
+        let comboInfo = null;
+        if (typeof SoundEngine !== 'undefined') {
+            comboInfo = SoundEngine.playChoreCombo();
+        }
+
         input.value = '';
         saveToLocalStorage();
         renderCompleted();
+        let toastMsg = `📝「${choreName}」を記録しました！（+${finalExp} EXP）`;
+        if (comboInfo && comboInfo.combo > 1) {
+            toastMsg += ` 🎵 ${comboInfo.combo}連続コンボ（♪${comboInfo.noteName}）${comboInfo.isMax ? '🎉MAX!!' : ''}`;
+        }
         if (typeof showToast === 'function') {
-            showToast(`📝「${choreName}」を記録しました！（+${finalExp} EXP）`, {
+            showToast(toastMsg, {
                 undoCallback: () => undoDone(id)
             });
         }

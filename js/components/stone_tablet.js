@@ -224,18 +224,37 @@ async function generateAncientCardCanvas() {
     // ステータス詳細
     const infoX = 205;
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#f4ede2';
-    ctx.font = 'bold 24px "DotGothic16", sans-serif';
+
+    // 🏆 二つ名称号
+    let titleStr = '';
+    if (kajigonState.selectedTitle && typeof TITLES_DATA !== 'undefined' && TITLES_DATA[kajigonState.selectedTitle]) {
+        const tObj = TITLES_DATA[kajigonState.selectedTitle];
+        titleStr = `【${tObj.icon}${tObj.name}】`;
+    }
+
     const companionDisplayName = kajigonState.companionName || 'カジゴン';
     const companionName = currentLv >= 10 ? `${evolved.name} (${companionDisplayName})` : `${companionDisplayName} (Lv.${currentLv})`;
-    ctx.fillText(companionName, infoX, 170);
 
-    ctx.font = '17px "DotGothic16", sans-serif';
+    if (titleStr) {
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = 'bold 15px "DotGothic16", sans-serif';
+        ctx.fillText(titleStr, infoX, 160);
+
+        ctx.fillStyle = '#f4ede2';
+        ctx.font = 'bold 22px "DotGothic16", sans-serif';
+        ctx.fillText(companionName, infoX, 186);
+    } else {
+        ctx.fillStyle = '#f4ede2';
+        ctx.font = 'bold 24px "DotGothic16", sans-serif';
+        ctx.fillText(companionName, infoX, 172);
+    }
+
+    ctx.font = '16px "DotGothic16", sans-serif';
     ctx.fillStyle = '#f59e0b';
-    ctx.fillText(`経験値: ${kajigonState.totalExp} EXP  |  古代パーツ: ⚙️×${kajigonState.artifactCount}`, infoX, 205);
+    ctx.fillText(`経験値: ${kajigonState.totalExp} EXP  |  古代パーツ: ⚙️×${kajigonState.artifactCount}`, infoX, 212);
 
     ctx.fillStyle = '#a0a0b0';
-    ctx.font = '15px "DotGothic16", sans-serif';
+    ctx.font = '14px "DotGothic16", sans-serif';
     ctx.fillText(`🔥火:${kajigonState.firePoints}  💧水:${kajigonState.waterPoints}  🍃風:${kajigonState.windPoints}  🪵土:${kajigonState.earthPoints}`, infoX, 240);
 
     let curY = 300;
@@ -362,6 +381,53 @@ async function generateAncientCardCanvas() {
     ctx.fillStyle = '#71717a';
     ctx.font = '12px "DotGothic16", sans-serif';
     ctx.fillText('✨ カジゴン - RPG家事分担システム ✨', width / 2, curY);
+
+    // 🌟 古代石板特製ゴールドスタンプ（印章）描画
+    const completedAchieveCount = kajigonState.achievements ? Object.values(kajigonState.achievements).filter(a => a && a.completed).length : 0;
+    const hasHallOfFame = Array.isArray(kajigonState.hallOfFame) && kajigonState.hallOfFame.length > 0;
+    const hasStamp = completedAchieveCount > 0 || hasHallOfFame || currentLv >= 10;
+
+    if (hasStamp) {
+        ctx.save();
+        const stampX = width - 100;
+        const stampY = calculatedHeight - 85;
+        ctx.translate(stampX, stampY);
+        ctx.rotate(-10 * Math.PI / 180);
+
+        // 外枠の円（ゴールド二重枠）
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.85)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, 42, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // 内側の点線円
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.arc(0, 0, 36, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // スタンプ印字
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.95)';
+        ctx.font = 'bold 10px "DotGothic16", sans-serif';
+        ctx.fillText('★ HOUSE MASTER ★', 0, -20);
+
+        ctx.fillStyle = '#ffd700';
+        ctx.font = 'bold 15px "DotGothic16", sans-serif';
+        ctx.fillText('【認定之印】', 0, -1);
+
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.9)';
+        ctx.font = 'bold 10px "DotGothic16", sans-serif';
+        const stampSub = hasHallOfFame ? '殿堂名家' : `功績: ${completedAchieveCount}冠`;
+        ctx.fillText(stampSub, 0, 18);
+
+        ctx.restore();
+    }
 
     return new Promise(resolve => {
         canvas.toBlob(blob => resolve(blob), 'image/png');

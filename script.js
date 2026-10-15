@@ -1,8 +1,8 @@
 // ==========================================================================
-// 🐉 家事分担くん (v2.6.4) - メイン・エントリーポイント
+// 🐉 家事分担くん (v2.9.0) - メイン・エントリーポイント
 // ==========================================================================
 
-const APP_VERSION = '2.6.4';
+const APP_VERSION = '2.9.0';
 let tempSettingsLayout = '2ldk';
 let tempSettingsFloors = 1;
 let tempSettingsEnvTheme = null;
@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hasData) {
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('main-screen').classList.remove('hidden');
+        const bottomNav = document.getElementById('cozy-bottom-nav');
+        if (bottomNav) bottomNav.classList.remove('hidden');
         
         applyTheme();
         updateCompanionWidget();
@@ -24,22 +26,55 @@ document.addEventListener('DOMContentLoaded', () => {
         updateLuckyChore();
         renderBountyWidget();
 
+        // 🌅 時間帯別アンビエント照明＆BGM判定
+        if (typeof updateRoomAmbientLighting === 'function') updateRoomAmbientLighting();
+
+        // 🏆 実績＆二つ名称号チェック
+        if (typeof checkAchievementsAndTitles === 'function') checkAchievementsAndTitles();
+
+        // 🏛️ 殿堂入り先輩カジゴンのひょっこり里帰りチェック
+        if (typeof checkHallOfFameVisitor === 'function') checkHallOfFameVisitor();
+
         // Lv.10到達で未見ならエンディング画面
         if (getLevel() >= 10 && !kajigonState.endingSeen) {
             triggerEndingPresentation();
         }
+
+        // 🎁 おみやげチェック ＆ 📖 日記初期化
+        if (typeof checkCompanionGift === 'function') checkCompanionGift();
+        if (typeof initCompanionDiary === 'function') initCompanionDiary();
     } else {
         document.getElementById('setup-screen').classList.remove('hidden');
         document.getElementById('main-screen').classList.add('hidden');
+        const bottomNav = document.getElementById('cozy-bottom-nav');
+        if (bottomNav) bottomNav.classList.add('hidden');
         updateSetupUI();
     }
 
-    // 毎分、窓の時間帯チェック
+    // 毎分、窓・照明・おみやげ・BGM・里帰り・カジゴン状態の定期チェック
     setInterval(() => {
         if (typeof updateRoomWindow === 'function') {
             updateRoomWindow();
         }
+        if (typeof updateRoomAmbientLighting === 'function') {
+            updateRoomAmbientLighting();
+        }
+        if (typeof checkCompanionGift === 'function') {
+            checkCompanionGift();
+        }
+        if (typeof checkHallOfFameVisitor === 'function') {
+            checkHallOfFameVisitor();
+        }
+        if (typeof SoundEngine !== 'undefined' && SoundEngine.checkTimeSlotChange) {
+            SoundEngine.checkTimeSlotChange();
+        }
+        if (typeof updateCompanionWidget === 'function') {
+            updateCompanionWidget();
+        }
     }, 60000);
+
+    // 💌 パートナーからのワンタップ同期URLチェック
+    checkUrlSync();
 
     // PWA更新チェック
     initServiceWorker();
@@ -112,6 +147,8 @@ function submitSetup() {
 
     document.getElementById('setup-screen').classList.add('hidden');
     document.getElementById('main-screen').classList.remove('hidden');
+    const bottomNav = document.getElementById('cozy-bottom-nav');
+    if (bottomNav) bottomNav.classList.remove('hidden');
 
     applyTheme();
     updateCompanionWidget();
@@ -120,8 +157,139 @@ function submitSetup() {
     updateLuckyChore();
     renderBountyWidget();
 
+    if (typeof updateRoomAmbientLighting === 'function') updateRoomAmbientLighting();
+    if (typeof checkCompanionGift === 'function') checkCompanionGift();
+    if (typeof initCompanionDiary === 'function') initCompanionDiary();
+    if (typeof checkAchievementsAndTitles === 'function') checkAchievementsAndTitles();
+
     if (typeof showToast === 'function') {
         showToast('🏡 ようこそ！カジゴンとの新生活が始まりました！');
+    }
+}
+
+// 🏡 お部屋トップへスクロール＆モーダルクローズ
+function scrollToRoomTop() {
+    document.querySelectorAll('.spell-overlay, .ending-overlay').forEach(el => el.classList.add('hidden'));
+    const room = document.getElementById('tamagotchi-room-container');
+    if (room) {
+        room.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+// ==========================================================================
+// 🌟 家事完了時の手触り（Juice）演出：EXPオーブ放物線飛翔 ＆ カジゴン歓喜
+// ==========================================================================
+function spawnExpOrbs(fromSource, onArrival) {
+    const petWrapper = document.getElementById('room-pet-wrapper');
+    if (!petWrapper) {
+        if (onArrival) onArrival();
+        return;
+    }
+
+    // 始点座標 (startX, startY)
+    let startX = window.innerWidth / 2;
+    let startY = window.innerHeight / 2;
+
+    if (fromSource && fromSource.getBoundingClientRect) {
+        const rect = fromSource.getBoundingClientRect();
+        startX = rect.left + rect.width / 2;
+        startY = rect.top + rect.height / 2;
+    } else if (fromSource && fromSource.clientX) {
+        startX = fromSource.clientX;
+        startY = fromSource.clientY;
+    }
+
+    // 終点座標（カジゴンの中心）
+    const targetRect = petWrapper.getBoundingClientRect();
+    const targetX = targetRect.left + targetRect.width / 2;
+    const targetY = targetRect.top + targetRect.height / 2;
+
+    const orbCount = 5;
+    let arrived = false;
+
+    for (let i = 0; i < orbCount; i++) {
+        setTimeout(() => {
+            const orb = document.createElement('div');
+            orb.className = 'exp-orb';
+            document.body.appendChild(orb);
+
+            const duration = 520; // ms
+            const startTime = performance.now();
+
+            // 放物線のアーチ頂点
+            const midX = (startX + targetX) / 2 + (Math.random() - 0.5) * 60;
+            const midY = Math.min(startY, targetY) - 50 - Math.random() * 50;
+
+            function animateOrb(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // 2次ベジェ曲線
+                const t = progress;
+                const invT = 1 - t;
+                const curX = invT * invT * startX + 2 * invT * t * midX + t * t * targetX;
+                const curY = invT * invT * startY + 2 * invT * t * midY + t * t * targetY;
+
+                orb.style.left = `${curX}px`;
+                orb.style.top = `${curY}px`;
+
+                // 光の軌跡（トレイル）
+                if (Math.random() < 0.6) {
+                    const trail = document.createElement('div');
+                    trail.className = 'exp-orb-trail';
+                    trail.style.left = `${curX}px`;
+                    trail.style.top = `${curY}px`;
+                    document.body.appendChild(trail);
+                    setTimeout(() => {
+                        if (trail.parentNode) trail.parentNode.removeChild(trail);
+                    }, 350);
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateOrb);
+                } else {
+                    if (orb.parentNode) orb.parentNode.removeChild(orb);
+                    if (!arrived) {
+                        arrived = true;
+                        triggerCompanionJoy();
+                        if (onArrival) onArrival();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateOrb);
+        }, i * 60);
+    }
+}
+
+function triggerCompanionJoy() {
+    const petWrapper = document.getElementById('room-pet-wrapper');
+    if (petWrapper) {
+        petWrapper.classList.remove('orb-impact-flash', 'pet-spring-bounce');
+        void petWrapper.offsetWidth;
+        petWrapper.classList.add('orb-impact-flash');
+        setTimeout(() => {
+            petWrapper.classList.remove('orb-impact-flash');
+        }, 500);
+    }
+
+    // EXPバッジのキラッと光る演出
+    const expBadge = document.getElementById('room-status-exp');
+    if (expBadge) {
+        expBadge.style.transition = 'transform 0.25s ease, color 0.25s ease';
+        expBadge.style.color = '#ffd700';
+        expBadge.style.transform = 'scale(1.18)';
+        setTimeout(() => {
+            expBadge.style.transform = 'scale(1)';
+            expBadge.style.color = '';
+        }, 350);
+    }
+
+    // ハートがふわっと舞う
+    if (typeof createFloatingHearts === 'function') {
+        createFloatingHearts(petWrapper);
     }
 }
 
@@ -355,11 +523,187 @@ function closeSpellModal() {
 }
 
 // ==========================================================================
-// 📱 共有＆バックアップ同期キー
 // ==========================================================================
+// 📱 共有＆ワンタップURL同期システム
+// ==========================================================================
+let pendingSyncData = null;
+
 function generateSpellText() {
     const lv = getLevel();
     return `KJ-LV${lv}-F${Math.round(kajigonState.firePoints)}-W${Math.round(kajigonState.waterPoints)}-A${Math.round(kajigonState.windPoints)}-E${Math.round(kajigonState.earthPoints)}`;
+}
+
+/**
+ * 🔗 ワンタップ同期用URLの生成
+ */
+function generateSyncUrl() {
+    const spell = generateSpellText();
+    const origin = window.location.origin;
+    const pathname = window.location.pathname;
+    return `${origin}${pathname}?sync=${encodeURIComponent(spell)}&t=${Date.now()}`;
+}
+
+/**
+ * 🔗 ワンタップ同期リンクをクリップボードにコピー
+ */
+function copySyncUrl() {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
+    const url = generateSyncUrl();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            if (typeof showToast === 'function') {
+                showToast('🔗 同期リンクをコピーしました！パートナーにLINE等で送ればワンタップで同期できます');
+            }
+        }).catch(() => {
+            prompt('以下の同期リンクをコピーしてパートナーに送ってください：', url);
+        });
+    } else {
+        prompt('以下の同期リンクをコピーしてパートナーに送ってください：', url);
+    }
+}
+
+/**
+ * 📱 リンクを直接共有（Web Share API対応時）
+ */
+function shareSyncUrlDirect() {
+    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
+    const url = generateSyncUrl();
+    const dragonName = kajigonState.companionName || 'カジゴン';
+    const lv = getLevel();
+    const text = `🏡 我が家の「家事分担くん」最新記録だぞ！\n相棒: ${dragonName} (Lv.${lv})\nタップするだけで最新のおうち記録を同期できます✨`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: '家事分担くん - おうち記録の同期リンク',
+            text: text,
+            url: url
+        }).catch(err => {
+            console.log('Share canceled or failed', err);
+        });
+    } else {
+        copySyncUrl();
+    }
+}
+
+/**
+ * 💌 アプリ起動時のURLパラメータ（?sync=...）自動検出
+ */
+function checkUrlSync() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const syncKey = params.get('sync');
+        if (!syncKey) return;
+
+        const m = syncKey.match(/^KJ-LV(\d+)-F(\d+)-W(\d+)-A(\d+)-E(\d+)$/);
+        if (!m) return;
+
+        pendingSyncData = {
+            rawKey: syncKey,
+            lv: parseInt(m[1], 10),
+            fire: parseInt(m[2], 10),
+            water: parseInt(m[3], 10),
+            wind: parseInt(m[4], 10),
+            earth: parseInt(m[5], 10),
+            timestamp: params.get('t') ? parseInt(params.get('t'), 10) : null
+        };
+
+        // 少しだけ描画を待ってからコージー風カスタムダイアログを表示
+        setTimeout(() => {
+            openSyncConfirmModal(pendingSyncData);
+        }, 350);
+    } catch (e) {
+        console.warn('checkUrlSync error:', e);
+    }
+}
+
+/**
+ * 💌 パートナーからの同期確認モーダルを表示
+ */
+function openSyncConfirmModal(data) {
+    if (!data) return;
+    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('lucky');
+
+    const lvlEl = document.getElementById('sync-preview-level');
+    const valF = document.getElementById('sync-val-f');
+    const valW = document.getElementById('sync-val-w');
+    const valA = document.getElementById('sync-val-a');
+    const valE = document.getElementById('sync-val-e');
+
+    if (lvlEl) lvlEl.textContent = `Lv.${data.lv}`;
+    if (valF) valF.textContent = data.fire;
+    if (valW) valW.textContent = data.water;
+    if (valA) valA.textContent = data.wind;
+    if (valE) valE.textContent = data.earth;
+
+    const modal = document.getElementById('sync-confirm-modal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+/**
+ * ✨ ワンタップ同期を実行（合算・更新）
+ */
+function confirmAndApplySync() {
+    if (!pendingSyncData) return;
+
+    // 初回起動（未セットアップ）の場合、デフォルトで生活スタート
+    const setupScreen = document.getElementById('setup-screen');
+    if (setupScreen && !setupScreen.classList.contains('hidden')) {
+        setupScreen.classList.add('hidden');
+        document.getElementById('main-screen').classList.remove('hidden');
+        const bottomNav = document.getElementById('cozy-bottom-nav');
+        if (bottomNav) bottomNav.classList.remove('hidden');
+        currentLayout = '2LDK';
+        currentFloors = 1;
+        playerCount = 2;
+    }
+
+    // パートナーのデータとお互いの実績を合算・マージ（高い方を採用）
+    kajigonState.firePoints = Math.max(kajigonState.firePoints || 0, pendingSyncData.fire);
+    kajigonState.waterPoints = Math.max(kajigonState.waterPoints || 0, pendingSyncData.water);
+    kajigonState.windPoints = Math.max(kajigonState.windPoints || 0, pendingSyncData.wind);
+    kajigonState.earthPoints = Math.max(kajigonState.earthPoints || 0, pendingSyncData.earth);
+
+    const partnerExp = (pendingSyncData.lv - 1) * 150 + 10;
+    if (partnerExp > (kajigonState.totalExp || 0)) {
+        kajigonState.totalExp = partnerExp;
+    }
+
+    saveToLocalStorage();
+    applyTheme();
+    updateCompanionWidget();
+    renderQuickAddButtons();
+    renderCompleted();
+
+    // 演出: カジゴン歓喜ジャンプ ＆ 祝福のベルファンファーレ
+    if (typeof triggerCompanionJoy === 'function') {
+        triggerCompanionJoy();
+    }
+    if (typeof SoundEngine !== 'undefined') {
+        SoundEngine.playSE('levelup');
+    }
+
+    if (typeof showToast === 'function') {
+        showToast(`🎉 パートナーの記録と同期しました！（Lv.${getLevel()}）相棒も大喜びです！`);
+    }
+
+    dismissSyncConfirmModal();
+}
+
+/**
+ * 💌 同期モーダルを閉じる＆URLパラメータをクリーンアップ
+ */
+function dismissSyncConfirmModal() {
+    const modal = document.getElementById('sync-confirm-modal');
+    if (modal) modal.classList.add('hidden');
+    pendingSyncData = null;
+
+    // URLから ?sync=... を綺麗に除去（リロード時の再表示を防止）
+    try {
+        const cleanUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, cleanUrl);
+    } catch (e) {
+        // history API fallback
+    }
 }
 
 function shareReport() {

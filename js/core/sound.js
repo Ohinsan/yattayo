@@ -1,14 +1,38 @@
 // ==========================================================================
-// --- 🎵 8-bit Retro Sound Engine (Web Audio API Synthesizer) ---
+// --- 🎵 Cozy Acoustic Sound Engine (Web Audio API Synthesizer) ---
 // ==========================================================================
+// 耳に優しいアコースティック調（サイン波＋三角波）のサウンドエンジン
+// モンハン・ココット村「目覚め」をモデルにした穏やかな牧歌的BGM＆家事コンボ音
+// ==========================================================================
+
 const SoundEngine = {
     ctx: null,
     bgmGain: null,
     seGain: null,
+    reverbGain: null,
+    filterNode: null,
     bgmVol: 0.3,
     seVol: 0.7,
     bgmPlaying: false,
-    filterNode: null,
+    bgmTimer: null,
+    bgmStep: 0,
+    bgmTrack: 'kokoto_auto', // ⏰ デフォルト: ココット村・時間連動モード
+
+    // 家事コンボ（15分以内の連続記録でド・レ・ミ・ファ・ソ・ラ・シ・ド）
+    lastChoreTime: 0,
+    choreComboCount: 0,
+
+    /**
+     * 現在時刻の時間帯スロットを取得
+     * @returns {'morning' | 'noon' | 'evening' | 'night'}
+     */
+    getTimeSlot() {
+        const h = new Date().getHours();
+        if (h >= 5 && h < 11) return 'morning';  // 朝: 5:00 - 10:59
+        if (h >= 11 && h < 17) return 'noon';     // 昼: 11:00 - 16:59
+        if (h >= 17 && h < 20) return 'evening';  // 夕方: 17:00 - 19:59
+        return 'night';                           // 夜: 20:00 - 4:59
+    },
 
     init() {
         if (this.ctx) return;
@@ -16,31 +40,60 @@ const SoundEngine = {
         if (!AudioContextClass) return;
         this.ctx = new AudioContextClass();
 
-        // Master Low-pass filter for cozy warm retro warmth (cuts harsh shrill frequencies)
+        // 1. マスター ローパスフィルター（耳に刺さる超高域をカットし、温かみのあるアコースティックな響きに）
         this.filterNode = this.ctx.createBiquadFilter();
         this.filterNode.type = 'lowpass';
-        this.filterNode.frequency.setValueAtTime(2200, this.ctx.currentTime);
+        this.filterNode.frequency.setValueAtTime(2100, this.ctx.currentTime);
+        this.filterNode.Q.setValueAtTime(0.7, this.ctx.currentTime);
         this.filterNode.connect(this.ctx.destination);
 
-        // BGM Gain node
+        // 2. 擬似アコースティック・リバーブ（優しい余韻のためのディレイ＆フィードバックループ）
+        try {
+            const delay = this.ctx.createDelay();
+            delay.delayTime.setValueAtTime(0.065, this.ctx.currentTime); // 65msの微小反射
+
+            const feedback = this.ctx.createGain();
+            feedback.gain.setValueAtTime(0.24, this.ctx.currentTime); // 自然な残響減衰
+
+            const delayFilter = this.ctx.createBiquadFilter();
+            delayFilter.type = 'lowpass';
+            delayFilter.frequency.setValueAtTime(1500, this.ctx.currentTime); // 残響はさらにマイルドに
+
+            delay.connect(delayFilter);
+            delayFilter.connect(feedback);
+            feedback.connect(delay);
+
+            this.reverbGain = this.ctx.createGain();
+            this.reverbGain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+            delayFilter.connect(this.reverbGain);
+            this.reverbGain.connect(this.filterNode);
+        } catch (e) {
+            console.warn('Reverb node init failed:', e);
+        }
+
+        // 3. BGM Gain ノード
         this.bgmGain = this.ctx.createGain();
         this.bgmGain.gain.setValueAtTime(this.bgmVol, this.ctx.currentTime);
         this.bgmGain.connect(this.filterNode);
 
-        // SE Gain node
+        // 4. SE Gain ノード
         this.seGain = this.ctx.createGain();
         this.seGain.gain.setValueAtTime(this.seVol, this.ctx.currentTime);
-        this.seGain.connect(this.ctx.destination);
+        this.seGain.connect(this.filterNode);
 
-        // Load saved preferences
+        // ユーザー設定の読み込み
         const savedBgm = localStorage.getItem('kajigon_bgm_vol');
         const savedSe = localStorage.getItem('kajigon_se_vol');
-        if (savedBgm !== null) {
-            this.setBGMVolume(parseFloat(savedBgm));
-        }
-        if (savedSe !== null) {
-            this.setSEVolume(parseFloat(savedSe));
-        }
+        if (savedBgm !== null) this.setBGMVolume(parseFloat(savedBgm));
+        if (savedSe !== null) this.setSEVolume(parseFloat(savedSe));
+
+        const savedTrack = localStorage.getItem('kajigon_bgm_track');
+        if (savedTrack) this.bgmTrack = savedTrack;
+
+        const savedComboTime = localStorage.getItem('kajigon_last_chore_time');
+        const savedComboCount = localStorage.getItem('kajigon_chore_combo_count');
+        if (savedComboTime) this.lastChoreTime = parseInt(savedComboTime, 10) || 0;
+        if (savedComboCount) this.choreComboCount = parseInt(savedComboCount, 10) || 0;
     },
 
     resume() {
@@ -82,26 +135,187 @@ const SoundEngine = {
         }
     },
 
-    playTone(freq, type, duration, startTime = 0, gainTarget = this.seGain, maxGain = 0.25) {
+    /**
+     * オルゴール・マリンバ・アコースティック調の温かいトーン生成
+     * @param {number} freq 周波数 (Hz)
+     * @param {number} duration 減衰までの秒数
+     * @param {number} startTime 開始遅延秒数
+     * @param {AudioNode} gainTarget 出力先
+     * @param {number} maxGain 音量
+     * @param {string} instrument 'musicbox' | 'marimba' | 'flute' | 'guitar' | 'water'
+     */
+    playWarmTone(freq, duration = 0.35, startTime = 0, gainTarget = this.seGain, maxGain = 0.28, instrument = 'musicbox') {
         if (!this.ctx || !gainTarget || freq <= 0) return;
+        const now = this.ctx.currentTime + startTime;
+
         try {
-            const osc = this.ctx.createOscillator();
-            const noteGain = this.ctx.createGain();
+            // 基音（Sine波: ピュアでまろやかな芯）
+            const osc1 = this.ctx.createOscillator();
+            const gain1 = this.ctx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(freq, now);
 
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + startTime);
+            // 倍音（Triangle波: 木質・オルゴールの温かみ）
+            const osc2 = this.ctx.createOscillator();
+            const gain2 = this.ctx.createGain();
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(freq, now);
 
-            noteGain.gain.setValueAtTime(maxGain, this.ctx.currentTime + startTime);
-            noteGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + startTime + duration);
+            if (instrument === 'flute') {
+                // フルート・オカリナ: 優しいアタックと持続、ほのかなビブラート
+                const attackTime = 0.05;
+                gain1.gain.setValueAtTime(0.0001, now);
+                gain1.gain.linearRampToValueAtTime(maxGain * 0.72, now + attackTime);
+                gain1.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
-            osc.connect(noteGain);
-            noteGain.connect(gainTarget);
+                gain2.gain.setValueAtTime(0.0001, now);
+                gain2.gain.linearRampToValueAtTime(maxGain * 0.28, now + attackTime);
+                gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
-            osc.start(this.ctx.currentTime + startTime);
-            osc.stop(this.ctx.currentTime + startTime + duration);
+                // 牧歌的なビブラート（LFO）
+                const lfo = this.ctx.createOscillator();
+                const lfoGain = this.ctx.createGain();
+                lfo.frequency.setValueAtTime(5.4, now);
+                lfoGain.gain.setValueAtTime(3.2, now);
+                lfo.connect(osc1.frequency);
+                lfo.start(now);
+                lfo.stop(now + duration);
+            } else if (instrument === 'water') {
+                // 水滴・タップ音: ぽちゃん…と丸く跳ねる
+                osc1.frequency.setValueAtTime(freq * 1.15, now);
+                osc1.frequency.exponentialRampToValueAtTime(freq, now + 0.06);
+
+                gain1.gain.setValueAtTime(0.0001, now);
+                gain1.gain.linearRampToValueAtTime(maxGain * 0.85, now + 0.008);
+                gain1.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+                gain2.gain.setValueAtTime(0.0001, now);
+                gain2.gain.linearRampToValueAtTime(maxGain * 0.15, now + 0.008);
+                gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.6);
+            } else if (instrument === 'marimba') {
+                // マリンバ: ポクッとした木の打音
+                const attackTime = 0.006;
+                gain1.gain.setValueAtTime(0.0001, now);
+                gain1.gain.linearRampToValueAtTime(maxGain * 0.8, now + attackTime);
+                gain1.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.8);
+
+                gain2.gain.setValueAtTime(0.0001, now);
+                gain2.gain.linearRampToValueAtTime(maxGain * 0.35, now + attackTime);
+                gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.5);
+            } else {
+                // オルゴール / アコースティックギター: 優しいポロンという音と長い余韻
+                const attackTime = 0.008;
+                gain1.gain.setValueAtTime(0.0001, now);
+                gain1.gain.linearRampToValueAtTime(maxGain * 0.75, now + attackTime);
+                gain1.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+                gain2.gain.setValueAtTime(0.0001, now);
+                gain2.gain.linearRampToValueAtTime(maxGain * 0.35, now + attackTime);
+                gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.85);
+
+                // きらめき打音（微量なオクターブ倍音）
+                if (instrument === 'musicbox') {
+                    const oscSparkle = this.ctx.createOscillator();
+                    const gainSparkle = this.ctx.createGain();
+                    oscSparkle.type = 'sine';
+                    oscSparkle.frequency.setValueAtTime(freq * 2, now);
+                    gainSparkle.gain.setValueAtTime(0.0001, now);
+                    gainSparkle.gain.linearRampToValueAtTime(maxGain * 0.16, now + 0.004);
+                    gainSparkle.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+                    oscSparkle.connect(gainSparkle);
+                    gainSparkle.connect(gainTarget);
+                    oscSparkle.start(now);
+                    oscSparkle.stop(now + 0.13);
+                }
+            }
+
+            osc1.connect(gain1);
+            gain1.connect(gainTarget);
+            osc2.connect(gain2);
+            gain2.connect(gainTarget);
+
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + duration);
+            osc2.stop(now + duration);
         } catch (e) {
-            // Audio context might be suspended or closed
+            // Audio context suspended or closed
         }
+    },
+
+    // 互換用ラッパー
+    playTone(freq, type, duration, startTime = 0, gainTarget = this.seGain, maxGain = 0.25) {
+        this.playWarmTone(freq, duration, startTime, gainTarget, maxGain, 'musicbox');
+    },
+
+    /**
+     * 🎵 家事コンボ音（15分以内の連続記録で「ド・レ・ミ・ファ・ソ・ラ・シ・ド」と上昇）
+     * @returns {{ combo: number, noteName: string, isMax: boolean }}
+     */
+    playChoreCombo() {
+        this.resume();
+        if (this.seVol <= 0 || !this.ctx) {
+            return { combo: 1, noteName: 'ド', isMax: false };
+        }
+
+        const now = Date.now();
+        const comboLimit = 15 * 60 * 1000; // 15分（ミリ秒）
+
+        if (this.lastChoreTime > 0 && (now - this.lastChoreTime) <= comboLimit) {
+            this.choreComboCount = Math.min(8, (this.choreComboCount || 0) + 1);
+        } else {
+            this.choreComboCount = 1;
+        }
+
+        this.lastChoreTime = now;
+        localStorage.setItem('kajigon_last_chore_time', this.lastChoreTime);
+        localStorage.setItem('kajigon_chore_combo_count', this.choreComboCount);
+
+        // 8段階のピッチ（C5〜C6 ド・レ・ミ・ファ・ソ・ラ・シ・ド）
+        const scale = [
+            { note: 'ド', freq: 523.25 },   // C5
+            { note: 'レ', freq: 587.33 },   // D5
+            { note: 'ミ', freq: 659.25 },   // E5
+            { note: 'ファ', freq: 698.46 },  // F5
+            { note: 'ソ', freq: 783.99 },   // G5
+            { note: 'ラ', freq: 880.00 },   // A5
+            { note: 'シ', freq: 987.77 },   // B5
+            { note: '高いド', freq: 1046.50 } // C6 (MAX!)
+        ];
+
+        const idx = Math.max(0, Math.min(scale.length - 1, this.choreComboCount - 1));
+        const current = scale[idx];
+        const isMax = this.choreComboCount >= 8;
+
+        if (isMax) {
+            // 8コンボ達成！キラキラ輝くオルゴール・ファンファーレ（C-E-G-C-E）
+            const arpeggio = [
+                { f: 523.25, d: 0.00 },
+                { f: 659.25, d: 0.08 },
+                { f: 783.99, d: 0.16 },
+                { f: 1046.50, d: 0.24 },
+                { f: 1318.51, d: 0.34 },
+                { f: 1567.98, d: 0.44 }
+            ];
+            arpeggio.forEach(item => {
+                this.playWarmTone(item.f, 0.55, item.d, this.seGain, 0.35, 'musicbox');
+            });
+            // 優しいマリンバの低音添え
+            this.playWarmTone(261.63, 0.65, 0.24, this.seGain, 0.28, 'marimba');
+        } else {
+            // 1〜7コンボ: 基音＋完全5度のポロ〜ンとした温かいマリンバ・オルゴール音
+            this.playWarmTone(current.freq, 0.45, 0, this.seGain, 0.35, 'musicbox');
+            // 5度上の和音で優しさを演出
+            const fifthFreq = current.freq * 1.4983;
+            this.playWarmTone(fifthFreq, 0.38, 0.03, this.seGain, 0.18, 'musicbox');
+        }
+
+        return {
+            combo: this.choreComboCount,
+            noteName: current.note,
+            isMax: isMax
+        };
     },
 
     playSE(type) {
@@ -109,52 +323,51 @@ const SoundEngine = {
         if (this.seVol <= 0 || !this.ctx) return;
 
         if (type === 'done') {
-            // Cheerful mellow 8-bit blip (E5 -> B5 -> E6)
-            this.playTone(659.25, 'triangle', 0.09, 0, this.seGain, 0.35);
-            this.playTone(987.77, 'square', 0.12, 0.05, this.seGain, 0.3);
-            this.playTone(1318.51, 'triangle', 0.22, 0.11, this.seGain, 0.3);
+            // 家事コンボ音を優先呼出
+            this.playChoreCombo();
         } else if (type === 'undo') {
-            // Cancel sound (G3 -> E3)
-            this.playTone(196.00, 'triangle', 0.09, 0, this.seGain, 0.3);
-            this.playTone(164.81, 'triangle', 0.14, 0.07, this.seGain, 0.3);
+            // 水滴の取り消し音（ポチャン…）
+            this.playWarmTone(392.00, 0.16, 0, this.seGain, 0.28, 'water');
+            this.playWarmTone(293.66, 0.28, 0.06, this.seGain, 0.25, 'water');
         } else if (type === 'lucky') {
-            // Lucky chore fanfare (C5 -> E5 -> G5 -> C6)
-            this.playTone(523.25, 'triangle', 0.09, 0, this.seGain, 0.35);
-            this.playTone(659.25, 'triangle', 0.09, 0.07, this.seGain, 0.35);
-            this.playTone(783.99, 'square', 0.10, 0.14, this.seGain, 0.3);
-            this.playTone(1046.50, 'square', 0.28, 0.21, this.seGain, 0.35);
-        } else if (type === 'karuta') {
-            // Sparkly mystic fortune chimes (F#5 -> A5 -> C#6 -> E6 -> A6)
-            this.playTone(739.99, 'triangle', 0.08, 0, this.seGain, 0.3);
-            this.playTone(880.00, 'sine', 0.09, 0.06, this.seGain, 0.35);
-            this.playTone(1108.73, 'triangle', 0.10, 0.12, this.seGain, 0.35);
-            this.playTone(1318.51, 'square', 0.12, 0.18, this.seGain, 0.25);
-            this.playTone(1760.00, 'triangle', 0.35, 0.25, this.seGain, 0.3);
-        } else if (type === 'bounty') {
-            // Sword slash / boss hit impact
-            this.playTone(220, 'square', 0.05, 0, this.seGain, 0.4);
-            this.playTone(110, 'sawtooth', 0.15, 0.04, this.seGain, 0.45);
-            this.playTone(55, 'triangle', 0.25, 0.08, this.seGain, 0.5);
-        } else if (type === 'artifact') {
-            // Ancient relic sparkle (A5 -> D6 -> F#6 -> A6)
-            this.playTone(880.00, 'triangle', 0.08, 0, this.seGain, 0.3);
-            this.playTone(1174.66, 'triangle', 0.08, 0.06, this.seGain, 0.3);
-            this.playTone(1479.98, 'square', 0.09, 0.12, this.seGain, 0.25);
-            this.playTone(1760.00, 'triangle', 0.28, 0.18, this.seGain, 0.3);
-        } else if (type === 'levelup') {
-            // Victorious fanfare
-            const notes = [523.25, 523.25, 523.25, 659.25, 783.99, 1046.50];
-            const delays = [0, 0.1, 0.2, 0.3, 0.45, 0.6];
-            notes.forEach((n, idx) => {
-                this.playTone(n, 'square', idx === 5 ? 0.45 : 0.1, delays[idx], this.seGain, 0.35);
+            // ラッキー家事: アコースティックギター＆オルゴールのアルペジオ
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            const delays = [0, 0.08, 0.16, 0.25];
+            notes.forEach((f, i) => {
+                this.playWarmTone(f, 0.45, delays[i], this.seGain, 0.32, 'musicbox');
             });
+        } else if (type === 'karuta') {
+            // かるた・おみくじ: 澄んだウィンドチャイム風アルペジオ
+            const notes = [739.99, 880.00, 1108.73, 1318.51, 1760.00];
+            const delays = [0, 0.06, 0.12, 0.18, 0.26];
+            notes.forEach((f, i) => {
+                this.playWarmTone(f, 0.48, delays[i], this.seGain, 0.28, 'musicbox');
+            });
+        } else if (type === 'bounty') {
+            // ボス討伐: ウッドブロック調のパーカッション
+            this.playWarmTone(330, 0.12, 0, this.seGain, 0.35, 'marimba');
+            this.playWarmTone(220, 0.18, 0.05, this.seGain, 0.4, 'marimba');
+            this.playWarmTone(110, 0.30, 0.10, this.seGain, 0.45, 'guitar');
+        } else if (type === 'artifact') {
+            // 古代遺物・家具: 神秘的なハープの爪弾き
+            const notes = [880.00, 1174.66, 1479.98, 1760.00];
+            const delays = [0, 0.07, 0.14, 0.22];
+            notes.forEach((f, i) => {
+                this.playWarmTone(f, 0.50, delays[i], this.seGain, 0.28, 'musicbox');
+            });
+        } else if (type === 'levelup' || type === 'level_up') {
+            // レベルアップ / 同期成功: 温かみのあるアコースティック・ベルファンファーレ
+            const notes = [523.25, 523.25, 659.25, 783.99, 1046.50, 1318.51];
+            const delays = [0, 0.10, 0.20, 0.32, 0.46, 0.62];
+            notes.forEach((f, i) => {
+                this.playWarmTone(f, i === 5 ? 0.8 : 0.4, delays[i], this.seGain, 0.35, 'musicbox');
+            });
+            this.playWarmTone(261.63, 0.7, 0.46, this.seGain, 0.28, 'marimba');
         } else if (type === 'click') {
-            // Short soft click
-            this.playTone(750, 'triangle', 0.04, 0, this.seGain, 0.2);
+            // 水滴・ウッドノックのような耳に優しいクリック音
+            this.playWarmTone(750, 0.05, 0, this.seGain, 0.20, 'water');
         }
     },
-
-    bgmTrack: 'village',
 
     setBGMTrack(trackName) {
         this.bgmTrack = trackName;
@@ -173,148 +386,169 @@ const SoundEngine = {
         const text = document.getElementById('bgm-toggle-btn-text');
         if (text) text.textContent = 'BGM 一時停止';
 
-        // 5 Distinct Chiptune compositions with chords, walking bass, and mellow melodies
-        let chordProgression = [];
-        let bassLine = [];
-        let melodyLine = [];
-        let tickInterval = 280;
+        // ======================================================================
+        // 🏡 ココット村「目覚め」をモデルにしたアコースティック・コージーBGM
+        // ======================================================================
+        let effectiveTrack = this.bgmTrack;
+        if (effectiveTrack === 'kokoto_auto') {
+            effectiveTrack = 'kokoto_' + this.getTimeSlot();
+        }
 
-        if (this.bgmTrack === 'pop') {
-            // --- 🌞 PokoPoko Daily Pop (Lighthearted Uplifting 8-bit Pop) ---
-            // C -> G -> Am -> F (Catchy energetic tempo)
-            chordProgression = [
-                [261.63, 329.63, 392.00], // C
-                [196.00, 246.94, 293.66], // G
-                [220.00, 261.63, 329.63], // Am
-                [174.61, 220.00, 261.63]  // F
+        let arpeggios = [];
+        let bassLine = [];
+        let fluteMelody = [];
+        let marimbaEcho = [];
+        let tickInterval = 280; // 1ステップあたりのミリ秒
+        let melodyInstrument = 'flute';
+
+        if (effectiveTrack === 'kokoto_morning') {
+            // 🌅 朝: 爽やかな目覚め（軽快なフルート主旋律＋明るいリュートのアルペジオ）
+            // C -> Fmaj7 -> G -> C
+            arpeggios = [
+                [261.63, 329.63, 392.00, 523.25], // C
+                [174.61, 261.63, 329.63, 349.23], // Fmaj7
+                [196.00, 246.94, 293.66, 392.00], // G
+                [261.63, 329.63, 392.00, 523.25]  // C
             ];
-            bassLine = [
-                130.81, 130.81, 196.00, 130.81,
-                98.00, 98.00, 146.83, 98.00,
-                110.00, 110.00, 164.81, 110.00,
-                87.31, 87.31, 130.81, 87.31
+            bassLine = [130.81, 130.81, 174.61, 174.61, 196.00, 196.00, 130.81, 130.81];
+            fluteMelody = [
+                523.25, 0, 659.25, 783.99, 880.00, 783.99, 659.25, 523.25,
+                587.33, 0, 698.46, 880.00, 783.99, 698.46, 587.33, 0,
+                783.99, 0, 880.00, 987.77, 1046.50, 987.77, 783.99, 659.25,
+                523.25, 0, 659.25, 783.99, 523.25, 0, 0, 0
             ];
-            melodyLine = [
-                523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 523.25, 0,
-                587.33, 783.99, 587.33, 493.88, 392.00, 493.88, 587.33, 0,
-                659.25, 783.99, 880.00, 783.99, 659.25, 523.25, 440.00, 0,
-                523.25, 659.25, 783.99, 659.25, 523.25, 440.00, 392.00, 0
+            marimbaEcho = [0, 523.25, 0, 659.25, 0, 783.99, 0, 0];
+            tickInterval = 230; // 軽快な朝テンポ
+            melodyInstrument = 'flute';
+
+        } else if (effectiveTrack === 'kokoto_evening') {
+            // 🌇 夕方: 茜色の家路（少しノスタルジックで温かいオカリナとリュート）
+            // Am7 -> Fmaj7 -> G -> Em7
+            arpeggios = [
+                [220.00, 261.63, 329.63, 392.00], // Am7
+                [174.61, 220.00, 261.63, 349.23], // Fmaj7
+                [196.00, 246.94, 293.66, 392.00], // G
+                [164.81, 196.00, 246.94, 329.63]  // Em7
             ];
-            tickInterval = 190;
+            bassLine = [110.00, 0, 87.31, 0, 98.00, 0, 82.41, 0];
+            fluteMelody = [
+                440.00, 0, 523.25, 0, 659.25, 587.33, 523.25, 0,
+                587.33, 0, 523.25, 440.00, 392.00, 440.00, 523.25, 0,
+                659.25, 0, 587.33, 0, 523.25, 440.00, 392.00, 0,
+                440.00, 0, 523.25, 0, 440.00, 0, 0, 0
+            ];
+            marimbaEcho = [0, 440.00, 0, 392.00, 0, 440.00, 0, 0];
+            tickInterval = 290;
+            melodyInstrument = 'flute';
+
+        } else if (effectiveTrack === 'kokoto_night') {
+            // 🌙 夜: 静寂の星空（静かなオルゴール＆リュートの優しい夜アレンジ）
+            // Cmaj7 -> Fmaj7 -> Em7 -> Am7
+            arpeggios = [
+                [261.63, 329.63, 392.00, 493.88],
+                [174.61, 220.00, 261.63, 329.63],
+                [164.81, 196.00, 246.94, 329.63],
+                [220.00, 261.63, 329.63, 440.00]
+            ];
+            bassLine = [130.81, 0, 87.31, 0, 82.41, 0, 110.00, 0];
+            fluteMelody = [
+                523.25, 0, 0, 659.25, 0, 0, 783.99, 0,
+                659.25, 0, 523.25, 0, 440.00, 0, 0, 0,
+                587.33, 0, 0, 523.25, 0, 0, 440.00, 0,
+                392.00, 0, 493.88, 0, 523.25, 0, 0, 0
+            ];
+            marimbaEcho = [0, 523.25, 0, 0, 0, 659.25, 0, 0];
+            tickInterval = 320; // ゆったり深い夜テンポ
+            melodyInstrument = 'musicbox'; // 夜はオルゴール主旋律！
+
+        } else if (this.bgmTrack === 'pop') {
+            // 🌞 日だまりの朝カフェ（アコースティック・カントリーポップ）
+            arpeggios = [
+                [261.63, 329.63, 392.00, 523.25],
+                [196.00, 246.94, 293.66, 392.00],
+                [220.00, 261.63, 329.63, 440.00],
+                [174.61, 220.00, 261.63, 349.23]
+            ];
+            bassLine = [130.81, 130.81, 98.00, 98.00, 110.00, 110.00, 87.31, 87.31];
+            fluteMelody = [
+                523.25, 0, 659.25, 783.99, 659.25, 523.25, 0, 0,
+                587.33, 0, 493.88, 392.00, 493.88, 587.33, 0, 0,
+                659.25, 0, 783.99, 880.00, 783.99, 659.25, 0, 0,
+                523.25, 0, 659.25, 523.25, 440.00, 392.00, 0, 0
+            ];
+            marimbaEcho = [0, 523.25, 0, 659.25, 0, 783.99, 0, 0];
+            tickInterval = 210;
+
         } else if (this.bgmTrack === 'battle') {
-            // --- ⚔️ Quest Battle Chiptune (Heroic RPG Battle Track) ---
-            // Dm -> Bb -> C -> Dm (Fast, intense, heroic)
-            chordProgression = [
-                [146.83, 220.00, 261.63], // Dm
-                [116.54, 146.83, 233.08], // Bb
-                [130.81, 164.81, 196.00], // C
-                [146.83, 220.00, 293.66]  // Dm
+            // ⚔️ 勇者の旅立ち（アコースティック・ケルト風バトル）
+            arpeggios = [
+                [146.83, 220.00, 261.63, 293.66],
+                [116.54, 146.83, 233.08, 293.66],
+                [130.81, 164.81, 196.00, 261.63],
+                [146.83, 220.00, 293.66, 349.23]
             ];
-            bassLine = [
-                146.83, 146.83, 146.83, 220.00,
-                116.54, 116.54, 116.54, 174.61,
-                130.81, 130.81, 130.81, 196.00,
-                146.83, 146.83, 220.00, 293.66
+            bassLine = [146.83, 146.83, 116.54, 116.54, 130.81, 130.81, 146.83, 146.83];
+            fluteMelody = [
+                587.33, 0, 880.00, 783.99, 698.46, 587.33, 0, 698.46,
+                783.99, 0, 880.00, 783.99, 698.46, 587.33, 0, 0,
+                523.25, 0, 659.25, 783.99, 659.25, 523.25, 0, 0,
+                587.33, 0, 880.00, 698.46, 587.33, 0, 0, 0
             ];
-            melodyLine = [
-                587.33, 587.33, 880.00, 783.99, 698.46, 587.33, 698.46, 783.99,
-                932.33, 932.33, 880.00, 783.99, 698.46, 587.33, 466.16, 587.33,
-                523.25, 659.25, 783.99, 1046.50, 987.77, 783.99, 659.25, 523.25,
-                587.33, 698.46, 880.00, 1174.66, 880.00, 698.46, 587.33, 0
-            ];
-            tickInterval = 160;
+            marimbaEcho = [0, 0, 0, 587.33, 0, 0, 0, 698.46];
+            tickInterval = 180;
+
         } else if (this.bgmTrack === 'ruins') {
-            // --- 📜 Ruins of Time (Ancient Mystic Chill / Lofi) ---
-            // Am7 -> Dm7 -> Fmaj7 -> E7
-            chordProgression = [
-                [220.00, 261.63, 329.63],
-                [220.00, 261.63, 329.63],
-                [146.83, 220.00, 261.63],
-                [146.83, 220.00, 261.63],
-                [174.61, 261.63, 329.63],
-                [174.61, 261.63, 329.63],
-                [164.81, 246.94, 329.63],
-                [164.81, 246.94, 329.63]
+            // 📜 古代の静寂（神秘的なハープ＆木管）
+            arpeggios = [
+                [220.00, 261.63, 329.63, 440.00],
+                [146.83, 220.00, 261.63, 349.23],
+                [174.61, 220.00, 261.63, 329.63],
+                [164.81, 246.94, 329.63, 392.00]
             ];
-            bassLine = [
-                110.00, 110.00, 164.81, 110.00,
-                146.83, 146.83, 220.00, 146.83,
-                87.31, 87.31, 130.81, 87.31,
-                82.41, 82.41, 123.47, 82.41,
-                110.00, 130.81, 164.81, 220.00,
-                146.83, 174.61, 220.00, 261.63,
-                174.61, 164.81, 146.83, 130.81,
-                82.41, 98.00, 110.00, 123.47
-            ];
-            melodyLine = [
+            bassLine = [110.00, 0, 146.83, 0, 87.31, 0, 82.41, 0];
+            fluteMelody = [
                 440.00, 0, 523.25, 0, 659.25, 587.33, 523.25, 0,
                 587.33, 0, 523.25, 0, 440.00, 392.00, 440.00, 0,
                 523.25, 0, 659.25, 0, 783.99, 659.25, 523.25, 0,
-                659.25, 0, 587.33, 0, 493.88, 440.00, 493.88, 0,
-                440.00, 523.25, 659.25, 783.99, 880.00, 0, 783.99, 0,
-                659.25, 587.33, 523.25, 440.00, 523.25, 0, 0, 0,
-                392.00, 440.00, 523.25, 659.25, 587.33, 0, 523.25, 0,
                 493.88, 0, 440.00, 0, 415.30, 0, 440.00, 0
             ];
-            tickInterval = 270;
+            marimbaEcho = [0, 659.25, 0, 0, 0, 523.25, 0, 0];
+            tickInterval = 290;
+
         } else if (this.bgmTrack === 'tavern') {
-            // --- 🍻 Cozy Tavern & Fest (Upbeat Folk Chiptune) ---
-            // F -> G -> Em -> Am
-            chordProgression = [
-                [174.61, 220.00, 261.63],
-                [174.61, 220.00, 261.63],
-                [196.00, 246.94, 293.66],
-                [196.00, 246.94, 293.66],
-                [164.81, 196.00, 246.94],
-                [164.81, 196.00, 246.94],
-                [220.00, 261.63, 329.63],
-                [220.00, 261.63, 329.63]
+            // 🍻 酒場と収穫祭（陽気なアコースティック・フォークワルツ）
+            arpeggios = [
+                [174.61, 220.00, 261.63, 349.23],
+                [196.00, 246.94, 293.66, 392.00],
+                [164.81, 196.00, 246.94, 329.63],
+                [220.00, 261.63, 329.63, 440.00]
             ];
-            bassLine = [
-                174.61, 174.61, 261.63, 174.61,
-                196.00, 196.00, 293.66, 196.00,
-                164.81, 164.81, 246.94, 164.81,
-                220.00, 220.00, 329.63, 220.00,
-                174.61, 220.00, 261.63, 174.61,
-                196.00, 246.94, 293.66, 196.00,
-                164.81, 196.00, 246.94, 164.81,
-                220.00, 196.00, 174.61, 164.81
-            ];
-            melodyLine = [
+            bassLine = [174.61, 174.61, 196.00, 196.00, 164.81, 164.81, 220.00, 220.00];
+            fluteMelody = [
                 523.25, 587.33, 659.25, 523.25, 587.33, 659.25, 783.99, 0,
                 659.25, 783.99, 880.00, 659.25, 783.99, 880.00, 987.77, 0,
                 783.99, 659.25, 587.33, 659.25, 523.25, 440.00, 392.00, 0,
-                440.00, 523.25, 659.25, 523.25, 440.00, 0, 523.25, 0,
-                659.25, 0, 783.99, 0, 880.00, 783.99, 659.25, 0,
-                587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 440.00, 0,
-                523.25, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33, 0,
-                523.25, 0, 440.00, 0, 523.25, 0, 0, 0
+                440.00, 523.25, 659.25, 523.25, 440.00, 0, 523.25, 0
             ];
-            tickInterval = 210;
+            marimbaEcho = [0, 392.00, 0, 523.25, 0, 392.00, 0, 523.25];
+            tickInterval = 220;
+
         } else {
-            // --- 🏡 Default: Pokésleep & Cozy Tamagotchi Room (Lo-Fi Warm 8-bit) ---
-            // Cmaj7 -> Am7 -> Dm7 -> G7 (Classic mellow loop)
-            chordProgression = [
-                [261.63, 329.63, 392.00, 493.88],
-                [261.63, 329.63, 392.00, 493.88],
-                [220.00, 261.63, 329.63, 392.00],
-                [220.00, 261.63, 329.63, 392.00],
-                [146.83, 220.00, 261.63, 349.23],
-                [146.83, 220.00, 261.63, 349.23],
-                [196.00, 246.94, 293.66, 349.23],
-                [196.00, 246.94, 293.66, 349.23]
+            // 🏡 昼（または kokoto_noon / village）: 陽だまりの広場風ココット村
+            // Cmaj7 -> Am7 -> Dm7 -> G7
+            arpeggios = [
+                [261.63, 329.63, 392.00, 493.88], // Cmaj7
+                [220.00, 261.63, 329.63, 392.00], // Am7
+                [146.83, 220.00, 261.63, 349.23], // Dm7
+                [196.00, 246.94, 293.66, 349.23]  // G7
             ];
             bassLine = [
                 130.81, 0, 196.00, 130.81,
                 110.00, 0, 164.81, 110.00,
                 146.83, 0, 220.00, 146.83,
-                98.00, 0, 146.83, 196.00,
-                130.81, 164.81, 196.00, 246.94,
-                220.00, 196.00, 164.81, 130.81,
-                146.83, 174.61, 220.00, 261.63,
-                196.00, 174.61, 146.83, 123.47
+                98.00,  0, 146.83, 196.00
             ];
-            melodyLine = [
+            fluteMelody = [
                 523.25, 0, 659.25, 0, 783.99, 0, 659.25, 523.25,
                 440.00, 0, 523.25, 0, 659.25, 0, 523.25, 0,
                 587.33, 0, 523.25, 0, 440.00, 0, 392.00, 440.00,
@@ -324,41 +558,49 @@ const SoundEngine = {
                 587.33, 659.25, 587.33, 523.25, 440.00, 0, 493.88, 0,
                 523.25, 0, 392.00, 0, 523.25, 0, 0, 0
             ];
-            tickInterval = 290;
+            marimbaEcho = [
+                0, 523.25, 0, 659.25, 0, 0, 0, 523.25,
+                0, 440.00, 0, 523.25, 0, 0, 0, 440.00,
+                0, 587.33, 0, 523.25, 0, 0, 0, 392.00,
+                0, 392.00, 0, 493.88, 0, 0, 0, 523.25
+            ];
+            tickInterval = 270;
+            melodyInstrument = 'flute';
         }
 
-        const totalSteps = melodyLine.length;
+        const totalSteps = fluteMelody.length;
 
         this.bgmTimer = setInterval(() => {
             if (!this.bgmPlaying || this.bgmVol <= 0) return;
 
             const step = this.bgmStep % totalSteps;
 
-            // 1. Warm Chord Pad (Soft triangle wave every 4 steps / measure start)
-            if (step % 4 === 0) {
-                const chordIdx = Math.floor(step / 4) % chordProgression.length;
-                const chord = chordProgression[chordIdx];
-                if (chord) {
-                    chord.forEach((freq) => {
-                        this.playTone(freq, 'triangle', 1.05, 0, this.bgmGain, 0.08);
-                    });
+            // 1. アコースティックギターの分散和音（フィンガーピッキング調アルペジオ）
+            const chordGroupIdx = Math.floor(step / 8) % arpeggios.length;
+            const chordGroup = arpeggios[chordGroupIdx];
+            if (chordGroup && chordGroup.length > 0) {
+                const noteInChord = chordGroup[step % chordGroup.length];
+                if (noteInChord) {
+                    this.playWarmTone(noteInChord, 0.45, 0, this.bgmGain, 0.12, 'guitar');
                 }
             }
 
-            // 2. Soft Bassline (Round low sine/triangle)
+            // 2. ウッドベース（ふくよかな低音でテンポを支える）
             const bass = bassLine[step % bassLine.length];
             if (bass && bass > 0) {
-                this.playTone(bass, 'triangle', 0.22, 0, this.bgmGain, 0.22);
+                this.playWarmTone(bass, 0.50, 0, this.bgmGain, 0.22, 'guitar');
             }
 
-            // 3. Relaxing Melodic Lead (Gentle chime / soft square with decay)
-            const mel = melodyLine[step];
+            // 3. 木管フルート/オカリナ/オルゴールの優しいメロディ
+            const mel = fluteMelody[step];
             if (mel && mel > 0) {
-                this.playTone(mel, 'sine', 0.24, 0, this.bgmGain, 0.20);
-                // Subtle shimmer octave up
-                if (step % 8 === 0) {
-                    this.playTone(mel * 2, 'triangle', 0.15, 0.02, this.bgmGain, 0.05);
-                }
+                this.playWarmTone(mel, 0.58, 0, this.bgmGain, 0.19, melodyInstrument);
+            }
+
+            // 4. マリンバのポコポコした装飾打音
+            const mar = marimbaEcho[step % marimbaEcho.length];
+            if (mar && mar > 0) {
+                this.playWarmTone(mar, 0.25, 0.05, this.bgmGain, 0.11, 'marimba');
             }
 
             this.bgmStep++;
@@ -384,14 +626,13 @@ const SoundEngine = {
     }
 };
 
-// Open and Close Sound Modal
+// モーダル制御
 function openSoundModal() {
     SoundEngine.resume();
     SoundEngine.playSE('click');
     const modal = document.getElementById('sound-modal');
     if (modal) modal.classList.remove('hidden');
 
-    // Sync sliders & track select
     const sliderBgm = document.getElementById('bgmVolumeSlider');
     const sliderSe = document.getElementById('seVolumeSlider');
     const trackSelect = document.getElementById('bgmTrackSelect');
@@ -421,7 +662,7 @@ function onSeVolumeChange(val) {
     SoundEngine.setSEVolume(num);
 }
 
-// User-interaction sound ignition
+// ユーザー操作によるオーディオ着火
 window.addEventListener('click', function() {
     SoundEngine.resume();
 }, { once: true });
@@ -429,7 +670,7 @@ window.addEventListener('touchstart', function() {
     SoundEngine.resume();
 }, { once: true });
 
-// Global helper functions
+// グローバルヘルパー関数
 function playSE(type) {
     if (typeof SoundEngine !== 'undefined') SoundEngine.playSE(type);
 }
@@ -439,4 +680,3 @@ function toggleBGM() {
 function setBGMTrack(track) {
     if (typeof SoundEngine !== 'undefined') SoundEngine.setBGMTrack(track);
 }
-
