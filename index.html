@@ -608,11 +608,18 @@
                     <input type="checkbox" id="shareIncludeThanks" checked style="width: auto; height: auto; cursor: pointer; margin: 0;">
                     <label for="shareIncludeThanks" style="font-size: 13px; font-weight: 700; color: var(--text-main); cursor: pointer; user-select: none; margin: 0;">LINE返信用の感謝スタンプ枠をつける</label>
                 </div>
-                <div class="share-btn-group" style="display:flex; flex-direction:column; gap:0.5rem;">
-                    <button class="btn-share" onclick="shareReport()">
-                        <span>📱 テキストでコピー</span>
+                <div class="share-btn-group" style="display:flex; flex-direction:column; gap:0.6rem;">
+                    <!-- 🌟 ワンタップ同期リンク（最優先アクション） -->
+                    <button class="btn-share btn-share-sync-link" onclick="copySyncUrl()" style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%); border: 2px solid #fef3c7; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4); font-weight: bold; font-size: 14px; padding: 0.8rem 1rem;">
+                        <span>🔗 ワンタップ同期リンクをコピー</span>
                     </button>
-                    <button class="btn-share btn-share-ancient" onclick="openAncientScrollModal()">
+                    <button class="btn-share btn-share-direct" onclick="shareSyncUrlDirect()" style="background: #2563eb; font-size: 13px; padding: 0.65rem 1rem;">
+                        <span>📱 リンクを直接シェア（LINE・メッセージ）</span>
+                    </button>
+                    <button class="btn-share" onclick="shareReport()" style="background: #3a322d; font-size: 13px; padding: 0.65rem 1rem;">
+                        <span>📋 テキストでコピー</span>
+                    </button>
+                    <button class="btn-share btn-share-ancient" onclick="openAncientScrollModal()" style="font-size: 13px; padding: 0.65rem 1rem;">
                         <span>📜 古代の石板画像で共有</span>
                     </button>
                 </div>
@@ -625,6 +632,35 @@
 
             <div class="spell-btn-group" style="margin-top: 1.25rem;">
                 <button class="btn-spell-action btn-spell-cancel" style="width: 100%;" onclick="closeShareActionModal()">お部屋にもどる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💌 パートナーからのワンタップ同期お手紙モーダル -->
+    <div id="sync-confirm-modal" class="spell-overlay hidden">
+        <div class="spell-content sync-letter-card" style="max-width: 480px; text-align: center;">
+            <div class="sync-letter-stamp" style="font-size: 38px; margin-bottom: 0.2rem; animation: floatStamp 2.5s ease-in-out infinite;">💌</div>
+            <h3 class="spell-title" style="margin: 0.2rem 0; font-size: 20px; color: #ffd700;">パートナーからのお手紙</h3>
+            <p class="spell-desc" style="margin-bottom: 1rem; color: #e2d9d2; line-height: 1.6;">パートナーから最新のおうち記録が届きました！<br>相棒のカジゴンデータとおうち記録を同期しますか？</p>
+
+            <!-- 届いたデータのプレビューカード -->
+            <div class="sync-preview-box" style="background: rgba(0,0,0,0.3); border: 2px dashed #8b6b55; border-radius: 12px; padding: 0.85rem; margin-bottom: 1rem;">
+                <div class="sync-preview-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-size: 12px; color: #aaa;">届いた相棒データ</span>
+                    <span id="sync-preview-level" style="font-size: 14px; font-weight: bold; color: #ffd700; background: #261e1b; border: 1px solid #d97706; padding: 2px 8px; border-radius: 12px;">Lv.1</span>
+                </div>
+                <div class="sync-preview-attributes" id="sync-preview-attrs" style="display: flex; justify-content: space-around; gap: 0.4rem; font-size: 13px; font-weight: bold;">
+                    <span style="color: #ff6b6b;">🔥 <span id="sync-val-f">0</span></span>
+                    <span style="color: #60a5fa;">💧 <span id="sync-val-w">0</span></span>
+                    <span style="color: #34d399;">🍃 <span id="sync-val-a">0</span></span>
+                    <span style="color: #fbbf24;">🪨 <span id="sync-val-e">0</span></span>
+                </div>
+                <p style="font-size: 11px; color: #9ca3af; margin-top: 0.5rem; margin-bottom: 0; line-height: 1.4;">※両者の高い方のレベルや属性値をマージし、お互いの家事実績を合算します。</p>
+            </div>
+
+            <div class="spell-btn-group" style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <button class="btn-spell-action btn-spell-cast" style="width: 100%; font-size: 15px; font-weight: bold; padding: 0.8rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 2px solid #a7f3d0;" onclick="confirmAndApplySync()">✨ ワンタップで同期する</button>
+                <button class="btn-spell-action btn-spell-cancel" style="width: 100%;" onclick="dismissSyncConfirmModal()">あとで（スキップ）</button>
             </div>
         </div>
     </div>
