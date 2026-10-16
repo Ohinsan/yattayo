@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="nekoGlow" cx="50%" cy="52%" r="48%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.95"/>
+      <stop offset="65%" stop-color="#f59e0b" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#b45309" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="52" r="44" fill="url(#nekoGlow)"/>
+  <!-- Red Zabuton Cushion -->
+  <rect x="20" y="74" width="60" height="12" rx="6" fill="#dc2626" stroke="#fbbf24" stroke-width="2"/>
+  <!-- Calico Cat Ears -->
+  <polygon points="28,36 22,15 42,27" fill="#ffffff" stroke="#78350f" stroke-width="2"/>
+  <polygon points="29,33 25,20 38,28" fill="#ef4444"/>
+  <polygon points="72,36 78,15 58,27" fill="#f59e0b" stroke="#78350f" stroke-width="2"/>
+  <polygon points="71,33 75,20 62,28" fill="#ef4444"/>
+  <!-- Body -->
+  <ellipse cx="50" cy="64" rx="23" ry="18" fill="#ffffff" stroke="#78350f" stroke-width="2.2"/>
+  <!-- Red Collar & Golden Suzu Bell -->
+  <path d="M31,52 Q50,59 69,52" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="50" cy="56" r="5" fill="#facc15" stroke="#92400e" stroke-width="1.5"/>
+  <!-- Golden Koban Coin on Belly -->
+  <ellipse cx="52" cy="69" rx="9" ry="12" fill="#fde047" stroke="#b45309" stroke-width="2"/>
+  <rect x="49" y="63" width="6" height="12" fill="none" stroke="#92400e" stroke-width="1.2"/>
+  <!-- Raised Beckoning Left Paw -->
+  <ellipse cx="30" cy="48" rx="6.5" ry="9" transform="rotate(-15 30 48)" fill="#ffffff" stroke="#78350f" stroke-width="2"/>
+  <circle cx="30" cy="46" r="2.5" fill="#fda4af"/>
+  <!-- Head -->
+  <ellipse cx="50" cy="39" rx="21" ry="16" fill="#ffffff" stroke="#78350f" stroke-width="2.2"/>
+  <!-- Happy Smiling Eyes -->
+  <path d="M37,39 Q41,34 45,39" fill="none" stroke="#451a03" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M55,39 Q59,34 63,39" fill="none" stroke="#451a03" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Nose & Whiskers -->
+  <polygon points="48,43 52,43 50,45.5" fill="#fb7185"/>
+  <path d="M46,46 Q50,50 54,46" fill="none" stroke="#78350f" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

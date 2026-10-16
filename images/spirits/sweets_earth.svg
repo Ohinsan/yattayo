@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="matchaGlow" cx="50%" cy="52%" r="48%">
+      <stop offset="0%" stop-color="#dcfce7" stop-opacity="0.95"/>
+      <stop offset="65%" stop-color="#4ade80" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#15803d" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="52" r="44" fill="url(#matchaGlow)"/>
+  <!-- Matcha Tiramisu Layered Shell -->
+  <path d="M22,64 Q24,32 50,30 Q76,32 78,64 Z" fill="#15803d" stroke="#14532d" stroke-width="2.5"/>
+  <path d="M25,56 L75,56 L77,63 L23,63 Z" fill="#fef3c7"/>
+  <path d="M28,46 L72,46 L74,52 L26,52 Z" fill="#78350f"/>
+  <!-- Marron Chestnut & Matcha Leaf on Top -->
+  <path d="M43,30 Q50,16 57,30 Z" fill="#92400e" stroke="#451a03" stroke-width="1.8"/>
+  <ellipse cx="58" cy="24" rx="6" ry="3" transform="rotate(-25 58 24)" fill="#22c55e" stroke="#14532d" stroke-width="1.5"/>
+  <!-- Cute Turtle Head & Legs -->
+  <ellipse cx="32" cy="74" rx="7" ry="5" fill="#86efac" stroke="#15803d" stroke-width="2"/>
+  <ellipse cx="68" cy="74" rx="7" ry="5" fill="#86efac" stroke="#15803d" stroke-width="2"/>
+  <ellipse cx="50" cy="68" rx="16" ry="13" fill="#bbf7d0" stroke="#15803d" stroke-width="2.2"/>
+  <!-- Eyes & Smile -->
+  <circle cx="43" cy="66" r="3.2" fill="#14532d"/>
+  <circle cx="44" cy="65" r="1.2" fill="#ffffff"/>
+  <circle cx="57" cy="66" r="3.2" fill="#14532d"/>
+  <circle cx="58" cy="65" r="1.2" fill="#ffffff"/>
+  <path d="M46,71 Q50,75 54,71" fill="none" stroke="#14532d" stroke-width="2" stroke-linecap="round"/>
+  <ellipse cx="38" cy="69" rx="3" ry="1.8" fill="#fb7185" opacity="0.65"/>
+  <ellipse cx="62" cy="69" rx="3" ry="1.8" fill="#fb7185" opacity="0.65"/>
+</svg>

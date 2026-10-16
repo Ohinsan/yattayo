@@ -2,7 +2,7 @@
 // --- 🎵 Cozy Acoustic Sound Engine (Web Audio API Synthesizer) ---
 // ==========================================================================
 // 耳に優しいアコースティック調（サイン波＋三角波）のサウンドエンジン
-// モンハン・ココット村「目覚め」をモデルにした穏やかな牧歌的BGM＆家事コンボ音
+// おうち時間（朝・昼・夕・夜）に連動する穏やかな牧歌的オリジナルBGM＆家事コンボ音
 // ==========================================================================
 
 const SoundEngine = {
@@ -16,7 +16,7 @@ const SoundEngine = {
     bgmPlaying: false,
     bgmTimer: null,
     bgmStep: 0,
-    bgmTrack: 'kokoto_auto', // ⏰ デフォルト: ココット村・時間連動モード
+    bgmTrack: 'kokoto_auto', // ⏰ デフォルト: おうち時間連動モード
 
     // 家事コンボ（15分以内の連続記録でド・レ・ミ・ファ・ソ・ラ・シ・ド）
     lastChoreTime: 0,
@@ -318,9 +318,81 @@ const SoundEngine = {
         };
     },
 
+    /**
+     * 🎵 まとめて奉納モード用：連続コンボ音階（ド・レ・ミ・ファ・ソ・ラ・シ・ド♪）＋最終ステップでコンボファンファーレ
+     * @param {number} stepIndex 0始まりの現在インデックス
+     * @param {number} totalSteps 選択された合計件数
+     */
+    playBatchComboStep(stepIndex, totalSteps) {
+        this.resume();
+        const scale = [
+            { note: 'ド', freq: 523.25 },    // C5
+            { note: 'レ', freq: 587.33 },    // D5
+            { note: 'ミ', freq: 659.25 },    // E5
+            { note: 'ファ', freq: 698.46 },   // F5
+            { note: 'ソ', freq: 783.99 },    // G5
+            { note: 'ラ', freq: 880.00 },    // A5
+            { note: 'シ', freq: 987.77 },    // B5
+            { note: '高いド', freq: 1046.50 } // C6
+        ];
+
+        const now = Date.now();
+        this.lastChoreTime = now;
+        this.choreComboCount = Math.min(8, stepIndex + 1);
+        localStorage.setItem('kajigon_last_chore_time', this.lastChoreTime);
+        localStorage.setItem('kajigon_chore_combo_count', this.choreComboCount);
+
+        const idx = stepIndex % scale.length;
+        const current = scale[idx];
+        const isLastStep = (stepIndex >= totalSteps - 1);
+
+        if (this.seVol <= 0 || !this.ctx) {
+            return { step: stepIndex + 1, noteName: current.note, isLast: isLastStep };
+        }
+
+        // 駆け上がる音階ノートを鳴らす
+        this.playWarmTone(current.freq, 0.36, 0, this.seGain, 0.36, 'musicbox');
+        const fifthFreq = current.freq * 1.4983;
+        this.playWarmTone(fifthFreq, 0.30, 0.02, this.seGain, 0.18, 'musicbox');
+
+        // 最終オーブ射出時に爽快なコンボファンファーレを鳴らす！
+        if (isLastStep) {
+            const fanfareDelay = 0.10;
+            const arpeggio = [
+                { f: 523.25, d: fanfareDelay + 0.00 },
+                { f: 659.25, d: fanfareDelay + 0.07 },
+                { f: 783.99, d: fanfareDelay + 0.14 },
+                { f: 1046.50, d: fanfareDelay + 0.21 },
+                { f: 1318.51, d: fanfareDelay + 0.30 },
+                { f: 1567.98, d: fanfareDelay + 0.40 }
+            ];
+            arpeggio.forEach(item => {
+                this.playWarmTone(item.f, 0.55, item.d, this.seGain, 0.36, 'musicbox');
+            });
+            this.playWarmTone(261.63, 0.65, fanfareDelay + 0.21, this.seGain, 0.28, 'marimba');
+        }
+
+        return {
+            step: stepIndex + 1,
+            noteName: current.note,
+            isLast: isLastStep
+        };
+    },
+
     playSE(type) {
         this.resume();
         if (this.seVol <= 0 || !this.ctx) return;
+
+        // 🥚 Task 3: 卵ステージ（Lv.1〜2 / STAGE: EGG）の間はセリフ表示時の発話SEを鳴らさない（ミュート）
+        if (type === 'talk' || type === 'speech' || type === 'voice') {
+            if (typeof getCompanionStage === 'function' && typeof getLevel === 'function') {
+                if (getCompanionStage(getLevel()) === 'egg') {
+                    return;
+                }
+            }
+            this.playWarmTone(750, 0.05, 0, this.seGain, 0.20, 'water');
+            return;
+        }
 
         if (type === 'done') {
             // 家事コンボ音を優先呼出
@@ -387,7 +459,7 @@ const SoundEngine = {
         if (text) text.textContent = 'BGM 一時停止';
 
         // ======================================================================
-        // 🏡 ココット村「目覚め」をモデルにしたアコースティック・コージーBGM
+        // 🏡 オリジナル・アコースティック・コージーBGM（朝・昼・夕・夜）
         // ======================================================================
         let effectiveTrack = this.bgmTrack;
         if (effectiveTrack === 'kokoto_auto') {
@@ -402,7 +474,7 @@ const SoundEngine = {
         let melodyInstrument = 'flute';
 
         if (effectiveTrack === 'kokoto_morning') {
-            // 🌅 朝: 爽やかな目覚め（軽快なフルート主旋律＋明るいリュートのアルペジオ）
+            // 🌅 朝露と目覚めのフルート（軽快なフルート主旋律＋明るいリュートのアルペジオ）
             // C -> Fmaj7 -> G -> C
             arpeggios = [
                 [261.63, 329.63, 392.00, 523.25], // C

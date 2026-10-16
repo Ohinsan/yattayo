@@ -185,6 +185,120 @@ const ALL_SPIRITS = [
         file: 'images/spirits/slime_prism.svg',
         desc: 'おうちの汚れを吸い取って体内でピカピカの虹色宝石に変えた奇跡のスライム王。王冠を輝かせ、家中に最高の福をもたらす。',
         hint: '【スライム族】ラッキー家事や討伐クエストを重ねると降臨'
+    },
+
+    // 🐾 Phase 3 新系統1：もふもふ幻獣系統（分岐おやつ：🥛 星降るホットミルク）
+    {
+        id: 'fluffy_fire',
+        attr: 'fire',
+        route: 'fluffy',
+        name: '🔥 暖炉ポメラニアン・イグニ 🐶',
+        file: 'images/spirits/fluffy_fire.svg',
+        desc: '暖炉の種火から生まれた、太陽のように温かい毛並みのポメラニアン幻獣。キッチンに立つ人の足元をポカポカに温めてくれる。',
+        hint: '【もふもふ・火】星降るホットミルクをあげて火の家事を極めると進化'
+    },
+    {
+        id: 'fluffy_water',
+        attr: 'water',
+        route: 'fluffy',
+        name: '🫧 泡モコ白くま・シャボン 🐻‍❄️',
+        file: 'images/spirits/fluffy_water.svg',
+        desc: 'きめ細やかな石鹸泡と雪のような白毛を持つこぐま幻獣。洗い上がったバスタオルを極上のふわふわ感に整えてくれる。',
+        hint: '【もふもふ・水】星降るホットミルクをあげて水の家事を極めると進化'
+    },
+    {
+        id: 'fluffy_wind',
+        attr: 'wind',
+        route: 'fluffy',
+        name: '🍃 羽毛フクロウ・シルフィ 🦉',
+        file: 'images/spirits/fluffy_wind.svg',
+        desc: 'シルクのように柔らかい綿毛をまとった白緑のフクロウ幻獣。朝の換気とともに森の爽やかな空気をお部屋に届ける。',
+        hint: '【もふもふ・風】星降るホットミルクをあげて風の家事を極めると進化'
+    },
+    {
+        id: 'fluffy_earth',
+        attr: 'earth',
+        route: 'fluffy',
+        name: '☀️ ひだまり羊・コットンテイル 🐑',
+        file: 'images/spirits/fluffy_earth.svg',
+        desc: 'お日様の匂いがする雲のような羊毛をまとったひつじ幻獣。綺麗に整ったベッドやソファで家族の疲れを癒やしてくれる。',
+        hint: '【もふもふ・土】星降るホットミルクをあげて土の家事を極めると進化'
+    },
+
+    // 🍵 Phase 3 新系統2：和風・座敷わらし系統（分岐おやつ：🍡 三色月見だんご）
+    {
+        id: 'wafuu_fire',
+        attr: 'fire',
+        route: 'wafuu',
+        name: '🏮 かまど狐・焔丸 🦊',
+        file: 'images/spirits/wafuu_fire.svg',
+        desc: '古来より台所（かまど）に宿り、火の安全と豊かな食卓を守ってきた二尾の白狐。美味しいご飯が炊けると狐火を揺らして祝う。',
+        hint: '【和風・火】三色月見だんごをあげて火の家事を極めると進化'
+    },
+    {
+        id: 'wafuu_water',
+        attr: 'water',
+        route: 'wafuu',
+        name: '🥒 清流河童・みずち 🐢',
+        file: 'images/spirits/wafuu_water.svg',
+        desc: '頭のお皿に清らかな湧き水をたたえた心優しき河童の精霊。お風呂や洗面台が磨かれると、お皿の水が虹色に輝いて健康運を高める。',
+        hint: '【和風・水】三色月見だんごをあげて水の家事を極めると進化'
+    },
+    {
+        id: 'wafuu_wind',
+        attr: 'wind',
+        route: 'wafuu',
+        name: '🪭 お掃除天狗・疾風 👺',
+        file: 'images/spirits/wafuu_wind.svg',
+        desc: '葉団扇を一振りするだけで、部屋の隅々のホコリと淀んだ空気を一瞬で祓い清める小さな天狗。爽快な神風で良縁を呼び込む。',
+        hint: '【和風・風】三色月見だんごをあげて風の家事を極めると進化'
+    },
+    {
+        id: 'wafuu_earth',
+        attr: 'earth',
+        route: 'wafuu',
+        name: '🪙 福招き猫神・こばん 🐱',
+        file: 'images/spirits/wafuu_earth.svg',
+        desc: '赤い座布団の上に鎮座し、綺麗になった玄関やリビングに千客万来・家内安全の福を招き入れる三毛猫の守り神。',
+        hint: '【和風・土】三色月見だんごをあげて土の家事を極めると進化'
+    },
+
+    // 🍰 Phase 3 新系統3：スイーツ精霊系統（分岐おやつ：🍓 虹色シュガーベリー）
+    {
+        id: 'sweets_fire',
+        attr: 'fire',
+        route: 'sweets',
+        name: '🍮 焦がしブリュレ竜・カラメル 🐉',
+        file: 'images/spirits/sweets_fire.svg',
+        desc: '濃厚なカスタードと香ばしいカラメルソースの翼を持つスイーツ竜。キッチンから甘い香りが漂うと幸せそうに尻尾を振る。',
+        hint: '【スイーツ・火】虹色シュガーベリーをあげて火の家事を極めると進化'
+    },
+    {
+        id: 'sweets_water',
+        attr: 'water',
+        route: 'sweets',
+        name: '🍨 ソーダゼリー精霊・ぷるる 🫧',
+        file: 'images/spirits/sweets_water.svg',
+        desc: '透き通るブルーソーダゼリーの体にバニラアイスを乗せた涼やかな精霊。洗った食器がキュッと輝く瞬間が一番のお気に入り。',
+        hint: '【スイーツ・水】虹色シュガーベリーをあげて水の家事を極めると進化'
+    },
+    {
+        id: 'sweets_wind',
+        attr: 'wind',
+        route: 'sweets',
+        name: '🧁 ふわふわシフォン妖精・スフレ 🧚',
+        file: 'images/spirits/sweets_wind.svg',
+        desc: 'メレンゲのように軽やかな羽で宙を舞うシフォンケーキの妖精。干した洗濯物や掃除後のリビングに甘い幸福感を運ぶ。',
+        hint: '【スイーツ・風】虹色シュガーベリーをあげて風の家事を極めると進化'
+    },
+    {
+        id: 'sweets_earth',
+        attr: 'earth',
+        route: 'sweets',
+        name: '🍵 抹茶ティラミス亀・マロン 🐢',
+        file: 'images/spirits/sweets_earth.svg',
+        desc: '香り高い宇治抹茶パウダーとマスカルポーネの層を甲羅に持つ癒やし系の亀精霊。綺麗に拭かれたテーブルで極上のティータイムを演出する。',
+        hint: '【スイーツ・土】虹色シュガーベリーをあげて土の家事を極めると進化'
     }
 ];
 
@@ -212,33 +326,166 @@ function getUnlockedFiles() {
     }
 }
 
-// 歴代殿堂入りアルバム
-function saveHallOfFame(evolvedDragon) {
-    if (!evolvedDragon) return;
+// 主属性（火・水・風・土、不明なら火）に応じた守護精霊データを取得
+function getGuardianSpiritByAttr(attr) {
+    const attrMap = {
+        fire: 'fire_dragon',
+        water: 'water_dragon',
+        wind: 'wind_dragon',
+        earth: 'earth_dragon',
+        light: 'light_dragon',
+        dark: 'dark_golem'
+    };
+    const targetId = attrMap[attr] || 'fire_dragon';
+    return ALL_SPIRITS.find(s => s.id === targetId) || ALL_SPIRITS.find(s => s.id === 'fire_dragon') || ALL_SPIRITS[1];
+}
+
+// 🏛️ Task 4: 既存の殿堂入りデータの自動修復マイグレーション（卵や未定義レコードを守護精霊へ修復）
+function migrateHallOfFameData() {
     try {
         const raw = localStorage.getItem('kajigon_hall_of_fame');
         let list = raw ? JSON.parse(raw) : [];
         if (!Array.isArray(list)) list = [];
 
+        if (list.length === 0 && typeof kajigonState !== 'undefined' && Array.isArray(kajigonState.hallOfFame) && kajigonState.hallOfFame.length > 0) {
+            list = kajigonState.hallOfFame;
+        }
+        if (list.length === 0) return [];
+
+        const envAttrMap = {
+            volcano: 'fire',
+            abyss: 'water',
+            sky: 'wind',
+            earth: 'earth'
+        };
+
+        let modified = false;
+        const repairedList = list.map((item, idx) => {
+            if (!item || typeof item !== 'object') {
+                modified = true;
+                const fallbackSpirit = getGuardianSpiritByAttr('fire');
+                return {
+                    generation: idx + 1,
+                    name: 'カジゴン',
+                    spiritId: fallbackSpirit.id,
+                    attr: 'fire',
+                    mainAttr: 'fire',
+                    spiritName: fallbackSpirit.name,
+                    spiritFile: fallbackSpirit.file,
+                    file: fallbackSpirit.file,
+                    envTheme: 'classic',
+                    date: getTodayDateString(),
+                    totalExp: 1500
+                };
+            }
+
+            const rawFile = item.file || item.spiritFile || '';
+            const rawId = item.spiritId || item.id || '';
+            const rawName = item.spiritName || '';
+
+            // 既存のALL_SPIRITSから一致する守護精霊を検索（卵以外）
+            let matchedSpirit = null;
+            if (rawId && rawId !== 'egg') {
+                matchedSpirit = ALL_SPIRITS.find(s => s.id === rawId);
+            }
+            if (!matchedSpirit && rawFile && !rawFile.includes('egg') && !rawFile.includes('baby') && !rawFile.includes('teen')) {
+                matchedSpirit = ALL_SPIRITS.find(s => s.file === rawFile);
+            }
+            if (!matchedSpirit && rawName && !rawName.includes('卵')) {
+                matchedSpirit = ALL_SPIRITS.find(s => s.name === rawName);
+            }
+
+            // 形態IDが「卵（egg）」または未定義・不一致の場合は、主属性（不明なら火）に応じた守護精霊へ自動修復
+            const inferredAttr = item.mainAttr || item.attr || envAttrMap[item.envTheme] || (matchedSpirit ? matchedSpirit.attr : 'fire') || 'fire';
+            const validAttr = ['fire', 'water', 'wind', 'earth', 'light', 'dark'].includes(inferredAttr) ? inferredAttr : 'fire';
+
+            if (!matchedSpirit || rawId === 'egg' || rawFile.includes('egg')) {
+                matchedSpirit = getGuardianSpiritByAttr(validAttr);
+                modified = true;
+            }
+
+            if (
+                item.spiritId !== matchedSpirit.id ||
+                item.file !== matchedSpirit.file ||
+                item.spiritFile !== matchedSpirit.file ||
+                !item.spiritName ||
+                item.spiritName.includes('卵') ||
+                !item.attr ||
+                !item.mainAttr
+            ) {
+                modified = true;
+            }
+
+            return {
+                ...item,
+                generation: item.generation || (idx + 1),
+                name: item.name || 'カジゴン',
+                spiritId: matchedSpirit.id,
+                attr: validAttr,
+                mainAttr: validAttr,
+                spiritName: matchedSpirit.name,
+                spiritFile: matchedSpirit.file,
+                file: matchedSpirit.file,
+                envTheme: item.envTheme || 'classic',
+                date: item.date || getTodayDateString(),
+                totalExp: item.totalExp || 1500
+            };
+        });
+
+        if (modified) {
+            localStorage.setItem('kajigon_hall_of_fame', JSON.stringify(repairedList));
+        }
+        if (typeof kajigonState !== 'undefined') {
+            kajigonState.hallOfFame = repairedList;
+        }
+        return repairedList;
+    } catch (e) {
+        console.warn('migrateHallOfFameData error:', e);
+        return [];
+    }
+}
+
+// 歴代殿堂入りアルバム保存
+function saveHallOfFame(evolvedDragon, mainAttr) {
+    try {
+        const raw = localStorage.getItem('kajigon_hall_of_fame');
+        let list = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(list)) list = [];
+
+        const resolvedAttr = mainAttr
+            || (evolvedDragon && evolvedDragon.attr)
+            || (typeof getDominantAttribute === 'function' ? getDominantAttribute(kajigonState) : 'fire')
+            || 'fire';
+
+        let targetSpirit = evolvedDragon;
+        if (!targetSpirit || !targetSpirit.file || targetSpirit.file.includes('egg') || targetSpirit.id === 'egg') {
+            targetSpirit = getGuardianSpiritByAttr(resolvedAttr);
+        }
+
         const entry = {
             generation: list.length + 1,
             name: kajigonState.companionName || 'カジゴン',
-            spiritName: evolvedDragon.name,
-            spiritFile: evolvedDragon.file,
+            spiritId: targetSpirit.id || 'fire_dragon',
+            attr: resolvedAttr,
+            mainAttr: resolvedAttr,
+            spiritName: targetSpirit.name,
+            spiritFile: targetSpirit.file,
+            file: targetSpirit.file,
             envTheme: kajigonState.environmentTheme || 'classic',
             date: getTodayDateString(),
             totalExp: kajigonState.totalExp || 0
         };
         list.push(entry);
         localStorage.setItem('kajigon_hall_of_fame', JSON.stringify(list));
+        if (typeof kajigonState !== 'undefined') {
+            kajigonState.hallOfFame = list;
+        }
     } catch (e) {}
 }
 
 function getHallOfFameList() {
     try {
-        const raw = localStorage.getItem('kajigon_hall_of_fame');
-        const list = raw ? JSON.parse(raw) : [];
-        return Array.isArray(list) ? list : [];
+        return migrateHallOfFameData();
     } catch (e) {
         return [];
     }
@@ -461,16 +708,23 @@ function renderHallOfFameTab() {
             </div>
         ` : `
             <div style="display:flex; flex-direction:column; gap:0.6rem;">
-                ${list.map(item => `
-                    <div style="background:#14141f; border:2px solid #ffd700; border-radius:8px; padding:0.6rem 0.8rem; display:flex; align-items:center; gap:0.8rem;">
-                        <img src="${item.spiritFile}" style="width:50px; height:50px; object-fit:contain; image-rendering:pixelated; background:#07070a; border-radius:6px;">
-                        <div style="flex:1;">
-                            <div style="font-size:11px; color:#ffd700; font-weight:bold;">第${item.generation}世代 相棒：【${item.name}】</div>
-                            <div style="font-size:13px; font-weight:bold; color:#fff;">${item.spiritName}</div>
-                            <div style="font-size:10px; color:#a1a1aa;">達成日: ${item.date} | 累計EXP: ${item.totalExp}</div>
+                ${list.map(item => {
+                    const imgFile = (item.file && !item.file.includes('egg'))
+                        ? item.file
+                        : ((item.spiritFile && !item.spiritFile.includes('egg'))
+                            ? item.spiritFile
+                            : getGuardianSpiritByAttr(item.mainAttr || item.attr || 'fire').file);
+                    return `
+                        <div style="background:#14141f; border:2px solid #ffd700; border-radius:8px; padding:0.6rem 0.8rem; display:flex; align-items:center; gap:0.8rem;">
+                            <img src="${imgFile}" style="width:50px; height:50px; object-fit:contain; image-rendering:pixelated; background:#07070a; border-radius:6px;">
+                            <div style="flex:1;">
+                                <div style="font-size:11px; color:#ffd700; font-weight:bold;">第${item.generation}世代 相棒：【${item.name || 'カジゴン'}】</div>
+                                <div style="font-size:13px; font-weight:bold; color:#fff;">${item.spiritName || getGuardianSpiritByAttr(item.mainAttr || item.attr || 'fire').name}</div>
+                                <div style="font-size:10px; color:#a1a1aa;">達成日: ${item.date || '-'} | 累計EXP: ${item.totalExp || 0}</div>
+                            </div>
                         </div>
-                    </div>
-                `).join('')}
+                    `;
+                }).join('')}
             </div>
         `}
         <div style="margin-top: 1.2rem; text-align: center;">
@@ -571,12 +825,12 @@ function openSpiritDetailModal(spiritId) {
     const spirit = ALL_SPIRITS.find(s => s.id === spiritId);
     if (!spirit) return;
 
-    const profile = (typeof SPIRIT_PROFILES !== 'undefined' && SPIRIT_PROFILES[spiritId]) ? SPIRIT_PROFILES[spiritId] : {
-        food: 'あたたかい手料理',
-        chore: 'きれいなお部屋の掃除',
-        lore: spirit.desc,
-        message: '「いつも家族のためにおうちをピカピカにしてくれてありがとう！」'
-    };
+    const rawProfile = (typeof SPIRIT_PROFILES !== 'undefined' && SPIRIT_PROFILES[spiritId]) ? SPIRIT_PROFILES[spiritId] : {};
+    const favoriteText = rawProfile.favorite || rawProfile.food || 'あたたかい手料理';
+    const favoriteSnackLabel = rawProfile.favoriteSnackLabel || '🍖 ドラゴン肉（王道ドラゴン系統）';
+    const specialtyText = rawProfile.specialty || rawProfile.chore || 'おうちの丁寧なお掃除と守護';
+    const episodeText = rawProfile.episode || rawProfile.lore || spirit.desc || '日々の家事の積み重ねから生まれた心優しきおうちの守護精霊。';
+    const messageText = rawProfile.message || '「いつも家族のためにおうちをピカピカにしてくれてありがとう！」';
 
     const modal = document.getElementById('spirit-detail-modal');
     const body = document.getElementById('spirit-detail-content') || document.getElementById('spirit-detail-body');
@@ -592,18 +846,19 @@ function openSpiritDetailModal(spiritId) {
         </div>
         <div style="display:flex; flex-direction:column; gap:0.6rem; font-size:12px;">
             <div style="background:#14141f; border-left:4px solid #ef4444; padding:0.5rem 0.75rem; border-radius:4px;">
-                <span style="color:#f87171; font-weight:bold;">🍽️ 大好物：</span><span style="color:#f4ede2;">${profile.food}</span>
+                <div><span style="color:#f87171; font-weight:bold;">🍽️ 大好物：</span><span style="color:#f4ede2;">${favoriteText}</span></div>
+                <div style="margin-top:0.25rem; font-size:11px; color:#fde047;">💖 <strong>大好物おやつ系統：</strong>${favoriteSnackLabel}<br><span style="color:#a7f3d0;">（※おやつであげると <strong>+40 EXP ＆ 次の家事EXP 1.5倍バフ</strong> 発動！）</span></div>
             </div>
             <div style="background:#14141f; border-left:4px solid #3b82f6; padding:0.5rem 0.75rem; border-radius:4px;">
-                <span style="color:#60a5fa; font-weight:bold;">🧹 得意な家事：</span><span style="color:#f4ede2;">${profile.chore}</span>
+                <span style="color:#60a5fa; font-weight:bold;">🧹 得意な家事：</span><span style="color:#f4ede2;">${specialtyText}</span>
             </div>
             <div style="background:#14141f; border-left:4px solid #10b981; padding:0.5rem 0.75rem; border-radius:4px;">
                 <div style="color:#34d399; font-weight:bold; margin-bottom:0.2rem;">📜 エピソード・裏設定：</div>
-                <div style="color:#e2e8f0; line-height:1.5;">${profile.lore}</div>
+                <div style="color:#e2e8f0; line-height:1.5;">${episodeText}</div>
             </div>
             <div style="background:#1e1b4b; border:1.5px solid #818cf8; padding:0.6rem 0.75rem; border-radius:6px;">
                 <div style="color:#a5b4fc; font-weight:bold; margin-bottom:0.2rem;">💌 住まい手への感謝メッセージ：</div>
-                <div style="color:#fff; font-style:italic; line-height:1.4;">${profile.message}</div>
+                <div style="color:#fff; font-style:italic; line-height:1.4;">${messageText}</div>
             </div>
         </div>
     `;

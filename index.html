@@ -27,7 +27,7 @@
         if ('caches' in window) {
             caches.keys().then(function(names) {
                 for (var name of names) {
-                    if (name !== 'kajigon-cache-v2.9.0') {
+                    if (name !== 'kajigon-cache-v3.0.0') {
                         caches.delete(name);
                     }
                 }
@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.9.0">
+    <link rel="stylesheet" href="style.css?v=3.0.0">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1a24">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -126,7 +126,7 @@
                 <!-- 🏡 部屋の中央ステージ（サイドUI ＆ カジゴン） -->
                 <div class="room-stage">
                     
-                    <!-- 👈 左サイドのコンパクトUI（クエスト・かるた・新聞） -->
+                    <!-- 👈 左サイドのコンパクトUI（クエスト・かるた・新聞・おやつ・サウンド） -->
                     <div class="room-side-col room-side-left">
                         <button class="side-action-btn side-quest-btn" onclick="openBountyModal()" title="突発討伐ボス（名もなき家事）">
                             <span class="side-btn-icon">⚔️</span>
@@ -141,6 +141,11 @@
                             <span class="side-btn-icon">📰</span>
                             <span class="side-btn-label">号外新聞</span>
                         </button>
+                        <button id="side-snack-btn" class="side-action-btn side-snack-btn" onclick="openBabySnackModal()" title="カジゴンにおやつをあげる（進化系統選択）">
+                            <span class="side-btn-icon">🍖</span>
+                            <span class="side-btn-label">おやつ</span>
+                            <span id="side-snack-badge" class="side-btn-badge hidden">!</span>
+                        </button>
                         <button class="side-action-btn side-sound-btn" onclick="openSoundModal()" title="BGM・サウンド設定">
                             <span class="side-btn-icon">🎵</span>
                             <span class="side-btn-label">サウンド</span>
@@ -154,7 +159,7 @@
 
                         <!-- 吹き出しセリフ -->
                         <div id="companion-speech-bubble" class="speech-bubble-pet hidden">
-                            <p id="speech-text">シチューのいい匂い！おうち快適だぞ〜！</p>
+                            <p id="speech-text">（コトン…と中から音がした）</p>
                         </div>
 
                         <!-- カジゴン本体スプライト -->
@@ -206,8 +211,8 @@
                     <details class="chore-log-details" id="chore-log-details">
                         <summary class="chore-log-summary">
                             <div class="chore-log-summary-title">
-                                <span>🧹</span>
-                                <span>最近やったこと（CHORE LOG）</span>
+                                <span class="chore-log-icon">🧹</span>
+                                <span class="chore-log-text">最近やったこと（CHORE LOG）</span>
                             </div>
                             <span class="chore-log-toggle-icon">▲ 開く</span>
                         </summary>
@@ -360,15 +365,15 @@
                 <div class="sound-slider-wrapper">
                     <input type="range" id="bgmVolumeSlider" min="0" max="100" value="30" oninput="onBgmVolumeChange(this.value)">
                 </div>
-                <div style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
-                    <span style="font-weight: bold; color: var(--text-sub);">曲の選択:</span>
-                    <select id="bgmTrackSelect" onchange="SoundEngine.setBGMTrack(this.value)" style="padding: 0.35rem 0.6rem; background: #0d0d13; color: var(--accent); border: 2px solid var(--border); font-family: inherit; border-radius: 4px;">
-                        <option value="kokoto_auto">🍃 ココット村・時間連動（朝・昼・夕・夜）</option>
-                        <option value="kokoto_morning">🌅 ココット村の朝（爽快フルート）</option>
-                        <option value="kokoto_noon">☀️ ココット村の昼（陽だまりリュート）</option>
-                        <option value="kokoto_evening">🌆 ココット村の夕（茜色の家路）</option>
-                        <option value="kokoto_night">🌙 ココット村の夜（静寂オルゴール）</option>
-                        <option value="village">🏡 我が家チル（ポケスリ風Lo-Fi）</option>
+                <div class="sound-track-select-row">
+                    <span class="sound-track-select-label">曲の選択:</span>
+                    <select id="bgmTrackSelect" class="sound-track-select" onchange="SoundEngine.setBGMTrack(this.value)">
+                        <option value="kokoto_auto">🍃 おうち時間連動（朝・昼・夕・夜）</option>
+                        <option value="kokoto_morning">🌅 朝露と目覚めのフルート</option>
+                        <option value="kokoto_noon">☀️ 陽だまり工房のリュート</option>
+                        <option value="kokoto_evening">🌇 茜色の帰り道とシチューの香り</option>
+                        <option value="kokoto_night">🌙 星屑とまどろみのオルゴール</option>
+                        <option value="village">🏡 我が家チル（やすらぎLo-Fi）</option>
                         <option value="pop">🌞 日常ポップ（明るいテンポ）</option>
                         <option value="tavern">🍻 にぎやか酒場（愉快な民謡）</option>
                         <option value="ruins">📜 古代遺跡（神秘の調べ）</option>
@@ -460,47 +465,35 @@
         </div>
     </div>
 
-    <!-- 🪚 おうち工房（家具クラフト＆週末行商人）モーダル -->
+    <!-- 🪚 おうち工房・2階建てショップ（日替わり工房 ＆ 週末行商人）モーダル -->
     <div id="workshop-modal" class="spell-overlay hidden">
-        <div class="spell-content" style="max-width: 520px; max-height: 85vh; overflow-y: auto;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                <h3 class="spell-title" style="margin:0; color:#fbbf24;">🪚 カジゴンの模様替え工房</h3>
+        <div class="spell-content" style="max-width: 550px; max-height: 88vh; overflow-y: auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.4rem;">
+                <h3 class="spell-title" style="margin:0; color:#fbbf24;">🪚 カジゴン工房 ＆ 行商人ショップ</h3>
                 <button onclick="closeWorkshopModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
-            <p class="spell-desc">日々の家事で集めた素材（木材・布・レンガ・ネジ）で家具を作り、お部屋を快適にしよう！</p>
+            <p class="spell-desc" style="margin-bottom:0.6rem;">日々の家事で集めた素材（🪵木材・🧶布・🧱レンガ・⚙️古代のネジ）で、日替わりピックアップ・定番家具・週末行商人の特別アイテムと交換しよう！</p>
             
             <div id="workshop-content-container">
                 <!-- JSで動的生成 -->
             </div>
 
-            <div class="spell-btn-group" style="margin-top: 1.5rem;">
+            <div class="spell-btn-group" style="margin-top: 1.25rem;">
                 <button class="btn-spell-action btn-spell-cast" style="width: 100%;" onclick="closeWorkshopModal()">お部屋にもどる</button>
             </div>
         </div>
     </div>
 
-    <!-- 🍖 ベビー期のおやつ（大枠系統選択）モーダル -->
+    <!-- 🍖 おやつ（全6系統進化分岐 ＆ 大好物バフ）モーダル -->
     <div id="snack-modal" class="spell-overlay hidden">
-        <div class="spell-content" style="max-width: 440px; text-align: center;">
-            <h3 class="spell-title" style="margin-bottom:0.5rem; color:#ffd700;">🍖 おやつをあげよう！</h3>
-            <p class="spell-desc" style="margin-bottom:1rem;">ベビー期のカジゴンにおやつをあげると、将来の進化系統の兆候が現れます！</p>
-            
-            <div style="display:flex; flex-direction:column; gap:0.8rem; margin-bottom:1.2rem;">
-                <button onclick="feedBabySnack('golem')" style="background:#1e1b24; border:2px solid #a855f7; border-radius:8px; padding:0.8rem; text-align:left; cursor:pointer; color:#fff;">
-                    <div style="font-weight:bold; font-size:14px; color:#c084fc; margin-bottom:0.2rem;">⚙️ 古代のネジおやつ ➔ 【魔ゴーレム系統】</div>
-                    <div style="font-size:11px; color:#a1a1aa;">機械仕掛けの頑丈な躯体を持つ魔導ロボットを目指す！</div>
-                </button>
-                <button onclick="feedBabySnack('dragon')" style="background:#1e1b24; border:2px solid #ef4444; border-radius:8px; padding:0.8rem; text-align:left; cursor:pointer; color:#fff;">
-                    <div style="font-weight:bold; font-size:14px; color:#f87171; margin-bottom:0.2rem;">🍖 ドラゴン肉 ➔ 【王道ドラゴン系統】</div>
-                    <div style="font-size:11px; color:#a1a1aa;">大空を舞い、属性のブレスを吐く堂々たる伝説龍を目指す！</div>
-                </button>
-                <button onclick="feedBabySnack('fairy')" style="background:#1e1b24; border:2px solid #10b981; border-radius:8px; padding:0.8rem; text-align:left; cursor:pointer; color:#fff;">
-                    <div style="font-weight:bold; font-size:14px; color:#34d399; margin-bottom:0.2rem;">🍯 妖精のハチミツ ➔ 【妖精・レリック系統】</div>
-                    <div style="font-size:11px; color:#a1a1aa;">料理小人や魔導書など、生活に寄り添う愛らしい妖精を目指す！</div>
-                </button>
+        <div class="spell-content" style="max-width: 520px; max-height: 88vh; overflow-y: auto; text-align: left;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.4rem;">
+                <h3 class="spell-title" style="margin:0; color:#ffd700;">🍖 カジゴンにおやつをあげる</h3>
+                <button onclick="closeBabySnackModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
-
-            <button class="btn-spell-action btn-spell-cancel" style="width:100%;" onclick="closeBabySnackModal()">あとであげる</button>
+            <div id="snack-modal-body">
+                <!-- JS (renderSnackModal) で全6系統おやつ一覧と大好物バフ情報を動的生成 -->
+            </div>
         </div>
     </div>
 
@@ -538,15 +531,25 @@
 
     <!-- 🔨 家事記録ポップアップモーダル（ADD CHORE） -->
     <div id="chore-select-modal" class="spell-overlay hidden">
-        <div class="spell-content" style="max-width: 540px; max-height: 88vh; overflow-y: auto;">
+        <div class="spell-content chore-modal-content" style="max-width: 540px; max-height: 88vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                 <h3 class="spell-title" style="margin:0;">🔨 やった家事を記録する</h3>
                 <button onclick="closeChoreSelectModal()" style="background:var(--accent); color:#0d0d13; border:none; border-radius:4px; font-weight:bold; font-size:12px; padding:0.3rem 0.6rem; cursor:pointer;">✕ お部屋へ</button>
             </div>
-            <p class="spell-desc">完了した家事をタップしよう！（何回でも記録できます）</p>
+
+            <!-- ⚡ 1タップ即記録モード ⇔ ☑️ まとめて選択モード 切替トグル (Phase 2 Task 1) -->
+            <div class="chore-mode-toggle-bar">
+                <button type="button" id="mode-btn-instant" class="chore-mode-btn active" onclick="setChoreRecordMode('instant')">
+                    ⚡ 1タップ即記録モード
+                </button>
+                <button type="button" id="mode-btn-batch" class="chore-mode-btn" onclick="setChoreRecordMode('batch')">
+                    ☑️ まとめて選択モード
+                </button>
+            </div>
+            <p id="chore-mode-desc" class="spell-desc" style="margin-bottom: 0.6rem;">⚡ 完了した家事をタップしよう！（1タップで即座に記録できます）</p>
             
             <!-- Chore Addition Area (Dynamic) -->
-            <div id="quick-add-container" style="margin: 1rem 0;">
+            <div id="quick-add-container" style="margin: 0.75rem 0;">
                 <!-- Buttons will be generated here -->
             </div>
 
@@ -570,6 +573,18 @@
                             onkeypress="if(event.key==='Enter') addOtherChore()">
                         <button class="btn btn-add-other" onclick="addOtherChore()">➕ 追加</button>
                     </div>
+                </div>
+            </div>
+
+            <!-- ☑️ まとめて選択モード時の下部固定「✨ まとめて奉納する！」バー -->
+            <div id="batch-submit-bar" class="batch-submit-sticky-bar hidden">
+                <div class="batch-submit-actions">
+                    <button type="button" id="btn-batch-submit" class="btn-batch-submit disabled" disabled onclick="submitBatchChores()">
+                        ✨ まとめて奉納する！（選択件数 0件 / 合計 +0 EXP）
+                    </button>
+                    <button type="button" class="btn-batch-clear" onclick="clearBatchSelection()" title="選択をすべてクリア">
+                        クリア
+                    </button>
                 </div>
             </div>
 
@@ -692,30 +707,30 @@
         </div>
     </div>
 
-    <!-- JavaScript Modular Architecture (v2.9.0) -->
+    <!-- JavaScript Modular Architecture (v3.0.0) -->
     <!-- 1. Data Modules -->
-    <script src="js/data/bosses.js?v=2.9.0"></script>
-    <script src="js/data/karuta.js?v=2.9.0"></script>
-    <script src="js/data/spirit_profiles.js?v=2.9.0"></script>
-    <script src="js/data/dialogues.js?v=2.9.0"></script>
-    <script src="js/data/newspaper.js?v=2.9.0"></script>
+    <script src="js/data/bosses.js?v=3.0.0"></script>
+    <script src="js/data/karuta.js?v=3.0.0"></script>
+    <script src="js/data/spirit_profiles.js?v=3.0.0"></script>
+    <script src="js/data/dialogues.js?v=3.0.0"></script>
+    <script src="js/data/newspaper.js?v=3.0.0"></script>
 
     <!-- 2. Core Modules -->
-    <script src="js/core/sound.js?v=2.9.0"></script>
-    <script src="js/core/state.js?v=2.9.0"></script>
+    <script src="js/core/sound.js?v=3.0.0"></script>
+    <script src="js/core/state.js?v=3.0.0"></script>
 
     <!-- 3. Components -->
-    <script src="js/components/toast.js?v=2.9.0"></script>
-    <script src="js/components/furniture.js?v=2.9.0"></script>
-    <script src="js/components/bosses.js?v=2.9.0"></script>
-    <script src="js/components/encyclopedia.js?v=2.9.0"></script>
-    <script src="js/components/stone_tablet.js?v=2.9.0"></script>
-    <script src="js/components/newspaper.js?v=2.9.0"></script>
-    <script src="js/components/companion.js?v=2.9.0"></script>
-    <script src="js/components/chores.js?v=2.9.0"></script>
+    <script src="js/components/toast.js?v=3.0.0"></script>
+    <script src="js/components/furniture.js?v=3.0.0"></script>
+    <script src="js/components/bosses.js?v=3.0.0"></script>
+    <script src="js/components/encyclopedia.js?v=3.0.0"></script>
+    <script src="js/components/stone_tablet.js?v=3.0.0"></script>
+    <script src="js/components/newspaper.js?v=3.0.0"></script>
+    <script src="js/components/companion.js?v=3.0.0"></script>
+    <script src="js/components/chores.js?v=3.0.0"></script>
 
     <!-- 4. Main Entrypoint -->
-    <script src="script.js?v=2.9.0"></script>
+    <script src="script.js?v=3.0.0"></script>
 </body>
 
 </html>

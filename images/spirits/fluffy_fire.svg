@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="fireGlow" cx="50%" cy="55%" r="48%">
+      <stop offset="0%" stop-color="#fde047" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="#fb923c" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="54" r="44" fill="url(#fireGlow)"/>
+  <!-- Warm hearth flames behind -->
+  <path d="M22,72 Q15,45 30,30 Q28,50 38,40 Q32,20 50,10 Q66,24 62,42 Q72,32 70,50 Q85,48 78,72 Z" fill="#f97316" opacity="0.65"/>
+  <!-- Fluffy Tail -->
+  <circle cx="76" cy="58" r="14" fill="#fdba74" stroke="#ea580c" stroke-width="2"/>
+  <circle cx="78" cy="55" r="8" fill="#fef3c7"/>
+  <!-- Ears -->
+  <polygon points="26,38 20,16 40,28" fill="#fb923c" stroke="#9a3412" stroke-width="2"/>
+  <polygon points="28,35 24,21 37,29" fill="#fda4af"/>
+  <polygon points="74,38 80,16 60,28" fill="#fb923c" stroke="#9a3412" stroke-width="2"/>
+  <polygon points="72,35 76,21 63,29" fill="#fda4af"/>
+  <!-- Super Fluffy Body & Mane -->
+  <circle cx="50" cy="58" r="28" fill="#fed7aa" stroke="#ea580c" stroke-width="2.5"/>
+  <circle cx="34" cy="48" r="14" fill="#ffedd5"/>
+  <circle cx="66" cy="48" r="14" fill="#ffedd5"/>
+  <circle cx="50" cy="44" r="22" fill="#fff7ed" stroke="#fb923c" stroke-width="2"/>
+  <ellipse cx="50" cy="64" rx="18" ry="13" fill="#ffffff"/>
+  <!-- Flame Crest on Forehead -->
+  <path d="M50,22 Q44,30 48,36 Q50,33 52,36 Q56,30 50,22 Z" fill="#ef4444"/>
+  <path d="M50,26 Q47,31 50,35 Q53,31 50,26 Z" fill="#fde047"/>
+  <!-- Eyes -->
+  <circle cx="41" cy="44" r="4" fill="#431407"/>
+  <circle cx="42.5" cy="42.5" r="1.5" fill="#ffffff"/>
+  <circle cx="59" cy="44" r="4" fill="#431407"/>
+  <circle cx="60.5" cy="42.5" r="1.5" fill="#ffffff"/>
+  <!-- Nose & Happy Mouth -->
+  <ellipse cx="50" cy="49" rx="3" ry="2.2" fill="#431407"/>
+  <path d="M45,52 Q50,56 55,52" fill="none" stroke="#9a3412" stroke-width="2" stroke-linecap="round"/>
+  <path d="M48,53 Q50,59 52,53 Z" fill="#fb7185"/>
+  <!-- Cheeks -->
+  <ellipse cx="34" cy="49" rx="4" ry="2.5" fill="#fb7185" opacity="0.65"/>
+  <ellipse cx="66" cy="49" rx="4" ry="2.5" fill="#fb7185" opacity="0.65"/>
+  <!-- Paws -->
+  <ellipse cx="38" cy="82" rx="7" ry="4.5" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <ellipse cx="62" cy="82" rx="7" ry="4.5" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+</svg>

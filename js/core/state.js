@@ -25,14 +25,110 @@ let kajigonState = {
     companionName: 'カジゴン',      // ニックネーム
     materials: { wood: 0, cloth: 0, brick: 0, gear: 0 }, // クラフト素材
     unlockedFurniture: [],         // アンロック済み家具ID
-    chosenRoute: null,             // ベビー期のおやつ分岐 ('golem' | 'dragon' | 'fairy')
+    chosenRoute: null,             // おやつ進化系統 ('dragon' | 'golem' | 'fairy' | 'fluffy' | 'wafuu' | 'sweets')
     // v2.9 新規追加プロパティ
     lastGiftTime: 0,               // 🎁 2時間放置おみやげ最終受け取り時刻
     hallOfFame: [],                // 🏛️ 歴代殿堂入り精霊リスト
     achievements: {},              // 🏆 特別実績の解除記録 { [id]: timestamp }
     unlockedTitles: [],            // 🎖️ 獲得済み二つ名称号リスト
-    selectedTitle: null            // 🎖️ 現在セット中の二つ名称号
+    selectedTitle: null,           // 🎖️ 現在セット中の二つ名称号
+    // v3.0 Phase 3 新規追加プロパティ
+    snackInventory: {              // 🍖 おやつ所持数（6系統）
+        dragon_meat: 1,
+        ancient_gear_snack: 1,
+        fairy_honey: 1,
+        star_milk: 1,
+        tsukimi_dango: 1,
+        rainbow_berry: 1
+    },
+    nextChoreExpBuff: 1.0,         // 💖 大好物おやつバフ（1.5 = 次の家事EXP 1.5倍）
+    dailyShopPurchased: {},        // 🔨 日替わりピックアップ購入記録 { 'YYYY-MM-DD': [itemId, ...] }
+    merchantPurchased: {}          // 🐪 週末行商人交換記録 { 'YYYY-MM-DD': [offerId, ...] }
 };
+
+// ==========================================================================
+// 🍖 Phase 3 (v3.0.0): 全6系統のおやつアイテム定義（進化分岐 ＆ 大好物バフ連動）
+// ==========================================================================
+const SNACK_ITEMS = [
+    {
+        id: 'dragon_meat',
+        route: 'dragon',
+        name: 'ドラゴン肉',
+        icon: '🍖',
+        routeTitle: '🐉 王道ドラゴン系統',
+        routeLabel: '🐉 王道ドラゴン系統',
+        borderColor: '#ef4444',
+        textColor: '#f87171',
+        color: '#f87171',
+        desc: '大空を舞い属性ブレスを吐く伝説の王道ドラゴン族の大好物！',
+        feedDialogue: '「モグモグ…！ジューシーなドラゴン肉で力がみなぎるぞ〜！🔥」'
+    },
+    {
+        id: 'ancient_gear_snack',
+        route: 'golem',
+        name: '古代のネジおやつ',
+        icon: '⚙️',
+        routeTitle: '🤖 機械魔ゴーレム系統',
+        routeLabel: '🤖 機械魔ゴーレム系統',
+        borderColor: '#a855f7',
+        textColor: '#c084fc',
+        color: '#c084fc',
+        desc: '頑丈な機械躯体を持つ魔導ゴーレム族の大好物！特製オイル風味ビスケット。',
+        feedDialogue: '「ガシャン、モグモグ…！古代のネジパワーで装甲と出力がアップしたぞ！⚙️」'
+    },
+    {
+        id: 'fairy_honey',
+        route: 'fairy',
+        name: '妖精のハチミツ',
+        icon: '🍯',
+        routeTitle: '🧚 妖精・レリック系統',
+        routeLabel: '🧚 妖精・レリック系統',
+        borderColor: '#10b981',
+        textColor: '#34d399',
+        color: '#34d399',
+        desc: '料理小人や魔導書など、暮らしに寄り添う妖精・レリック族の大好物！',
+        feedDialogue: '「ぱくっ…あま〜い！妖精のハチミツで幸せの魔法が溢れてくるよ〜！🍯」'
+    },
+    {
+        id: 'star_milk',
+        route: 'fluffy',
+        name: '星降るホットミルク',
+        icon: '🥛',
+        routeTitle: '🐾 もふもふ幻獣系統',
+        routeLabel: '🐾 もふもふ幻獣系統',
+        borderColor: '#38bdf8',
+        textColor: '#7dd3fc',
+        color: '#7dd3fc',
+        desc: 'ポメラニアン・白くま・フクロウ・ひつじなど、もふもふ幻獣たちの大好物！',
+        feedDialogue: '「ごくごく…ぽかぽか〜！星降るホットミルクで毛並みがツヤツヤもふもふだぞ！🐾」'
+    },
+    {
+        id: 'tsukimi_dango',
+        route: 'wafuu',
+        name: '三色月見だんご',
+        icon: '🍡',
+        routeTitle: '🍵 和風・座敷わらし系統',
+        routeLabel: '🍵 和風・座敷わらし系統',
+        borderColor: '#f59e0b',
+        textColor: '#fbbf24',
+        color: '#fbbf24',
+        desc: 'かまど狐・清流河童・お掃除天狗・福招き猫神など、和風守り神たちの大好物！',
+        feedDialogue: '「もぐもぐ…もちもち美味でござる！三色月見だんごでおうちに福が舞い込むぞ！🍵」'
+    },
+    {
+        id: 'rainbow_berry',
+        route: 'sweets',
+        name: '虹色シュガーベリー',
+        icon: '🍓',
+        routeTitle: '🍰 スイーツ精霊系統',
+        routeLabel: '🍰 スイーツ精霊系統',
+        borderColor: '#ec4899',
+        textColor: '#f472b6',
+        color: '#f472b6',
+        desc: 'ブリュレ竜・ソーダゼリー・シフォン妖精・抹茶ティラミス亀たちの大好物！',
+        feedDialogue: '「ぱくっ♪ キュンと甘酸っぱい虹色シュガーベリー！スイートな魔力が満タンだよ！🍰」'
+    }
+];
 
 const ENVIRONMENT_THEMES = {
     'volcano': {
@@ -264,6 +360,34 @@ function loadFromLocalStorage() {
                 if (!kajigonState.hallOfFame) kajigonState.hallOfFame = [];
                 if (!kajigonState.achievements) kajigonState.achievements = {};
                 if (!kajigonState.unlockedTitles) kajigonState.unlockedTitles = [];
+                if (!kajigonState.snackInventory || typeof kajigonState.snackInventory !== 'object') {
+                    kajigonState.snackInventory = {
+                        dragon_meat: 1,
+                        ancient_gear_snack: 1,
+                        fairy_honey: 1,
+                        star_milk: 1,
+                        tsukimi_dango: 1,
+                        rainbow_berry: 1
+                    };
+                } else {
+                    ['dragon_meat', 'ancient_gear_snack', 'fairy_honey', 'star_milk', 'tsukimi_dango', 'rainbow_berry'].forEach(k => {
+                        if (typeof kajigonState.snackInventory[k] !== 'number') {
+                            kajigonState.snackInventory[k] = 1;
+                        }
+                    });
+                }
+                if (typeof kajigonState.nextChoreExpBuff !== 'number' || kajigonState.nextChoreExpBuff < 1) {
+                    kajigonState.nextChoreExpBuff = 1.0;
+                }
+                if (!kajigonState.dailyShopPurchased || typeof kajigonState.dailyShopPurchased !== 'object') {
+                    kajigonState.dailyShopPurchased = {};
+                }
+                if (!kajigonState.merchantPurchased || typeof kajigonState.merchantPurchased !== 'object') {
+                    kajigonState.merchantPurchased = {};
+                }
+            }
+            if (typeof migrateHallOfFameData === 'function') {
+                migrateHallOfFameData();
             }
             return true;
         }
@@ -273,8 +397,123 @@ function loadFromLocalStorage() {
     return false;
 }
 
+// ==========================================================================
+// 📦 Phase 2 (v2.9.5): 生活動線に沿った「セット家事（ワンタップ・パック）」4種
+// ==========================================================================
+const CHORE_SET_PACKS = [
+    {
+        id: 'pack_morning',
+        name: '🌅 朝のバタバタ一掃パック',
+        subDesc: '換気＋布団整え＋洗面台拭き＋ゴミまとめ',
+        exp: 45,
+        attrBreakdown: { fire: 0, water: 10, wind: 20, earth: 15 },
+        badgeText: '+45 EXP（🍃風20 / 🪵土15 / 💧水10）',
+        primaryAttr: 'wind',
+        pt: 5
+    },
+    {
+        id: 'pack_dinner_kitchen',
+        name: '🍳 夕食＆キッチン完全制覇パック',
+        subDesc: '献立＋調理＋食器洗い＋コンロ・シンク拭き',
+        exp: 65,
+        attrBreakdown: { fire: 35, water: 30, wind: 0, earth: 0 },
+        badgeText: '+65 EXP（🔥火35 / 💧水30）',
+        primaryAttr: 'fire',
+        pt: 7
+    },
+    {
+        id: 'pack_bath_laundry',
+        name: '🛁 お風呂＆ランドリー完結パック',
+        subDesc: '風呂掃除＋排水口ゴミ取り＋タオル交換＋洗濯',
+        exp: 60,
+        attrBreakdown: { fire: 0, water: 35, wind: 15, earth: 10 },
+        badgeText: '+60 EXP（💧水35 / 🍃風15 / 🪵土10）',
+        primaryAttr: 'water',
+        pt: 6
+    },
+    {
+        id: 'pack_supply_reset',
+        name: '📦 名もなき補充＆リセットパック',
+        subDesc: 'ペーパー補充＋芯捨て＋麦茶作り＋靴揃え＋郵便物整理',
+        exp: 40,
+        attrBreakdown: { fire: 0, water: 15, wind: 0, earth: 25 },
+        badgeText: '+40 EXP（🪵土25 / 💧水15）',
+        primaryAttr: 'earth',
+        pt: 4
+    }
+];
+
+// ==========================================================================
+// 🌟 Phase 2 (v2.9.5): 項目を探すのすら疲れた日の「ざっくり頑張ったボタン（小・中・大）」
+// ==========================================================================
+const FUZZY_EFFORT_BUTTONS = [
+    {
+        id: 'fuzzy_small',
+        name: '🌱 ちょこちょこ動いた！',
+        subDesc: '全属性均等ボーナス（小）',
+        exp: 25,
+        attrBreakdown: { fire: 6, water: 6, wind: 6, earth: 6 },
+        badgeText: '+25 EXP / 全属性均等',
+        primaryAttr: 'all',
+        pt: 3,
+        guaranteedGear: false
+    },
+    {
+        id: 'fuzzy_medium',
+        name: '💪 けっこう頑張った！',
+        subDesc: '全属性均等ボーナス（中）',
+        exp: 50,
+        attrBreakdown: { fire: 12, water: 12, wind: 12, earth: 12 },
+        badgeText: '+50 EXP / 全属性均等',
+        primaryAttr: 'all',
+        pt: 5,
+        guaranteedGear: false
+    },
+    {
+        id: 'fuzzy_large',
+        name: '👑 今日はめちゃくちゃ働いた！',
+        subDesc: '全属性均等（大）＋ ⚙️古代のネジ1個確定！',
+        exp: 80,
+        attrBreakdown: { fire: 20, water: 20, wind: 20, earth: 20 },
+        badgeText: '+80 EXP / 全属性均等 ＋ ⚙️古代のネジ確定',
+        primaryAttr: 'all',
+        pt: 8,
+        guaranteedGear: true
+    }
+];
+
 // 家事ステータス・属性判定
 function getChoreStats(choreName) {
+    if (!choreName) return { exp: 15, attr: 'other', pt: 1, isOther: true };
+
+    // 1. セット家事パック（4種）判定
+    const matchedPack = CHORE_SET_PACKS.find(p => p.name === choreName || p.id === choreName);
+    if (matchedPack) {
+        return {
+            exp: matchedPack.exp,
+            attr: matchedPack.primaryAttr,
+            pt: matchedPack.pt,
+            isOther: false,
+            isSetPack: true,
+            attrBreakdown: { ...matchedPack.attrBreakdown },
+            guaranteedGear: false
+        };
+    }
+
+    // 2. ざっくり頑張ったボタン（小・中・大）判定
+    const matchedFuzzy = FUZZY_EFFORT_BUTTONS.find(f => f.name === choreName || f.id === choreName);
+    if (matchedFuzzy) {
+        return {
+            exp: matchedFuzzy.exp,
+            attr: 'other',
+            pt: matchedFuzzy.pt,
+            isOther: true,
+            isFuzzy: true,
+            attrBreakdown: { ...matchedFuzzy.attrBreakdown },
+            guaranteedGear: Boolean(matchedFuzzy.guaranteedGear)
+        };
+    }
+
     if (choreName.startsWith('[物品補充]')) {
         return { exp: 20, attr: 'earth', pt: 2, isOther: false };
     }
@@ -346,14 +585,42 @@ function getHallOfFameBlessingBonus() {
     return Math.min(50, count * 5);
 }
 
+// まとめて選択モード等での獲得予定EXP試算ヘルパー
+function estimateChoreExp(choreName) {
+    const stats = getChoreStats(choreName);
+    const scaleCount = playerCount || 1;
+    const playerMultiplier = scaleCount === 2 ? 1.5 : (scaleCount >= 3 ? 2.0 : 1.0);
+    let expToAdd = stats.exp * playerMultiplier;
+
+    const blessingBonus = getHallOfFameBlessingBonus();
+    if (blessingBonus > 0) {
+        expToAdd *= (1 + blessingBonus / 100);
+    }
+    if (typeof getFurnitureExpMultiplier === 'function') {
+        expToAdd *= getFurnitureExpMultiplier(choreName, stats);
+    }
+    if (typeof getTodayFortuneStatus === 'function') {
+        const fortune = getTodayFortuneStatus();
+        if (fortune.drawn && fortune.bonusMultiplier) {
+            expToAdd *= fortune.bonusMultiplier;
+        }
+    }
+    // 💖 大好物おやつバフ（次の家事EXP 1.5倍）
+    if (kajigonState.nextChoreExpBuff && kajigonState.nextChoreExpBuff > 1.0) {
+        expToAdd *= kajigonState.nextChoreExpBuff;
+    }
+    return Math.round(expToAdd);
+}
+
 // EXP加算ロジック
-function addChoreExp(choreName) {
+function addChoreExp(choreName, options = {}) {
     const stats = getChoreStats(choreName);
     const scaleCount = playerCount || 1;
     const playerMultiplier = scaleCount === 2 ? 1.5 : (scaleCount >= 3 ? 2.0 : 1.0);
 
     let expToAdd = stats.exp * playerMultiplier;
     let wasLucky = false;
+    let usedSnackBuff = false;
 
     // 🏛️ 殿堂入りパッシブ加護（永続 +5%〜+50%）
     const blessingBonus = getHallOfFameBlessingBonus();
@@ -374,6 +641,15 @@ function addChoreExp(choreName) {
         }
     }
 
+    // 💖 大好物おやつバフ（次の家事EXP 1.5倍！）
+    if (kajigonState.nextChoreExpBuff && kajigonState.nextChoreExpBuff > 1.0) {
+        expToAdd *= kajigonState.nextChoreExpBuff;
+        usedSnackBuff = true;
+        if (!options.keepSnackBuff) {
+            kajigonState.nextChoreExpBuff = 1.0;
+        }
+    }
+
     // ラッキー家事
     const todayStr = getTodayDateString();
     const cleanName = choreName.includes('：') ? choreName.split('：')[1] : choreName;
@@ -388,36 +664,56 @@ function addChoreExp(choreName) {
     const finalExp = Math.round(expToAdd);
     kajigonState.totalExp += finalExp;
 
-    // 属性ポイント加算（環境ブースト反映）
+    // 属性ポイント加算（環境ブースト反映 ＆ セット家事・ざっくりボタンの複数属性配分対応）
     const currentEnv = ENVIRONMENT_THEMES[kajigonState.environmentTheme || 'classic'];
     const boostAttr = currentEnv ? currentEnv.boostAttr : null;
+    const gainedAttrPts = { fire: 0, water: 0, wind: 0, earth: 0 };
 
-    if (stats.isOther) {
+    if (stats.attrBreakdown) {
+        ['fire', 'water', 'wind', 'earth'].forEach(attrKey => {
+            const baseVal = stats.attrBreakdown[attrKey] || 0;
+            if (baseVal > 0) {
+                const bonus = (boostAttr === attrKey) ? Math.round(baseVal * 1.3) : baseVal;
+                kajigonState[`${attrKey}Points`] += bonus;
+                gainedAttrPts[attrKey] = bonus;
+            }
+        });
+    } else if (stats.isOther) {
         kajigonState.firePoints += stats.pt;
         kajigonState.waterPoints += stats.pt;
         kajigonState.windPoints += stats.pt;
         kajigonState.earthPoints += stats.pt;
+        gainedAttrPts.fire = stats.pt;
+        gainedAttrPts.water = stats.pt;
+        gainedAttrPts.wind = stats.pt;
+        gainedAttrPts.earth = stats.pt;
     } else if (stats.attr === 'fire') {
         const bonus = (boostAttr === 'fire') ? Math.round(stats.pt * 1.3) : stats.pt;
         kajigonState.firePoints += bonus;
+        gainedAttrPts.fire = bonus;
     } else if (stats.attr === 'water') {
         const bonus = (boostAttr === 'water') ? Math.round(stats.pt * 1.3) : stats.pt;
         kajigonState.waterPoints += bonus;
+        gainedAttrPts.water = bonus;
     } else if (stats.attr === 'wind') {
         const bonus = (boostAttr === 'wind') ? Math.round(stats.pt * 1.3) : stats.pt;
         kajigonState.windPoints += bonus;
+        gainedAttrPts.wind = bonus;
     } else if (stats.attr === 'earth') {
         const bonus = (boostAttr === 'earth') ? Math.round(stats.pt * 1.3) : stats.pt;
         kajigonState.earthPoints += bonus;
+        gainedAttrPts.earth = bonus;
     }
 
-    saveToLocalStorage();
-    if (typeof applyTheme === 'function') applyTheme();
-    if (typeof updateCompanionWidget === 'function') updateCompanionWidget();
-    if (typeof updateLuckyChore === 'function') updateLuckyChore();
-    if (typeof checkAchievementsAndTitles === 'function') checkAchievementsAndTitles();
+    if (!options.deferRender) {
+        saveToLocalStorage();
+        if (typeof applyTheme === 'function') applyTheme();
+        if (typeof updateCompanionWidget === 'function') updateCompanionWidget();
+        if (typeof updateLuckyChore === 'function') updateLuckyChore();
+        if (typeof checkAchievementsAndTitles === 'function') checkAchievementsAndTitles();
+    }
 
-    return { finalExp, wasLucky };
+    return { finalExp, wasLucky, gainedAttrPts, usedSnackBuff };
 }
 
 // EXPロールバック（Undo用）
@@ -426,20 +722,32 @@ function undoChoreExp(found) {
     const gained = found.gainedExp || 10;
     kajigonState.totalExp = Math.max(0, kajigonState.totalExp - gained);
 
-    const stats = getChoreStats(found.name);
-    if (stats.isOther) {
-        kajigonState.firePoints = Math.max(0, kajigonState.firePoints - stats.pt);
-        kajigonState.waterPoints = Math.max(0, kajigonState.waterPoints - stats.pt);
-        kajigonState.windPoints = Math.max(0, kajigonState.windPoints - stats.pt);
-        kajigonState.earthPoints = Math.max(0, kajigonState.earthPoints - stats.pt);
-    } else if (stats.attr === 'fire') {
-        kajigonState.firePoints = Math.max(0, kajigonState.firePoints - stats.pt);
-    } else if (stats.attr === 'water') {
-        kajigonState.waterPoints = Math.max(0, kajigonState.waterPoints - stats.pt);
-    } else if (stats.attr === 'wind') {
-        kajigonState.windPoints = Math.max(0, kajigonState.windPoints - stats.pt);
-    } else if (stats.attr === 'earth') {
-        kajigonState.earthPoints = Math.max(0, kajigonState.earthPoints - stats.pt);
+    if (found.gainedAttrPts) {
+        kajigonState.firePoints = Math.max(0, kajigonState.firePoints - (found.gainedAttrPts.fire || 0));
+        kajigonState.waterPoints = Math.max(0, kajigonState.waterPoints - (found.gainedAttrPts.water || 0));
+        kajigonState.windPoints = Math.max(0, kajigonState.windPoints - (found.gainedAttrPts.wind || 0));
+        kajigonState.earthPoints = Math.max(0, kajigonState.earthPoints - (found.gainedAttrPts.earth || 0));
+    } else {
+        const stats = getChoreStats(found.name);
+        if (stats.attrBreakdown) {
+            kajigonState.firePoints = Math.max(0, kajigonState.firePoints - (stats.attrBreakdown.fire || 0));
+            kajigonState.waterPoints = Math.max(0, kajigonState.waterPoints - (stats.attrBreakdown.water || 0));
+            kajigonState.windPoints = Math.max(0, kajigonState.windPoints - (stats.attrBreakdown.wind || 0));
+            kajigonState.earthPoints = Math.max(0, kajigonState.earthPoints - (stats.attrBreakdown.earth || 0));
+        } else if (stats.isOther) {
+            kajigonState.firePoints = Math.max(0, kajigonState.firePoints - stats.pt);
+            kajigonState.waterPoints = Math.max(0, kajigonState.waterPoints - stats.pt);
+            kajigonState.windPoints = Math.max(0, kajigonState.windPoints - stats.pt);
+            kajigonState.earthPoints = Math.max(0, kajigonState.earthPoints - stats.pt);
+        } else if (stats.attr === 'fire') {
+            kajigonState.firePoints = Math.max(0, kajigonState.firePoints - stats.pt);
+        } else if (stats.attr === 'water') {
+            kajigonState.waterPoints = Math.max(0, kajigonState.waterPoints - stats.pt);
+        } else if (stats.attr === 'wind') {
+            kajigonState.windPoints = Math.max(0, kajigonState.windPoints - stats.pt);
+        } else if (stats.attr === 'earth') {
+            kajigonState.earthPoints = Math.max(0, kajigonState.earthPoints - stats.pt);
+        }
     }
 
     saveToLocalStorage();
@@ -469,7 +777,73 @@ function getCompanionEmoji() {
     return '🐉';
 }
 
-// 🌟 進化判定ロジック（ベビー期おやつ分岐 ＆ ゴーレム進化対応）
+// 🔥💧🍃🪵 当時の主属性（火・水・風・土、不明なら火）を算出するヘルパー
+function getDominantAttribute(stateObj) {
+    const s = stateObj || kajigonState || {};
+    const pts = [
+        { attr: 'fire', val: Number(s.firePoints) || 0 },
+        { attr: 'water', val: Number(s.waterPoints) || 0 },
+        { attr: 'wind', val: Number(s.windPoints) || 0 },
+        { attr: 'earth', val: Number(s.earthPoints) || 0 }
+    ];
+    const maxVal = Math.max(...pts.map(p => p.val));
+    if (maxVal <= 0) {
+        const envMap = { volcano: 'fire', abyss: 'water', sky: 'wind', earth: 'earth' };
+        return envMap[s.environmentTheme] || 'fire';
+    }
+    const maxPtsList = pts.filter(p => p.val === maxVal);
+    return maxPtsList[0] ? maxPtsList[0].attr : 'fire';
+}
+
+/**
+ * 💖 現在のカジゴンの「大好物おやつ系統」を取得するヘルパー（図鑑データ連動）
+ */
+function getCurrentFavoriteSnackInfo() {
+    const lv = getLevel();
+    const stage = getCompanionStage(lv);
+    let favRoute = kajigonState.chosenRoute || null;
+    let spiritName = kajigonState.companionName || 'カジゴン';
+    let favoriteDish = '';
+
+    if (stage === 'final') {
+        const evolved = getEvolvedForm();
+        if (evolved) {
+            spiritName = evolved.name;
+            if (typeof SPIRIT_PROFILES !== 'undefined' && SPIRIT_PROFILES[evolved.id]) {
+                const prof = SPIRIT_PROFILES[evolved.id];
+                favRoute = prof.favoriteRoute || evolved.route || favRoute;
+                favoriteDish = prof.favorite || '';
+            } else if (evolved.route) {
+                favRoute = evolved.route;
+            }
+        }
+    }
+
+    if (!favRoute) {
+        const envTheme = kajigonState.environmentTheme || 'classic';
+        const envRouteMap = {
+            volcano: 'dragon',
+            abyss: 'fairy',
+            sky: 'fluffy',
+            earth: 'golem',
+            classic: 'sweets',
+            gameboy: 'wafuu'
+        };
+        favRoute = envRouteMap[envTheme] || 'dragon';
+    }
+
+    const snackItem = SNACK_ITEMS.find(s => s.route === favRoute) || SNACK_ITEMS[0];
+    return {
+        route: favRoute,
+        snackId: snackItem.id,
+        snack: snackItem,
+        snackItem: snackItem,
+        spiritName: spiritName,
+        favoriteDish: favoriteDish
+    };
+}
+
+// 🌟 進化判定ロジック（全6系統おやつ分岐 ＆ 環境固有種対応）
 function getEvolvedForm() {
     const spiritsList = (typeof ALL_SPIRITS !== 'undefined') ? ALL_SPIRITS : [];
     if (spiritsList.length === 0) {
@@ -489,9 +863,54 @@ function getEvolvedForm() {
     const seed = kajigonState.totalExp;
     const winnerAttr = maxPtsList[seed % maxPtsList.length].attr;
     const envTheme = kajigonState.environmentTheme || 'classic';
+    const route = kajigonState.chosenRoute;
 
-    // 🌟 ベビー期のおやつ分岐（意図的な選択）の反映
-    if (kajigonState.chosenRoute === 'golem' || kajigonState.artifactCount >= 1) {
+    // 1. 🐾 もふもふ幻獣系統（🥛 星降るホットミルク）
+    if (route === 'fluffy') {
+        const fluffyMap = {
+            fire: 'fluffy_fire',
+            water: 'fluffy_water',
+            wind: 'fluffy_wind',
+            earth: 'fluffy_earth'
+        };
+        return spiritsList.find(s => s.id === fluffyMap[winnerAttr]) || spiritsList.find(s => s.id === 'fluffy_fire') || spiritsList[0];
+    }
+
+    // 2. 🍵 和風・座敷わらし系統（🍡 三色月見だんご）
+    if (route === 'wafuu') {
+        const wafuuMap = {
+            fire: 'wafuu_fire',
+            water: 'wafuu_water',
+            wind: 'wafuu_wind',
+            earth: 'wafuu_earth'
+        };
+        return spiritsList.find(s => s.id === wafuuMap[winnerAttr]) || spiritsList.find(s => s.id === 'wafuu_fire') || spiritsList[0];
+    }
+
+    // 3. 🍰 スイーツ精霊系統（🍓 虹色シュガーベリー）
+    if (route === 'sweets') {
+        const sweetsMap = {
+            fire: 'sweets_fire',
+            water: 'sweets_water',
+            wind: 'sweets_wind',
+            earth: 'sweets_earth'
+        };
+        return spiritsList.find(s => s.id === sweetsMap[winnerAttr]) || spiritsList.find(s => s.id === 'sweets_fire') || spiritsList[0];
+    }
+
+    // 4. 🧚 妖精・レリック系統（🍯 妖精のハチミツ）
+    if (route === 'fairy') {
+        const fairyMap = {
+            fire: 'fairy_cook',
+            water: 'fairy_cat',
+            wind: 'fairy_broom',
+            earth: 'relic_book'
+        };
+        return spiritsList.find(s => s.id === fairyMap[winnerAttr]) || spiritsList.find(s => s.id === 'fairy_cook') || spiritsList[0];
+    }
+
+    // 5. 🤖 機械魔ゴーレム系統（⚙️ 古代のネジおやつ、または系統未選択で古代パーツ所持）
+    if (route === 'golem' || (!route && kajigonState.artifactCount >= 1)) {
         if (kajigonState.artifactCount >= 3 || isLightCondition) {
             return spiritsList.find(s => s.id === 'dark_golem') || spiritsList[0];
         }
@@ -501,40 +920,30 @@ function getEvolvedForm() {
             wind: 'wind_golem',
             earth: 'earth_golem'
         };
-        return spiritsList.find(s => s.id === golemMap[winnerAttr]) || spiritsList.find(s => s.id === 'earth_golem');
+        return spiritsList.find(s => s.id === golemMap[winnerAttr]) || spiritsList.find(s => s.id === 'earth_golem') || spiritsList[0];
     }
 
-    if (kajigonState.chosenRoute === 'fairy') {
-        const fairyMap = {
-            fire: 'fairy_cook',
-            water: 'fairy_cat',
-            wind: 'fairy_broom',
-            earth: 'relic_book'
-        };
-        return spiritsList.find(s => s.id === fairyMap[winnerAttr]) || spiritsList.find(s => s.id === 'fairy_cook');
-    }
-
-    // 環境固有種ルート
+    // 6. 🌍 環境固有種ルート（王道ドラゴンまたは未選択時）
     if (envTheme === 'gameboy') {
-        return spiritsList.find(s => s.id === 'unique_retro');
+        return spiritsList.find(s => s.id === 'unique_retro') || spiritsList[0];
     }
     if (envTheme === 'classic' && isLightCondition) {
-        return spiritsList.find(s => s.id === 'unique_temple') || spiritsList.find(s => s.id === 'light_dragon');
+        return spiritsList.find(s => s.id === 'unique_temple') || spiritsList.find(s => s.id === 'light_dragon') || spiritsList[0];
     }
     if (envTheme === 'volcano' && winnerAttr === 'fire') {
-        return spiritsList.find(s => s.id === 'unique_volcano');
+        return spiritsList.find(s => s.id === 'unique_volcano') || spiritsList[0];
     }
     if (envTheme === 'abyss' && winnerAttr === 'water') {
-        return spiritsList.find(s => s.id === 'unique_abyss');
+        return spiritsList.find(s => s.id === 'unique_abyss') || spiritsList[0];
     }
     if (envTheme === 'sky' && winnerAttr === 'wind') {
-        return spiritsList.find(s => s.id === 'unique_sky');
+        return spiritsList.find(s => s.id === 'unique_sky') || spiritsList[0];
     }
     if (envTheme === 'earth' && winnerAttr === 'earth') {
-        return spiritsList.find(s => s.id === 'unique_earth');
+        return spiritsList.find(s => s.id === 'unique_earth') || spiritsList[0];
     }
 
-    // 王道ドラゴンルート
+    // 7. 🐉 王道ドラゴンルート
     const dragonMap = {
         fire: 'fire_dragon',
         water: 'water_dragon',
@@ -542,7 +951,7 @@ function getEvolvedForm() {
         earth: 'earth_dragon'
     };
     if (isLightCondition || maxVal === 0) {
-        return spiritsList.find(s => s.id === 'light_dragon');
+        return spiritsList.find(s => s.id === 'light_dragon') || spiritsList[0];
     }
     return spiritsList.find(s => s.id === dragonMap[winnerAttr]) || spiritsList[0];
 }

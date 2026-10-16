@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="foxGlow" cx="50%" cy="52%" r="48%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.9"/>
+      <stop offset="65%" stop-color="#f97316" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#dc2626" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="52" r="44" fill="url(#foxGlow)"/>
+  <!-- Fox Twin Tails with Kitsunebi -->
+  <path d="M70,74 Q94,65 88,40 Q76,48 70,62 Z" fill="#f97316" stroke="#9a3412" stroke-width="2"/>
+  <path d="M88,40 Q82,45 81,52 Q88,50 88,40 Z" fill="#fef3c7"/>
+  <!-- Floating Kitsunebi Fireballs -->
+  <path d="M18,40 Q12,30 18,22 Q24,30 18,40 Z" fill="#ef4444"/>
+  <circle cx="18" cy="35" r="3.5" fill="#fde047"/>
+  <path d="M84,28 Q79,19 84,12 Q89,19 84,28 Z" fill="#ef4444"/>
+  <circle cx="84" cy="23" r="3" fill="#fde047"/>
+  <!-- Fox Ears -->
+  <polygon points="28,38 20,12 42,28" fill="#fb923c" stroke="#9a3412" stroke-width="2"/>
+  <polygon points="30,34 24,18 39,28" fill="#fef08a"/>
+  <polygon points="72,38 80,12 58,28" fill="#fb923c" stroke="#9a3412" stroke-width="2"/>
+  <polygon points="70,34 76,18 61,28" fill="#fef08a"/>
+  <!-- Red Shrine Apron / Kimono Body -->
+  <path d="M32,58 L68,58 L74,84 L26,84 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="2"/>
+  <polygon points="44,58 56,58 53,84 47,84" fill="#fef3c7"/>
+  <circle cx="50" cy="62" r="4.5" fill="#fbbf24" stroke="#92400e" stroke-width="1.5"/>
+  <!-- Fox Head -->
+  <path d="M26,44 Q50,22 74,44 Q64,62 50,60 Q36,62 26,44 Z" fill="#ffedd5" stroke="#c2410c" stroke-width="2.2"/>
+  <path d="M34,36 Q50,25 66,36 Q58,48 50,56 Q42,48 34,36 Z" fill="#fb923c"/>
+  <!-- Eyes & Markings -->
+  <path d="M35,43 Q40,39 45,43" fill="none" stroke="#431407" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M55,43 Q60,39 65,43" fill="none" stroke="#431407" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="50" cy="52" r="2.5" fill="#431407"/>
+  <ellipse cx="34" cy="48" rx="3.5" ry="2" fill="#ef4444" opacity="0.7"/>
+  <ellipse cx="66" cy="48" rx="3.5" ry="2" fill="#ef4444" opacity="0.7"/>
+</svg>

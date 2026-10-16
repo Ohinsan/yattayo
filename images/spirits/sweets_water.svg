@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="sodaGlow" cx="50%" cy="52%" r="48%">
+      <stop offset="0%" stop-color="#e0f2fe" stop-opacity="0.95"/>
+      <stop offset="65%" stop-color="#38bdf8" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="52" r="44" fill="url(#sodaGlow)"/>
+  <!-- Fizzy Soda Bubbles -->
+  <circle cx="22" cy="30" r="4" fill="#ffffff" opacity="0.85"/>
+  <circle cx="78" cy="26" r="5" fill="#ffffff" opacity="0.85"/>
+  <circle cx="82" cy="64" r="4" fill="#bae6fd" opacity="0.8"/>
+  <!-- Translucent Soda Jelly Body -->
+  <path d="M24,74 Q22,38 50,36 Q78,38 76,74 Q66,82 58,76 Q50,84 42,76 Q34,82 24,74 Z" fill="#38bdf8" fill-opacity="0.85" stroke="#0284c7" stroke-width="2.5"/>
+  <path d="M30,70 Q29,43 50,41 Q71,43 70,70 Z" fill="#7dd3fc" fill-opacity="0.7"/>
+  <!-- Vanilla Ice Cream Scoop & Cherry on Head -->
+  <path d="M34,37 Q50,18 66,37 Q58,41 50,39 Q42,41 34,37 Z" fill="#fffbeb" stroke="#fcd34d" stroke-width="2"/>
+  <circle cx="56" cy="24" r="5" fill="#f43f5e" stroke="#9f1239" stroke-width="1.5"/>
+  <!-- Colorful Star Konpeito Inside Jelly -->
+  <circle cx="36" cy="64" r="3" fill="#fde047"/>
+  <circle cx="64" cy="62" r="3" fill="#f472b6"/>
+  <!-- Sparkling Eyes -->
+  <circle cx="41" cy="53" r="4" fill="#0c4a6e"/>
+  <circle cx="42.3" cy="51.5" r="1.5" fill="#ffffff"/>
+  <circle cx="59" cy="53" r="4" fill="#0c4a6e"/>
+  <circle cx="60.3" cy="51.5" r="1.5" fill="#ffffff"/>
+  <path d="M46,59 Q50,63 54,59" fill="none" stroke="#0c4a6e" stroke-width="2" stroke-linecap="round"/>
+</svg>

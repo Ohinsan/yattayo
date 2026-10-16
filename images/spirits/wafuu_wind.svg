@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="tenguGlow" cx="50%" cy="52%" r="48%">
+      <stop offset="0%" stop-color="#bbf7d0" stop-opacity="0.9"/>
+      <stop offset="65%" stop-color="#10b981" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#047857" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="52" r="44" fill="url(#tenguGlow)"/>
+  <!-- White Tengu Wings -->
+  <path d="M26,56 Q8,40 14,26 Q26,34 32,48 Z" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <path d="M74,56 Q92,40 86,26 Q74,34 68,48 Z" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+  <!-- Yamabushi Outfit Body -->
+  <path d="M32,56 L68,56 L72,82 L28,82 Z" fill="#065f46" stroke="#022c22" stroke-width="2"/>
+  <circle cx="42" cy="64" r="4" fill="#fef08a"/>
+  <circle cx="58" cy="64" r="4" fill="#fef08a"/>
+  <!-- Cute Chibi Tengu Head -->
+  <circle cx="50" cy="42" r="19" fill="#fca5a5" stroke="#991b1b" stroke-width="2"/>
+  <!-- Tokin Hat on Forehead -->
+  <polygon points="44,23 56,23 54,14 46,14" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
+  <!-- White Fluffy Hair -->
+  <path d="M30,36 Q26,24 38,24 M70,36 Q74,24 62,24" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+  <!-- Eyes & Proud Eyebrows -->
+  <path d="M36,35 L45,38 M64,35 L55,38" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="41" cy="42" r="3.5" fill="#1e293b"/>
+  <circle cx="42" cy="40.8" r="1.2" fill="#ffffff"/>
+  <circle cx="59" cy="42" r="3.5" fill="#1e293b"/>
+  <circle cx="60" cy="40.8" r="1.2" fill="#ffffff"/>
+  <!-- cute round nose -->
+  <ellipse cx="50" cy="46" rx="4.5" ry="3.5" fill="#ef4444" stroke="#991b1b" stroke-width="1.5"/>
+  <!-- Leaf Fan (Ha-uchiwa) in Hand -->
+  <circle cx="77" cy="64" r="10" fill="#22c55e" stroke="#14532d" stroke-width="2"/>
+  <line x1="70" y1="71" x2="82" y2="59" stroke="#fef08a" stroke-width="2"/>
+</svg>

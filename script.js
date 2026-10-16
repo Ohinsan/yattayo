@@ -1,8 +1,8 @@
 // ==========================================================================
-// 🐉 家事分担くん (v2.9.0) - メイン・エントリーポイント
+// 🐉 家事分担くん (v3.0.0) - メイン・エントリーポイント
 // ==========================================================================
 
-const APP_VERSION = '2.9.0';
+const APP_VERSION = '3.0.0';
 let tempSettingsLayout = '2ldk';
 let tempSettingsFloors = 1;
 let tempSettingsEnvTheme = null;
@@ -12,6 +12,11 @@ let tempSettingsEnvTheme = null;
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
     const hasData = loadFromLocalStorage();
+
+    // 🏛️ Task 4: 既存の殿堂入りデータの自動修復マイグレーション（卵・未定義レコードを守護精霊へ修復）
+    if (typeof migrateHallOfFameData === 'function') {
+        migrateHallOfFameData();
+    }
 
     if (hasData) {
         document.getElementById('setup-screen').classList.add('hidden');
@@ -264,6 +269,81 @@ function spawnExpOrbs(fromSource, onArrival) {
     }
 }
 
+/**
+ * ✨ まとめて奉納モード用：選択件数分のEXPオーブを1発ずつ連続射出する演出
+ */
+function spawnSingleBatchOrb(orbIndex, totalCount, onArrival) {
+    const petWrapper = document.getElementById('room-pet-wrapper');
+    if (!petWrapper) {
+        if (onArrival) onArrival();
+        return;
+    }
+
+    const roomEl = document.getElementById('tamagotchi-room-container');
+    const roomRect = roomEl ? roomEl.getBoundingClientRect() : {
+        left: window.innerWidth * 0.1,
+        top: window.innerHeight * 0.1,
+        width: window.innerWidth * 0.8,
+        height: window.innerHeight * 0.8
+    };
+
+    // 始点：画面下部の扇状アーチから左右に散らして射出
+    const spreadRatio = totalCount > 1 ? (orbIndex / (totalCount - 1)) - 0.5 : 0;
+    const startX = roomRect.left + roomRect.width * 0.5 + spreadRatio * Math.min(200, roomRect.width * 0.55);
+    const startY = roomRect.top + roomRect.height * 0.86;
+
+    // 終点：カジゴンの中心
+    const targetRect = petWrapper.getBoundingClientRect();
+    const targetX = targetRect.left + targetRect.width / 2;
+    const targetY = targetRect.top + targetRect.height / 2;
+
+    const orb = document.createElement('div');
+    orb.className = 'exp-orb batch-combo-orb';
+    document.body.appendChild(orb);
+
+    const duration = 480; // ms
+    const startTime = performance.now();
+
+    // 放物線のアーチ頂点（左右交互に美しい弧を描く）
+    const sideDir = (orbIndex % 2 === 0) ? 1 : -1;
+    const midX = (startX + targetX) / 2 + sideDir * (45 + (orbIndex % 4) * 18);
+    const midY = Math.min(startY, targetY) - 65 - (orbIndex % 3) * 25;
+
+    function animateSingleOrb(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        const t = progress;
+        const invT = 1 - t;
+        const curX = invT * invT * startX + 2 * invT * t * midX + t * t * targetX;
+        const curY = invT * invT * startY + 2 * invT * t * midY + t * t * targetY;
+
+        orb.style.left = `${curX}px`;
+        orb.style.top = `${curY}px`;
+
+        if (Math.random() < 0.7) {
+            const trail = document.createElement('div');
+            trail.className = 'exp-orb-trail';
+            trail.style.left = `${curX}px`;
+            trail.style.top = `${curY}px`;
+            document.body.appendChild(trail);
+            setTimeout(() => {
+                if (trail.parentNode) trail.parentNode.removeChild(trail);
+            }, 320);
+        }
+
+        if (progress < 1) {
+            requestAnimationFrame(animateSingleOrb);
+        } else {
+            if (orb.parentNode) orb.parentNode.removeChild(orb);
+            triggerCompanionJoy();
+            if (onArrival) onArrival();
+        }
+    }
+
+    requestAnimationFrame(animateSingleOrb);
+}
+
 function triggerCompanionJoy() {
     const petWrapper = document.getElementById('room-pet-wrapper');
     if (petWrapper) {
@@ -426,6 +506,9 @@ function openChoreSelectModal() {
     if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
     const modal = document.getElementById('chore-select-modal');
     if (modal) modal.classList.remove('hidden');
+    if (typeof updateBatchSubmitBar === 'function') {
+        updateBatchSubmitBar();
+    }
     renderQuickAddButtons();
 }
 
@@ -487,7 +570,16 @@ function closeBountyModal() {
 }
 
 function openSoundModal() {
-    if (typeof SoundEngine !== 'undefined') SoundEngine.playSE('click');
+    if (typeof SoundEngine !== 'undefined') {
+        SoundEngine.resume();
+        SoundEngine.playSE('click');
+        const sliderBgm = document.getElementById('bgmVolumeSlider');
+        const sliderSe = document.getElementById('seVolumeSlider');
+        const trackSelect = document.getElementById('bgmTrackSelect');
+        if (sliderBgm) sliderBgm.value = Math.round(SoundEngine.bgmVol * 100);
+        if (sliderSe) sliderSe.value = Math.round(SoundEngine.seVol * 100);
+        if (trackSelect && SoundEngine.bgmTrack) trackSelect.value = SoundEngine.bgmTrack;
+    }
     const modal = document.getElementById('sound-modal');
     if (modal) modal.classList.remove('hidden');
 }

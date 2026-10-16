@@ -3,6 +3,17 @@
 // ==========================================================================
 function getExpandedCompanionLines(context) {
     const { lv, stage, now, totalDone, comboCount } = context;
+
+    // 🥚 Task 3: 卵ステージ（Lv.1〜2 / STAGE: EGG）は人間の言葉を通さず状況描写・擬音のみ返す
+    if (stage === 'egg' || (typeof lv === 'number' && lv <= 2)) {
+        return [
+            '（コトン…と中から音がした）',
+            '（ほんのり温かい気配がする…）',
+            '（ピキッ…！殻がわずかに揺れた）',
+            '（静かに家事のパワーを吸収しているようだ…）'
+        ];
+    }
+
     const hour = now.getHours();
     const day = now.getDay(); // 0:Sun, 1:Mon, ..., 6:Sat
     const month = now.getMonth() + 1;
@@ -62,10 +73,7 @@ function getExpandedCompanionLines(context) {
     }
 
     // --- 🥚 成長段階別セリフ ---
-    if (stage === 'egg') {
-        lines.push('（卵はかすかに温かい…家事の気配を感じて嬉しそうに揺れている！）');
-        lines.push('（コトコト…中から小さな足音が聞こえる気がする！）');
-    } else if (stage === 'baby') {
+    if (stage === 'baby') {
         lines.push('「ピピピッ！総監督、なでてくれてありがとう！抱っこして〜！」');
         lines.push('「もっといっぱい家事を覚えて、かっこいい守護精霊になりたいな！」');
     } else if (stage === 'teen') {

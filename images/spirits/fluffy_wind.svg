@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="windGlow" cx="50%" cy="50%" r="48%">
+      <stop offset="0%" stop-color="#d1fae5" stop-opacity="0.9"/>
+      <stop offset="65%" stop-color="#34d399" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#059669" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="50" cy="52" r="44" fill="url(#windGlow)"/>
+  <!-- Fluffy Wings -->
+  <ellipse cx="22" cy="56" rx="12" ry="20" transform="rotate(-18 22 56)" fill="#a7f3d0" stroke="#059669" stroke-width="2"/>
+  <ellipse cx="78" cy="56" rx="12" ry="20" transform="rotate(18 78 56)" fill="#a7f3d0" stroke="#059669" stroke-width="2"/>
+  <!-- Round Owl Body -->
+  <ellipse cx="50" cy="56" rx="25" ry="27" fill="#ecfdf5" stroke="#059669" stroke-width="2.5"/>
+  <!-- Belly Feather Pattern -->
+  <ellipse cx="50" cy="63" rx="17" ry="17" fill="#ffffff"/>
+  <path d="M42,58 Q45,62 48,58 M52,58 Q55,62 58,58 M46,66 Q50,70 54,66" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round"/>
+  <!-- Ear Tufts -->
+  <polygon points="28,32 20,18 38,26" fill="#34d399" stroke="#047857" stroke-width="2"/>
+  <polygon points="72,32 80,18 62,26" fill="#34d399" stroke="#047857" stroke-width="2"/>
+  <!-- Big Owl Eyes -->
+  <circle cx="40" cy="42" r="9" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
+  <circle cx="60" cy="42" r="9" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
+  <circle cx="40" cy="42" r="5" fill="#064e3b"/>
+  <circle cx="41.5" cy="40.5" r="1.8" fill="#ffffff"/>
+  <circle cx="60" cy="42" r="5" fill="#064e3b"/>
+  <circle cx="61.5" cy="40.5" r="1.8" fill="#ffffff"/>
+  <!-- Beak -->
+  <polygon points="47,45 53,45 50,51" fill="#fbbf24" stroke="#b45309" stroke-width="1.5"/>
+  <!-- Talons -->
+  <ellipse cx="42" cy="83" rx="5" ry="3.5" fill="#fbbf24" stroke="#b45309" stroke-width="1.5"/>
+  <ellipse cx="58" cy="83" rx="5" ry="3.5" fill="#fbbf24" stroke="#b45309" stroke-width="1.5"/>
+</svg>

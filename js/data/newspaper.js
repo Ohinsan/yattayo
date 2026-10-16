@@ -23,10 +23,21 @@ function generateWeeklyNewsArticle(weeklyChores) {
         if (hour >= 5 && hour < 10) morningChoreCount++;
 
         const name = c.name || '';
-        if (name.includes('火') || name.includes('料理') || name.includes('ご飯') || name.includes('キッチン') || name.includes('コンロ')) fireCount++;
-        else if (name.includes('水') || name.includes('皿洗い') || name.includes('風呂') || name.includes('洗面') || name.includes('洗濯')) waterCount++;
-        else if (name.includes('風') || name.includes('換気') || name.includes('ゴミ') || name.includes('掃除機')) windCount++;
-        else earthCount++;
+        const stats = (typeof getChoreStats === 'function') ? getChoreStats(name) : null;
+        if (stats && (stats.isSetPack || stats.isFuzzy) && stats.attrBreakdown) {
+            if (stats.attrBreakdown.fire > 0) fireCount++;
+            if (stats.attrBreakdown.water > 0) waterCount++;
+            if (stats.attrBreakdown.wind > 0) windCount++;
+            if (stats.attrBreakdown.earth > 0) earthCount++;
+        } else if (name.includes('火') || name.includes('料理') || name.includes('ご飯') || name.includes('キッチン') || name.includes('コンロ') || name.includes('夕食')) {
+            fireCount++;
+        } else if (name.includes('水') || name.includes('皿洗い') || name.includes('風呂') || name.includes('洗面') || name.includes('洗濯') || name.includes('ランドリー')) {
+            waterCount++;
+        } else if (name.includes('風') || name.includes('換気') || name.includes('ゴミ') || name.includes('掃除機') || name.includes('朝のバタバタ')) {
+            windCount++;
+        } else {
+            earthCount++;
+        }
     });
 
     let topChoreName = "（まだ今週の記録はありません）";

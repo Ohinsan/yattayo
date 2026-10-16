@@ -1616,17 +1616,54 @@ select:focus {
     box-shadow: 2px 2px 0px #0d0d13;
 }
 
+.sound-track-select-row {
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
+.sound-track-select-label {
+    font-weight: bold;
+    color: var(--text-sub);
+    font-size: clamp(11px, 3vw, 13px);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+#bgmTrackSelect,
+.sound-track-select {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.35rem 0.6rem;
+    background: #0d0d13;
+    color: var(--accent);
+    border: 2px solid var(--border);
+    font-family: inherit;
+    font-size: clamp(11px, 2.8vw, 13px);
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .btn-sound-test {
     background: #252538;
     color: var(--text-main);
     border: 2px solid #0d0d13;
     box-shadow: 2px 2px 0px #0d0d13;
-    padding: 0.4rem 0.8rem;
+    padding: 0.4rem 0.65rem;
     font-family: inherit;
-    font-size: 12px;
+    font-size: clamp(10px, 2.8vw, 12px);
     font-weight: 700;
     cursor: pointer;
     transition: all 0.1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 .btn-sound-test:hover {
     transform: translate(-1px, -1px);
@@ -2128,14 +2165,14 @@ body.theme-earth .tamagotchi-room {
     border-color: #4f3b27;
 }
 
-/* 部屋の上部インテリア */
+/* 部屋の上部インテリア（背面・窓レイヤー z-index: 10） */
 .room-decor-top {
     position: relative;
     z-index: 10;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 1rem 1rem 0;
+    padding: 0.85rem 1rem 0;
 }
 .room-window {
     width: 60px;
@@ -2144,6 +2181,8 @@ body.theme-earth .tamagotchi-room {
     border: 3px solid #785a36;
     box-shadow: 2px 2px 0 #000;
     position: relative;
+    z-index: 10;
+    margin-top: 28px;
     overflow: hidden;
     border-radius: 2px;
 }
@@ -2188,6 +2227,8 @@ body.theme-earth .tamagotchi-room {
 
 /* 中央の相棒ステータスバッジ */
 .room-status-badge {
+    position: relative;
+    z-index: 45;
     background: rgba(22, 33, 19, 0.92);
     border: 2px solid #5a7d4d;
     border-radius: 20px;
@@ -2207,9 +2248,11 @@ body.theme-earth .tamagotchi-room {
     font-family: monospace;
 }
 
-/* ランプ */
+/* ランプ（背面・壁掛けレイヤー z-index: 10） */
 .room-lamp {
     position: relative;
+    z-index: 10;
+    margin-top: 22px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2244,13 +2287,13 @@ body.theme-earth .tamagotchi-room {
 
 /* 🏡 部屋の中央ステージ */
 .room-stage {
-    position: relative;
-    z-index: 10;
+    position: static;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0.6rem;
     flex: 1;
+    min-height: 420px;
 }
 
 /* 👈 👉 左右サイドのコンパクトボタン群 */
@@ -2259,13 +2302,13 @@ body.theme-earth .tamagotchi-room {
     z-index: 999;
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.5rem;
     pointer-events: auto;
     flex-shrink: 0;
 }
 .side-action-btn {
     width: 58px;
-    height: 62px;
+    height: 58px;
     background: rgba(18, 24, 20, 0.92);
     border: 2.5px solid #4a6741;
     border-radius: 12px;
@@ -2292,7 +2335,7 @@ body.theme-earth .tamagotchi-room {
     box-shadow: 0 0 0;
 }
 .side-btn-icon {
-    font-size: 22px;
+    font-size: 20px;
     line-height: 1;
 }
 .side-btn-label {
@@ -2301,6 +2344,7 @@ body.theme-earth .tamagotchi-room {
     margin-top: 3px;
     color: #f4ede2;
     letter-spacing: -0.5px;
+    white-space: nowrap;
 }
 .side-btn-badge {
     position: absolute;
@@ -2331,6 +2375,8 @@ body.theme-earth .tamagotchi-room {
 .side-karuta-btn .side-btn-label { color: #a78bfa; }
 .side-news-btn { border-color: #f59e0b; }
 .side-news-btn .side-btn-label { color: #fbbf24; }
+.side-snack-btn { border-color: #f97316; }
+.side-snack-btn .side-btn-label { color: #fdba74; }
 .side-sound-btn { border-color: #ec4899; }
 .side-sound-btn .side-btn-label { color: #f472b6; }
 
@@ -2347,21 +2393,26 @@ body.theme-earth .tamagotchi-room {
 .side-settings-btn { border-color: #94a3b8; }
 .side-settings-btn .side-btn-label { color: #cbd5e1; }
 
-/* 🐉 部屋の中央ペットエリア */
+/* 🐉 部屋の中央ペット＆家具配置レイヤーコンテナ（部屋全体の座標系に追従） */
 .room-center-pet-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 10;
-    max-width: calc(100% - 130px);
-    margin: 0 auto;
-    cursor: pointer;
-    min-height: 280px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    margin: 0;
+    pointer-events: none;
+    z-index: auto;
 }
+
+/* 💬 吹き出しセリフ（z-index: 40 / カジゴン頭上 top: 48%） */
 .speech-bubble-pet {
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    z-index: 40;
     background: #fdf6e2;
     color: #0d0d13;
     font-size: 11px;
@@ -2370,59 +2421,85 @@ body.theme-earth .tamagotchi-room {
     border-radius: 16px;
     border: 2px solid #0d0d13;
     box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-    margin-bottom: 0.5rem;
+    margin: 0;
     animation: petFloat 2.8s infinite ease-in-out;
+    width: max-content;
     max-width: 220px;
     text-align: center;
+    pointer-events: auto;
+    cursor: pointer;
 }
 @keyframes petFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
+    0%, 100% { transform: translate(-50%, -50%); }
+    50% { transform: translate(-50%, calc(-50% - 4px)); }
 }
 
+/* 🐉 カジゴン本体スプライト（キャラ＆置き家具レイヤー z-index: 30 / 木の床 left: 50%, top: 65%） */
 .pet-sprite-wrapper {
-    position: relative;
+    position: absolute;
+    left: 50%;
+    top: 65%;
+    transform: translate(-50%, -50%);
+    z-index: 30;
     width: 140px;
     height: 140px;
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: auto;
+    cursor: pointer;
     animation: petBreathe 2.4s infinite ease-in-out;
 }
 @keyframes petBreathe {
-    0%, 100% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-5px) scale(1.04, 0.97); }
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, calc(-50% - 5px)) scale(1.04, 0.97); }
 }
 
+.pet-spring-bounce {
+    animation: petSpringBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+@keyframes petSpringBounce {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    40% { transform: translate(-50%, calc(-50% - 14px)) scale(1.12, 0.92); }
+    70% { transform: translate(-50%, calc(-50% + 2px)) scale(0.96, 1.05); }
+}
+
+.orb-impact-flash {
+    filter: brightness(1.35) drop-shadow(0 0 14px rgba(255, 215, 0, 0.85));
+}
+
+/* 🛋️ 床面ラグレイヤー（z-index: 20 / 足元 left: 50%, top: 75%, pointer-events: none） */
 .room-rug {
-    width: 200px;
-    height: 64px;
+    position: absolute;
+    left: 50%;
+    top: 75%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    pointer-events: none;
+    width: 210px;
+    height: 68px;
     background-image: url('images/furniture/rug.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     border: none;
-    margin-top: -30px;
+    margin: 0;
     filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.room-rug:hover {
-    transform: scale(1.05);
 }
 
-/* 部屋の床家具 */
+/* 🪴🍲📚 部屋の床置き家具（z-index: 30 / 左右の壁際 left: 20% または right: 20%, top: 62%〜66%） */
 .room-floor-furniture {
     position: absolute;
-    bottom: 12px;
-    width: 92%;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
-    z-index: 15;
+    z-index: 30;
 }
 .furniture-item {
+    position: absolute;
+    z-index: 30;
     width: 58px;
     height: 58px;
     object-fit: contain;
@@ -2432,21 +2509,42 @@ body.theme-earth .tamagotchi-room {
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
 }
-.furniture-item:hover {
-    transform: scale(1.2) translateY(-6px);
+.item-plant {
+    left: 20%;
+    top: 62%;
+    transform: translate(-50%, -50%);
+}
+.item-plant:hover {
+    transform: translate(-50%, calc(-50% - 6px)) scale(1.2);
+}
+.item-shelf {
+    right: 20%;
+    top: 62%;
+    transform: translate(50%, -50%);
+}
+.item-shelf:hover {
+    transform: translate(50%, calc(-50% - 6px)) scale(1.2);
 }
 .item-stew {
+    right: 20%;
+    top: 66%;
+    margin-top: 26px;
+    margin-right: 12px;
+    transform: translate(50%, -50%);
     animation: stewBoil 2.5s infinite ease-in-out;
 }
+.item-stew:hover {
+    transform: translate(50%, calc(-50% - 6px)) scale(1.2);
+}
 @keyframes stewBoil {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-4px) rotate(2deg); }
+    0%, 100% { transform: translate(50%, -50%) rotate(0deg); }
+    50% { transform: translate(50%, calc(-50% - 4px)) rotate(2deg); }
 }
 
-/* 🔻 部屋の最下部：折りたたみ式の「最近やったこと」引き出し */
+/* 🔻 部屋の最下部：折りたたみ式の「最近やったこと（CHORE LOG）」引き出し */
 .room-bottom-drawer {
     position: relative;
-    z-index: 20;
+    z-index: 50;
     background: rgba(18, 26, 16, 0.96);
     border-top: 3px solid #2b4025;
     padding: 0.6rem 0.8rem;
@@ -2458,12 +2556,15 @@ body.theme-earth .tamagotchi-room {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 8px;
     cursor: pointer;
     list-style: none;
     user-select: none;
 }
+.chore-log-summary::marker,
 .chore-log-summary::-webkit-details-marker {
     display: none;
+    content: "";
 }
 .chore-log-summary-title {
     font-size: 12px;
@@ -2471,7 +2572,22 @@ body.theme-earth .tamagotchi-room {
     color: #9bbc0f;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 8px;
+    line-height: 1.4;
+}
+.chore-log-summary-title .chore-log-icon,
+.chore-log-summary-title > span:first-child {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-width: 18px;
+    line-height: 1;
+}
+.chore-log-summary-title .chore-log-text,
+.chore-log-summary-title > span:last-child {
+    display: inline-block;
+    line-height: 1.35;
 }
 .chore-log-toggle-icon {
     font-size: 10px;
@@ -2480,6 +2596,7 @@ body.theme-earth .tamagotchi-room {
     padding: 0.2rem 0.5rem;
     border-radius: 10px;
     border: 1px solid #3b5033;
+    flex-shrink: 0;
 }
 .chore-log-details[open] .chore-log-toggle-icon {
     content: "▼ 閉じる";
@@ -2712,9 +2829,10 @@ body.env-gameboy .tamagotchi-room {
 
 .sleep-bubble {
     position: absolute;
-    top: -24px;
-    right: 4px;
-    background: rgba(30, 27, 46, 0.9);
+    top: -26px;
+    right: -4px;
+    z-index: 40;
+    background: rgba(30, 27, 46, 0.92);
     border: 1px solid #a78bfa;
     color: #c4b5fd;
     font-size: 11px;
@@ -2724,6 +2842,28 @@ body.env-gameboy .tamagotchi-room {
     pointer-events: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     animation: sleepBubbleFloat 2.5s ease-in-out infinite;
+    white-space: nowrap;
+}
+
+.companion-gift-bubble {
+    position: absolute;
+    left: 60%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 40;
+    pointer-events: auto;
+    cursor: pointer;
+    font-size: 22px;
+    background: rgba(30, 27, 46, 0.92);
+    border: 2px solid #ffd700;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    animation: sleepBubbleFloat 2.2s ease-in-out infinite;
 }
 
 @keyframes sleepBubbleFloat {
@@ -2759,9 +2899,11 @@ body.env-gameboy .tamagotchi-room {
 
 .room-visitor-slot {
     position: absolute;
-    left: 14px;
-    bottom: 24px;
-    z-index: 12;
+    left: 26%;
+    top: 68%;
+    transform: translate(-50%, -50%) scale(0.85);
+    z-index: 30;
+    pointer-events: auto;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -2770,7 +2912,7 @@ body.env-gameboy .tamagotchi-room {
 }
 
 .room-visitor-slot:hover {
-    transform: scale(1.1) translateY(-4px);
+    transform: translate(-50%, calc(-50% - 4px)) scale(0.92);
 }
 
 .visitor-avatar-img {
@@ -2837,3 +2979,845 @@ body.env-gameboy .tamagotchi-room {
     background: linear-gradient(135deg, rgba(69, 26, 3, 0.5) 0%, rgba(30, 27, 46, 0.85) 100%);
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
 }
+
+/* ==========================================================================
+   ✨ Phase 2 (v2.9.5): まとめて奉納モード・セット家事パック・ざっくり頑張ったボタン
+   ========================================================================== */
+
+/* モード切替トグルバー（⚡1タップ即記録 ⇔ ☑️まとめて選択） */
+.chore-mode-toggle-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+    background: #12121c;
+    border: 2px solid #2e2e42;
+    border-radius: 12px;
+    padding: 0.3rem;
+    margin: 0.4rem 0 0.5rem 0;
+}
+
+.chore-mode-btn {
+    background: transparent;
+    color: #9ca3af;
+    border: 1.5px solid transparent;
+    border-radius: 9px;
+    padding: 0.55rem 0.4rem;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.chore-mode-btn:hover {
+    color: #f3f4f6;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#mode-btn-instant.chore-mode-btn.active {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #0d0d13;
+    border-color: #fef3c7;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+}
+
+#mode-btn-batch.chore-mode-btn.active {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    border-color: #a7f3d0;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.45);
+}
+
+/* 特別セクションヘッダー */
+.special-section-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.55rem;
+}
+
+.special-section-sub {
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.35;
+}
+
+/* 📦 Task 2: セット家事（ワンタップ・パック）4種 */
+.set-pack-section {
+    background: linear-gradient(145deg, rgba(45, 32, 18, 0.92) 0%, rgba(24, 22, 34, 0.95) 100%) !important;
+    border: 2px solid #f59e0b !important;
+    border-radius: 12px !important;
+    padding: 0.75rem !important;
+    margin-bottom: 0.85rem !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);
+}
+
+.set-pack-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.set-pack-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    text-align: left !important;
+    width: 100% !important;
+    padding: 0.6rem 0.75rem !important;
+    border-radius: 10px !important;
+    background: rgba(20, 20, 30, 0.9) !important;
+    border: 1.5px solid rgba(251, 191, 36, 0.45) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease !important;
+}
+
+.set-pack-card:hover {
+    transform: translateY(-1px);
+    border-color: #fbbf24 !important;
+}
+
+.set-pack-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.set-pack-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #fef3c7;
+}
+
+.set-pack-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.set-pack-exp-badge {
+    background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+    border: 1px solid #fde68a;
+}
+
+.set-pack-desc {
+    font-size: 11px;
+    color: #d1d5db;
+    margin-top: 0.2rem;
+    line-height: 1.35;
+}
+
+.set-pack-attrs {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #fbbf24;
+    margin-top: 0.22rem;
+}
+
+/* 🌟 Task 3: ざっくり頑張ったボタン（小・中・大） */
+.fuzzy-effort-section {
+    background: linear-gradient(145deg, rgba(16, 42, 37, 0.92) 0%, rgba(22, 24, 36, 0.95) 100%) !important;
+    border: 2px solid #10b981 !important;
+    border-radius: 12px !important;
+    padding: 0.75rem !important;
+    margin-bottom: 0.85rem !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
+}
+
+.fuzzy-effort-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.48rem;
+}
+
+.fuzzy-effort-btn {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    padding: 0.58rem 0.75rem !important;
+    border-radius: 10px !important;
+    text-align: left !important;
+    background: rgba(18, 24, 32, 0.92) !important;
+    border: 1.5px solid rgba(52, 211, 153, 0.45) !important;
+}
+
+.fuzzy-effort-btn.fuzzy-fuzzy_small {
+    border-color: rgba(52, 211, 153, 0.55) !important;
+}
+
+.fuzzy-effort-btn.fuzzy-fuzzy_medium {
+    border-color: rgba(56, 189, 248, 0.65) !important;
+    background: linear-gradient(135deg, rgba(15, 35, 52, 0.92) 0%, rgba(20, 24, 38, 0.95) 100%) !important;
+}
+
+.fuzzy-effort-btn.fuzzy-fuzzy_large {
+    border-color: #fbbf24 !important;
+    background: linear-gradient(135deg, rgba(58, 28, 16, 0.94) 0%, rgba(36, 20, 42, 0.95) 100%) !important;
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
+}
+
+.fuzzy-btn-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.fuzzy-btn-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.fuzzy-btn-exp {
+    background: rgba(16, 185, 129, 0.25);
+    border: 1px solid #34d399;
+    color: #a7f3d0;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.fuzzy-effort-btn.fuzzy-fuzzy_large .fuzzy-btn-exp {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border-color: #fef3c7;
+    color: #0d0d13;
+}
+
+.fuzzy-btn-sub {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.22rem;
+    font-size: 10.5px;
+}
+
+.fuzzy-attr-badge {
+    color: #93c5fd;
+    font-weight: 600;
+}
+
+.fuzzy-gear-badge {
+    color: #fde047;
+    font-weight: 800;
+    background: rgba(234, 179, 8, 0.18);
+    border: 1px solid rgba(250, 204, 21, 0.5);
+    padding: 1px 6px;
+    border-radius: 6px;
+}
+
+/* ☑️ まとめて選択モード時の選択ハイライト＆チェック表示 */
+.quick-add-btn.batch-selected {
+    border: 2px solid #10b981 !important;
+    background: linear-gradient(135deg, rgba(6, 78, 59, 0.92) 0%, rgba(4, 120, 87, 0.78) 100%) !important;
+    color: #ecfdf5 !important;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.55) !important;
+    transform: scale(1.01);
+}
+
+.batch-check-indicator {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #d1d5db;
+}
+
+.batch-check-indicator.checked {
+    background: #10b981;
+    color: #052e16;
+    border: 1px solid #a7f3d0;
+}
+
+.batch-check-inline {
+    font-weight: 800;
+}
+
+/* ☑️ モーダル下部固定「✨ まとめて奉納する！」バー */
+.batch-submit-sticky-bar {
+    position: sticky;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    background: rgba(15, 17, 26, 0.97);
+    border-top: 2px solid #10b981;
+    border-radius: 12px;
+    padding: 0.65rem 0.6rem;
+    margin-top: 0.9rem;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.75);
+}
+
+.batch-submit-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.btn-batch-submit {
+    flex: 1;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    border: 2px solid #a7f3d0;
+    border-radius: 10px;
+    padding: 0.75rem 0.6rem;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.btn-batch-submit:hover:not(.disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.65);
+}
+
+.btn-batch-submit.disabled,
+.btn-batch-submit:disabled {
+    background: #272736;
+    color: #6b7280;
+    border-color: #3f3f56;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.btn-batch-clear {
+    background: #2a1f2d;
+    color: #f87171;
+    border: 1.5px solid #ef4444;
+    border-radius: 10px;
+    padding: 0.72rem 0.65rem;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* 連続コンボオーブの輝き強化 */
+.exp-orb.batch-combo-orb {
+    width: 16px;
+    height: 16px;
+    box-shadow: 0 0 14px #ffd700, 0 0 26px #10b981;
+}
+
+/* ==========================================================================
+   🍖 Phase 3 (v3.0.0): おやつ拡充・新系統オーラ・2階建てショップUI
+   ========================================================================== */
+
+/* おやつモーダルステータス＆カードリスト */
+.snack-modal-status-box {
+    background: linear-gradient(135deg, rgba(30, 27, 38, 0.96) 0%, rgba(15, 23, 42, 0.96) 100%);
+    border: 1.5px solid #f43f5e;
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.snack-buff-active-pill {
+    background: linear-gradient(135deg, #f43f5e, #fb923c);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 999px;
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.55);
+    animation: pulseBuffPill 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseBuffPill {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.snack-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.snack-item-card {
+    background: #171722;
+    border: 2px solid #334155;
+    border-radius: 10px;
+    padding: 0.55rem 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.snack-item-card.is-favorite {
+    background: linear-gradient(135deg, rgba(49, 16, 36, 0.92) 0%, rgba(24, 24, 38, 0.96) 100%);
+    box-shadow: 0 0 14px rgba(244, 63, 94, 0.35);
+}
+
+.snack-card-left {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.snack-card-icon {
+    font-size: 26px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.snack-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.snack-card-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.snack-card-name {
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.snack-stock-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 999px;
+}
+
+.snack-stock-pill.has-stock {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.45);
+}
+
+.snack-stock-pill.no-stock {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+}
+
+.snack-card-route {
+    font-size: 10.5px;
+    color: #cbd5e1;
+    margin-top: 2px;
+}
+
+.snack-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 3px;
+}
+
+.snack-fav-badge {
+    font-size: 10px;
+    font-weight: 800;
+    color: #ffe4e6;
+    background: linear-gradient(90deg, #e11d48, #db2777);
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+.snack-route-badge {
+    font-size: 10px;
+    font-weight: 800;
+    color: #fef08a;
+    background: rgba(234, 179, 8, 0.25);
+    border: 1px solid #facc15;
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+.snack-feed-action-btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.45rem 0.65rem;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+
+.snack-feed-action-btn.disabled,
+.snack-feed-action-btn:disabled {
+    background: #272736;
+    color: #64748b;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* 💖 大好物おやつ専用・特別ハートバースト演出 */
+.favorite-heart-particle {
+    position: fixed;
+    z-index: 9999;
+    font-size: 22px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    animation: favHeartBurst 1.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes favHeartBurst {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.4);
+    }
+    55% {
+        opacity: 1;
+        transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, -40px))) scale(1.25);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, -75px))) scale(0.8);
+    }
+}
+
+.favorite-buff-popup {
+    position: fixed;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #e11d48 0%, #f59e0b 100%);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 16px rgba(225, 29, 72, 0.65);
+    white-space: nowrap;
+    pointer-events: none;
+    animation: favBannerFloat 2.1s ease-out forwards;
+}
+
+@keyframes favBannerFloat {
+    0% { opacity: 0; transform: translate(-50%, 0) scale(0.7); }
+    18% { opacity: 1; transform: translate(-50%, -14px) scale(1.05); }
+    80% { opacity: 1; transform: translate(-50%, -28px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -42px) scale(0.92); }
+}
+
+/* ベビー・青年期の進化系統オーラ＆ティント */
+.companion-route-aura-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    z-index: 35;
+    background: rgba(15, 23, 42, 0.88);
+    border: 1.5px solid #fbbf24;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.route-tint-fluffy {
+    filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.7)) brightness(1.06) !important;
+}
+.route-tint-wafuu {
+    filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.7)) contrast(1.05) !important;
+}
+.route-tint-sweets {
+    filter: drop-shadow(0 0 10px rgba(251, 113, 133, 0.75)) saturate(1.25) !important;
+}
+
+/* 🔨🐪 2階建てショップ（気まぐれおうち工房 ＆ 週末行商人） */
+.workshop-two-tabs {
+    display: flex;
+    gap: 0.45rem;
+    margin-bottom: 0.75rem;
+}
+
+.workshop-tab-btn {
+    flex: 1;
+    padding: 0.55rem 0.5rem;
+    border-radius: 8px;
+    border: 2px solid #334155;
+    background: #161622;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.workshop-tab-btn.active {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-color: #38bdf8;
+    color: #f8fafc;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+}
+
+.workshop-tab-btn.merchant-tab.active {
+    background: linear-gradient(135deg, #451a03 0%, #1c1917 100%);
+    border-color: #f59e0b;
+    color: #fde047;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.merchant-open-dot {
+    background: #10b981;
+    color: #052e16;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 1px 5px;
+    border-radius: 999px;
+}
+
+.daily-pickup-section {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 27, 46, 0.95) 100%);
+    border: 2px solid #38bdf8;
+    border-radius: 10px;
+    padding: 0.65rem;
+}
+
+.daily-pickup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 0.55rem;
+}
+
+.daily-sync-pill {
+    font-size: 10px;
+    font-weight: 800;
+    color: #bae6fd;
+    background: rgba(14, 165, 233, 0.2);
+    border: 1px solid #38bdf8;
+    padding: 2px 7px;
+    border-radius: 999px;
+}
+
+.daily-pickup-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.shop-pickup-card,
+.merchant-offer-card {
+    background: #181824;
+    border: 1.5px solid #334155;
+    border-radius: 8px;
+    padding: 0.55rem 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+}
+
+.shop-pickup-card.can-afford {
+    border-color: #38bdf8;
+}
+
+.merchant-offer-card.can-afford {
+    border-color: #f59e0b;
+    background: #211915;
+}
+
+.shop-pickup-card.is-sold-out,
+.merchant-offer-card.is-owned {
+    opacity: 0.72;
+    border-color: #10b981;
+}
+
+.shop-pickup-left {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.shop-pickup-icon {
+    font-size: 26px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.shop-pickup-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.shop-pickup-cat {
+    font-size: 10px;
+    font-weight: 800;
+    color: #38bdf8;
+}
+
+.shop-pickup-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.shop-pickup-desc {
+    font-size: 10.5px;
+    color: #94a3b8;
+    line-height: 1.35;
+}
+
+.shop-pickup-cost {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #fbbf24;
+    margin-top: 2px;
+}
+
+.shop-buy-btn {
+    padding: 0.45rem 0.7rem;
+    border-radius: 7px;
+    font-size: 11.5px;
+    font-weight: 800;
+    border: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.shop-buy-btn.ready {
+    background: linear-gradient(135deg, #38bdf8, #0284c7);
+    color: #fff;
+    cursor: pointer;
+}
+
+.shop-buy-btn.merchant-btn.ready {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff;
+    cursor: pointer;
+}
+
+.shop-buy-btn.sold {
+    background: #064e3b;
+    color: #34d399;
+    cursor: default;
+}
+
+.shop-buy-btn.locked {
+    background: #272736;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+.merchant-status-banner {
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    border: 2px dashed #f59e0b;
+    background: #221811;
+}
+
+.merchant-offer-badge {
+    font-size: 10px;
+    font-weight: 800;
+    background: rgba(245, 158, 11, 0.22);
+    color: #fde047;
+    border: 1px solid #f59e0b;
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+/* 🌟 お部屋内の特別家具・アニメーション家具レイヤー */
+.room-special-decor-layer {
+    position: absolute;
+    left: 16%;
+    top: 74%;
+    z-index: 28;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    pointer-events: none;
+}
+
+.special-decor-item {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1.5px solid rgba(251, 191, 36, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.55);
+    transition: transform 0.2s ease;
+}
+
+.special-decor-item:hover {
+    transform: scale(1.15);
+}
+
+.special-decor-icon {
+    font-size: 22px;
+}
+
+.decor-anim-fx {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.decor-anim-fx.stars-fx {
+    animation: decorStarsTwinkle 1.8s infinite ease-in-out;
+}
+
+.decor-anim-fx.water-fx {
+    animation: decorWaterSplash 1.4s infinite ease-in-out;
+}
+
+@keyframes decorStarsTwinkle {
+    0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0) scale(0.9); }
+    50% { opacity: 1; transform: translateX(-50%) translateY(-5px) scale(1.15); }
+}
+
+@keyframes decorWaterSplash {
+    0%, 100% { opacity: 0.5; transform: translateX(-50%) translateY(0); }
+    50% { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+}
+
+
